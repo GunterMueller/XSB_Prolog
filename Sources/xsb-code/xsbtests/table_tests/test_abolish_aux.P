@@ -1,0 +1,85 @@
+:- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
+
+% this test makes sure we properly abolish auxiliary predicates, like
+% tabled_call/1 as used in not_exists.
+% also makes sure that table-indexed predicates are throwing a meaningful error message.
+
+:- import get_calls/1 from tables.
+
+:- table p/1.
+p(a).
+
+:- table pi/1 as incremental.
+pi(a).
+
+% first test abolish_table_subgoal
+test:-
+     abolish_all_tables,
+     not_exists(p(c)),
+     not_exists(pi(c)),
+     write_tables(first,p(c)),
+     write_tables(first,pi(c)),
+     fail.
+test:-
+     abolish_table_subgoal(p(c)),
+     abolish_table_subgoal(pi(c)),
+     write_tables(second,p(c)),
+     write_tables(second,pi(c)),
+     fail.
+% next test abolish_table_subgoal*s*
+test:-
+     abolish_all_tables,
+     not_exists(p(c)),
+     not_exists(pi(c)),
+     write_tables(third,p(c)),
+     write_tables(third,pi(c)),
+     fail.
+test:-
+     abolish_table_subgoals(p(c)),
+     abolish_table_subgoals(pi(c)),
+     write_tables(fourth,p(c)),
+     write_tables(fourth,pi(c)),
+     fail.
+test:-
+     abolish_all_tables,
+     not_exists(p(c)),
+     not_exists(pi(c)),
+     write_tables(fifth,p(c)),
+     write_tables(fifth,pi(c)),
+     fail.
+% want to test that we remove only those aux's pertaining to the predicate.
+test:-
+     abolish_table_pred(p(c)),
+%     abolish_table_subgoals(pi(c)),
+     write_tables(sixth,p(c)),
+     write_tables(sixth,pi(c)),
+     fail.
+test:- 
+    p_ind(b,X,Y),writeln(p_ind(b,X,Y)),fail.
+test:- 
+    catch(abolish_table_subgoal(p_ind(b,_X,_Y)),E,
+	  (xsb_error_get_tag(E,M),writeln(caught(M)))),
+    fail.
+test.
+
+write_tables(Label,Call):-
+    tables:auxiliary_table_subgoal(Call,NewCall),
+    get_calls(NewCall),
+    writeln(found(Label,NewCall)),
+    fail.
+write_tables(_Label,_Call).
+
+
+:- table p_ind/3 as index([1+3,3+2,0]).
+
+p_ind(X,Y,Z) :- r(X,Y),s(Y,Z), writeln(p_ind(X,Y,Z)).
+
+s(1,u).
+s(1,v).
+s(3,w).
+s(4,x).
+
+r(a,1).
+r(a,2).
+r(b,3).
+r(b,4).

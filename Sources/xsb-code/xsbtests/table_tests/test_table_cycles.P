@@ -1,0 +1,77 @@
+:- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
+:- import new_trie/1 , trie_intern/2, trie_interned/4, trie_interned/2,  trie_unintern_nr/2,
+	  trie_unintern/2, delete_trie/1, bulk_trie_intern/2,trie_retractall/2  from intern.
+
+init:- 
+	set_prolog_flag(cyclic_check_size,15),
+	set_prolog_flag(max_table_subgoal_size,30).
+
+:- table p/1.
+p(_).
+
+write_cycle_error(E):- 
+       xsb_error_get_message(E,M),
+       make_mt_consistent(M,M1),
+       writeln(M1).
+
+make_mt_consistent(M,M1):- 
+	atom_codes(M,Mlist),
+	(Mlist = [91,116,104,32,48,93,32,32|Rest] ->  atom_codes(M1,Rest) ; M = M1).
+
+
+
+/*
+test:- catch(t_subgoal_cycle,E,(xsb_error_get_message(E,M),writeln(M))),fail.
+test:- catch(t_ans_cycle,E,(xsb_error_get_message(E,M),writeln(M))),fail.
+test:- catch(t_ans_list_cycle,E,(xsb_error_get_message(E,M),writeln(M))),fail.
+*/
+test:- catch(t_subgoal_cycle,E,write_cycle_error(E)),fail.
+test:- catch(t_ans_cycle,E,write_cycle_error(E)),fail.
+test:- catch(t_ans_list_cycle,E,write_cycle_error(E)),fail.
+test:- test_intern_trie_cycle,fail.
+%test:- catch(t2,E,(xsb_error_get_message(E,M),writeln(M))),fail.
+test.
+
+%-------------------
+
+t_subgoal_cycle:- X = p(X), call(X).
+
+%-------------------
+
+t_ans_cycle :- p_answercycle(_X).
+
+:- table p_answercycle/1.
+p_answercycle(X):- X = f(X).
+
+%-------------------
+
+t_ans_list_cycle:- p_answerlistcycle(_X).
+
+:- table p_answerlistcycle/1.
+p_answerlistcycle(X):- X = [X].
+
+%-------------------
+
+?- new_trie(Trie),assert(cycle_trie(Trie)).
+
+test_intern_trie_cycle:- cycle_trie(Trie),
+       X = f(X),
+%       catch(trie_intern(X,Trie),E,(xsb_error_get_message(E,M),writeln(M))).
+       catch(trie_intern(X,Trie),E,write_cycle_error(E)).
+
+%--------------------------------------------
+
+t2:- init,makelist(100,X),p(X).
+
+makelist(0,[]):-!.
+makelist(N,[N|R]):-	
+   N1 is N - 1,
+   makelist(N1,R).
+
+
+:- table t_i/1 as intern.
+t_i(X):- p(X,X).
+
+p(a,a).
+
+

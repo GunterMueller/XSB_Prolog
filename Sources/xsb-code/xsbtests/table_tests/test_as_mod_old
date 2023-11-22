@@ -1,0 +1,6 @@
+mp(a,b,1)
+mp(a,d,2)
+mp(a,e,2)
+mp(b,d,1)
+mp(b,e,1)
+mp(d,e,1)

@@ -1,0 +1,14 @@
+#!/bin/sh
+# Make sure this file is > 27 characters! A BUG in MacOS will otherwise
+# prevent this from working as an app!!
+
+# XSB_BASE_FOLDER is replaced by sed in XSB-post-makeself-config.sh
+# with the installation directory path
+"XSB_BASE_FOLDER/bin/xsb"
+
+# XSB_BASE_FOLDER is replaced by sed in ergoAI_config.sh
+# with the installation directory path
+osascript -e "tell application \"Terminal\" to do script \"'XSB_BASE_FOLDER/bin/xsb'\""
+
+# Use osascript: the below does not work for running in terminal
+#XSB_BASE_FOLDER/bin/xsb

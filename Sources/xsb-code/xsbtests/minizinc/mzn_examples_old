@@ -1,0 +1,41 @@
+
+
+
+
+
+
+
+
+
+
+au(2,3,1,2,3,2,1)
+au(3,2,1,3,2,3,1)
+au(3,2,1,3,2,3,2)
+au(3,2,1,3,2,3,3)
+au_colors(W. Australia = blue,N. Territory = yellow,S. Australia = red,Queensland = blue,New S. Wales = yellow,Victoria = blue,Tasmania = blue)
+au_colors(W. Australia = blue,N. Territory = yellow,S. Australia = red,Queensland = blue,New S. Wales = yellow,Victoria = blue,Tasmania = red)
+au_colors(W. Australia = blue,N. Territory = yellow,S. Australia = red,Queensland = blue,New S. Wales = yellow,Victoria = blue,Tasmania = yellow)
+bake(price = 4800,bananaCakes = 3,cocoaCakes = 8)
+board([1,3,5,10,13,9,4,12,8,6,2,7,11])
+board([1,3,5,11,9,12,4,13,8,6,2,10,7])
+board([1,3,5,12,9,13,10,4,6,8,2,11,7])
+Example: Australia
+Example: Australia2
+Example: Baking cookies
+Example: Golfers
+Example: Job shop
+Example: Knapsack
+Example: N Queens
+Example: Product planning
+Example: Sendmoney
+Example: Stable marriage
+golfer(groups = ..(1,4),weeks = ..(1,4),schedule = [..(1,3),..(4,6),..(7,9),..(10,12),{(1,4,7)},{(2,8,11)},{(3,6,12)},{(5,9,10)},{(1,6,8)},{(2,5,12)},{(3,7,10)},{(4,9,11)},{(1,9,12)},{(2,6,7)},{(3,5,11)},{(4,8,10)}])
+golfer(groups = ..(1,4),weeks = ..(1,4),schedule = [..(1,3),..(4,6),..(7,9),..(10,12),{(1,4,7)},{(2,8,12)},{(3,6,10)},{(5,9,11)},{(1,6,8)},{(2,5,10)},{(3,7,11)},{(4,9,12)},{(1,9,10)},{(2,6,7)},{(3,5,12)},{(4,8,11)}])
+golfer(groups = ..(1,4),weeks = ..(1,4),schedule = [..(1,3),..(4,6),..(7,9),..(10,12),{(1,4,7)},{(2,8,12)},{(3,6,11)},{(5,9,10)},{(1,6,8)},{(2,5,11)},{(3,7,10)},{(4,9,12)},{(1,9,11)},{(2,6,7)},{(3,5,12)},{(4,8,10)}])
+jobs(total_duration = 30,jobs = {(JOB_1,JOB_2,JOB_3,JOB_4,JOB_5)},tasks = {(TASK_1,TASK_2,TASK_3,TASK_4,TASK_5)},schedule = [5,9,13,18,21,6,13,18,25,27,1,5,9,13,17,0,1,2,3,9,9,16,25,27,29])
+marriage([Woman_2,Woman_1,Woman_5,Woman_3,Woman_4] = [Man_2,Man_1,Man_4,Man_5,Man_3])
+marriage([Woman_2,Woman_3,Woman_5,Woman_1,Woman_4] = [Man_4,Man_1,Man_2,Man_5,Man_3])
+marriage([Woman_4,Woman_1,Woman_2,Woman_3,Woman_5] = [Man_2,Man_3,Man_4,Man_1,Man_5])
+money(send = [9,5,6,7],more = [1,0,8,5],money = [1,0,6,5,2])
+plan(profit = 1900,{(BananaCake,ChocolateCake)} = [2,2],{(Flour,Banana,Sugar,Butter,Cocoa)} = [900,4,450,500,150])
+sack(total weight = 195,total profit = 2625,knapsack = {(ITEM_1,ITEM_2,ITEM_5)})

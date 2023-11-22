@@ -1,0 +1,88 @@
+
+:- compiler_options([spec_off]).
+
+:- import break_for_tripwires/1 from x_interp.
+:- import format/2 from format.
+:- import get_sdg_info/1, sdg_scc_info/2 from tables.
+:- import print_incomplete_tables/0 from tables.
+:- import length/2,for/3,between/3 from basics.
+:- import xsb_error_get_message/2 from error_handler.
+
+/* Tripwires for max_memory, max_subgoal_size, and max_answer_size handled elsewhere */
+
+test:- test_inc,fail.
+test:- test_loop(20),fail.
+test:- test_sparse(20),fail.
+test:- test_dense(20),fail.
+test:- test_answers(20),fail.
+test.
+
+test_inc:- set_prolog_flag(max_incomplete_subgoals,15),
+           set_prolog_flag(max_incomplete_subgoals_action,error),
+           catch(p(20),E,(xsb_error_get_message(E,M),writeln(test_inc(M)))).
+
+%--- 
+
+test_loop(N):- set_prolog_flag(max_scc_subgoals,10),
+	       set_prolog_flag(max_scc_subgoals_action,error),
+	       catch(loop(N),E,(xsb_error_get_message(E,M),writeln(test_loop(M)))).
+
+test_sparse(N):- set_prolog_flag(max_scc_subgoals,10),
+		 set_prolog_flag(max_scc_subgoals_action,error),
+  	         catch(sparse(N),E,(xsb_error_get_message(E,M),writeln(test_sparse(M)))).
+
+test_dense(N):- set_prolog_flag(max_scc_subgoals,10),
+		set_prolog_flag(max_scc_subgoals_action,error),
+		catch(dense(N),E,(xsb_error_get_message(E,M),writeln(test_dense(M)))).
+
+test_answers(N):- 
+		set_prolog_flag(max_answers_for_subgoal,10),
+		set_prolog_flag(max_answers_for_subgoal_action,error),
+		catch(test_max_answers(N),E,(xsb_error_get_message(E,M),writeln(test_answers(M)))).
+
+demo_answers(N):- 
+		set_prolog_flag(max_answers_for_subgoal,10),
+		set_prolog_flag(max_answers_for_subgoal_action,suspend),
+		catch(test_max_answers(N),E,(xsb_error_get_message(E,M),writeln(caught_test_max_answers_for_subgoal(M)))).
+
+%--------
+
+:- table p/1.
+p(0):- writeln('finished test of p/1!').
+p(N):- N1 is N - 1,p(N1).
+
+loop(N):- loop(N,N).
+:- table loop/2.
+loop(0,N):- loop(N,N).
+loop(0,N):- !,loop(0,N).
+loop(N,M):- 
+	N1 is N - 1,
+	loop(N1,M).
+
+sparse(N):- sparse(N,N).
+:- table sparse/2.
+sparse(0,N):- sparse(N,N).
+sparse(M,N):- sparse(M,N).
+sparse(N,M):- N >= 0,
+	N1 is N - 1,
+	sparse(N1,M).
+
+dense(N):- dense(N,N).
+:- table dense/2.
+dense(0,_):- show_incomplete_subgoals,fail.
+dense(N,M):- for(I,N,M),
+	     %writeln(dense1(I,M)),
+	     dense(I,M).
+dense(N,M):- N >= 0,
+	N1 is N - 1,
+%	writeln(dense2(N1,M)),
+	dense(N1,M).
+
+test_max_answers(N):- test_max_answers(N,_).
+
+:- table test_max_answers/2.
+test_max_answers(N,F):- 
+	between(1,N,F).
+
+end_of_file.
+

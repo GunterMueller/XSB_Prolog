@@ -1,0 +1,12 @@
+
+:- table tabled_p/3.
+
+p(F,X) :- tabled_p(1,F,X).
+tabled_p(1,_F,X) :- p(r,X).
+
+p(r,d).
+p(r,e).
+
+test(Str) :- p(r,X), writeln(Str,X), fail.
+test(_).
+/************************************/

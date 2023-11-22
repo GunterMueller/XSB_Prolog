@@ -1,0 +1,164 @@
+\chapter{Hooks} \label{hooks}
+
+Sometimes it is useful to let the user application catch certain
+events that occur during XSB execution. For instance, when the user
+asserts or retracts a clause, etc.  XSB has a general mechanism by
+which the user program can register \emph{hooks} to handle certain
+supported events. All the predicates described below must be imported
+from {\tt xsb\_hook}.
+
+
+\section{Adding and Removing Hooks}
+
+A hook in XSB can be either a 0-ary predicate or a unary predicate.
+A 0-ary hook is called without parameters and unary hooks are called with
+one parameter. The nature of the parameter depends on the type of the hook,
+as described in the next subsection.
+
+
+\begin{description}
+\ourmoditem{add\_xsb\_hook(+HookSpec)}{add\_xsb\_hook/1}{xsb\_hook}
+
+This predicate registers a hook; it must be imported from {\tt xsb\_hook}.
+{\tt HookSpec} has the following format:
+%%
+\begin{quote}
+ {\tt
+   hook-type(your-hook-predicate(\_))
+   }
+\end{quote}
+%%
+or, if it is a 0-ary hook:
+%%
+\begin{quote}
+  {\tt
+   hook-type(your-hook-predicate)
+   }  
+\end{quote}
+%%
+For instance, 
+%%
+\begin{verbatim}
+    :- add_xsb_hook(xsb_assert_hook(foobar(_))).
+\end{verbatim}
+%%
+registers the hook {\tt foobar/1} as a hook to be called when XSB
+asserts a clause. Your program must include
+clauses that define {\tt foobar/1}, or else an error will result.
+
+The predicate that defines the hook type must be imported from {\tt
+  xsb\_hook}:
+%%
+\begin{verbatim}
+    :- import xsb_assert_hook/1 from xsb_hook.  
+\end{verbatim}
+%%
+or {\tt add\_xsb\_hook/1} will issue an error.
+
+\ourmoditem{remove\_xsb\_hook(+HookSpec)}{remove\_xsb\_hook/1}{xsb\_hook}
+
+Unregisters the specified XSB hook; imported from {\tt xsb\_hook}. For
+instance,
+%%
+\begin{verbatim}
+    :- remove_xsb_hook(xsb_assert_hook(foobar(_))).
+\end{verbatim}
+%%
+As before, the predicate that defines the hook type must be imported from
+{\tt xsb\_hook}.
+\end{description}
+
+
+\section{Hooks Supported by XSB}
+
+The following predicates define the hook types supported by XSB. They must
+be imported from {\tt xsb\_hook}.
+
+\begin{description}
+\ourmoditem{xsb\_exit\_hook(\_)}{xsb\_exit\_hook/1}{xsb\_hook} 
+
+These hooks are called just before XSB exits. You can register as many
+hooks as you want and all of them will be called on exit (but the order of
+the calls is not guaranteed). Exit hooks are all 0-ary and must be registered
+as such:
+%%
+\begin{verbatim}
+    :- add_xsb_hook(xsb_exit_hook(my_own_exit_hook)).
+\end{verbatim}
+%%
+
+
+\ourmoditem{xsb\_assert\_hook(\_)}{xsb\_assert\_hook/1}{xsb\_hook} 
+%
+These hooks are called whenever the program asserts a clause. An assert
+hook must be a unary predicate, which expects the clause
+being asserted as a parameter. For instance,
+%%
+\begin{verbatim}
+    :- add_xsb_hook(xsb_assert_hook(my_assert_hook(_))).
+\end{verbatim}
+%%
+registers {\tt my\_assert\_hook/1} as an assert hook. One can register
+several assert hooks and all of them will be called (but the order is
+not guaranteed).  After the assert\_hooks are called, the original
+assert will be called to add the clause to the database.
+
+\ourmoditem{xsb\_intercept\_assert\_hook(\_)}{xsb\_intercept\_assert\_hook/1}{xsb\_hook} 
+%
+These hooks are called whenever the program asserts a clause.  (They
+are called after all xsb\_assert\_hooks, if any, are called.)  An
+intercept\_assert hook must be a unary predicate, which expects a
+length 2 list as a parameter.  The first element of the list is the
+clause being asserted; the second element is 1 for assert (and
+assertz), or 0 for asserta.  For instance,
+%%
+\begin{verbatim}
+:- add_xsb_hook(xsb_intercept_assert_hook(my_intercept_assert_hook(_))).
+\end{verbatim}
+%%
+registers {\tt my\_intercept\_assert\_hook/1} as an intercept\_assert
+hook. One can register several intercept\_assert hooks and the first
+one that succeeds will apply (the order is not guaranteed).  If any
+call to an intercept\_assert\_hook succeeds, then the assert is {\em not}
+invoked, so it is expected that the intercepting hook will assert any
+desired clause.  If no call to the hook predicate succeeds, then the
+assert is invoked.  This allows a user, for example, to re-direct all
+asserts to one predicate to another different predicate.
+
+\ourmoditem{xsb\_retract\_hook(\_)}{xsb\_retract\_hook/1}{xsb\_hook} 
+%
+These hooks are called whenever the program retracts a clause, using
+{\tt retract/1} or {\tt retractall/1}. A retract hook must be a unary
+predicate, which expects as a parameter a list of the form {\tt
+  [Head,Body]}, which represent the head and the body parts of the
+clause being retracted. As with assert hooks, any number of retract
+hooks can be registered and all of them will be called in some order.
+After the retract\_hook has been called, the original retract (or
+retractall) is called to perform the retraction.
+
+\ourmoditem{xsb\_intercept\_retractall\_hook(\_)}{xsb\_intercept\_retractall\_hook/1}{xsb\_hook} 
+%
+These hooks are called whenever the program calls {\tt retractall/1}
+on a term.  (They are called after all xsb\_retract\_hooks, if any,
+are called.)  An intercept\_retractall hook must be a unary predicate,
+which expects the term passed to {\tt retractall/1} as a
+parameter. For instance,
+%%
+\begin{verbatim}
+:- add_xsb_hook(xsb_intercept_retractall_hook(my_intercept_retractall_hook(_))).
+\end{verbatim}
+%%
+registers {\tt my\_intercept\_retractall\_hook/1} as an intercept\_retractall
+hook. One can register several intercept\_retractall hooks and the first
+one that succeeds will apply (the order is not guaranteed).  If any
+call to an intercept\_retractall\_hook succeeds, then the retractall is {\em not}
+invoked, so it is expected that the intercepting hook will retractall any
+desired clause(s).
+
+\end{description}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual1"
+%%% End: 

@@ -1,0 +1,95 @@
+
+tst1 :- fmt_write("akjdd %s %d %3.*f\n", a(sdshdhdf, 1345, 2, 24.987)).
+tst2 :- fmt_write("akjdd %s \nk %*.2d %2.3f kkk\n",
+		  a(sdshd99999f, 6, 1345, 24.987)).
+tst3 :- fmt_write('akjdd %s %d %2.0f kkk', a(sdshd9999999f, 1345, 24.987)).
+tst4 :- fmt_write("asdsdffdsdgfdgf",_).
+tst5 :- fmt_write('sdskdfdsffd %S sjdfdffd', sdkjfdsfjdfj).
+tst6 :- fmt_write('ppsdfd %c %S sdfd', a(0'c, f(a,p(d,l)))).
+tst7 :- X='123456789012345678901234567890123456789012345678901234567890123456',
+	Y=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZhdfsdfrdfsdfdsd,
+	str_cat(X,Y,Z),
+	str_cat(Z,Z,W),
+	str_cat(W,W,WW),
+	str_cat(WW,WW,WWW),
+	fmt_write("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+		  a(WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,
+		    WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW)).
+
+stst1 :- fmt_write_string(S,"akjdd %s %*.2d %.2f\n",
+			  a(sdshdhdf, 8, 1345, 24.987)),
+	writeln(S).
+stst2 :- fmt_write_string(S,"akjdd %s \nk %d %2.3f kkk\n",
+			  a(sdshd99999f, 1345, 24.987)),
+	writeln(S).
+stst3 :- fmt_write_string(S,'akjdd %s %d %2.0f kkk',
+			  a(sdshd9999999f, 1345, 24.987)),
+	writeln(S).
+stst4 :- fmt_write_string(S,"asdsdffdsdgfdgf",_), writeln(S).
+stst5 :- fmt_write_string(S,'sdskdfdsffd %S sjdfdffd', sdkjfdsfjdfj),
+	writeln(S).
+stst6 :- fmt_write_string(S,'ppsdfd %c %S sdfd', a(0'c, f(a,p(d,l)))),
+	writeln(S).
+stst7 :- X='23456789012345678901234567890123456789012345678901234567890123456',
+	Y=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZhdfsdfrdfsdfdsd,
+	str_cat(X,Y,Z),
+	str_cat(Z,Z,W),
+	str_cat(W,W,WW),
+	str_cat(WW,WW,WWW),
+	str_cat(WWW,WWW,WWWW),
+	fmt_write_string(S,"%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+		  a(WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,WWW,
+		    WWW,WWWW,WWWW,WWWW,WWW,WWWW,WWWW,WWWW,WWWW)),
+	writeln(S).
+
+/*
+TLS: I'm sure there's a better way to make this test portable,
+but I don't really understand intricies of scanf() nor do I want
+to.  If someone wants to improve my hack, I'm all for that!
+*/
+scn1:- 
+       xsb_configuration(word_size,Size),
+       (Size = '32' -> scn1_32 ; scn1_64).
+
+scn2:- 
+       xsb_configuration(word_size,Size),
+       (Size = '32' -> scn2_32 ; scn2_64).
+
+scn1_32 :- fmt_read("aaa %s %d k %5f ll\n", a(X,Y,Z), WW),
+	write(f(X,Y,WW)), fmt_write("%2.2f\n", Z).
+scn2_32 :- fmt_read('bbb %s %*d k lll%n %44f ll', a(X,Y,Z), WW),
+	write(f(X,Y,WW)), fmt_write("%2.1f\n", Z).
+
+scn1_64 :-
+	(xsb_configuration(configuration,'x64-pc-windows')
+	 ->	scn1_win64
+	 ;	scn1_nowin64
+	).
+
+scn2_64 :-
+	(xsb_configuration(configuration,'x64-pc-windows')
+	 ->	scn2_win64
+	 ;	scn2_nowin64
+	).
+
+scn1_nowin64 :- fmt_read("aaa %s %ld k %5f ll\n", a(X,Y,Z), WW),
+	write(f(X,Y,WW)), fmt_write("%2.2f\n", Z).
+scn2_nowin64 :- fmt_read('bbb %s %ld k lll %f ll', a(X,_Y,Z), _WW),
+	write(f(X,20,2)), fmt_write("%2.1f\n", Z).
+
+scn1_win64 :- fmt_read("aaa %s %lld k %5f ll\n", a(X,Y,Z), WW),
+	write(f(X,Y,WW)), fmt_write("%2.2f\n", Z).
+scn2_win64 :- fmt_read('bbb %s %lld k lll %f ll', a(X,_Y,Z), _WW),
+	write(f(X,20,2)), fmt_write("%2.1f\n", Z).
+
+
+test :- tst1,tst2,tst3,tst4,tst5,tst6,tst7,
+	stst1,stst2,stst3,stst4,stst5,stst6,stst7,
+	see('fmt_io.data'),
+	scn1,scn2,
+	seen.
+
+quick:- 	see('fmt_io.data'),
+	scn1,
+	scn2,
+	seen.

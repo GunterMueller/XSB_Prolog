@@ -1,0 +1,5 @@
+test_ti2_deleted
+test_ti2(f / 5000,ret / 5000)
+test_ti2_uninterned
+test_ti3(f3 / 5000)
+test_ti3(f3 / 5000)

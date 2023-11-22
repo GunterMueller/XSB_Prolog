@@ -1,0 +1,3 @@
+test 0 failed correctly
+test_1_got(ola(3))
+test_2_got(3)

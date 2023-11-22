@@ -1,0 +1,40 @@
+:- compiler_options([spec_off]).
+
+:- import print_sdg_info/0,print_sdg_info_modes/0,print_sdg_info_functor/0 from tables.
+:- import between/3 from basics.
+%:- import prepare/1 from gensym.
+%:- ensure_loaded(term_abstract).
+%:- import break/0 from x_interp.
+%:- import xsb_error_get_tag/2 from error_handler.
+%:- import get_sdg_info/1, morph_sdg/3, sdg_scc_info/2 from tables.
+
+test:- test_vanilla,fail.
+test:- writeln('------------------------------------------------------------'),fail.
+test:- test_m,fail.
+test:- writeln('------------------------------------------------------------'),fail.
+test:- test_f,fail.
+test.
+
+test_vanilla:- q_1(3,3).
+test_m:- q_2(3,3).
+test_f:- q_3(3,3).
+
+:- table p_1/2.
+p_1(_M,N):- between(1,N,X),q_1(X,N).
+
+:- table q_1/2.
+q_1(M,N):- between(1,N,X),(M = N,N = X -> print_sdg_info ; true),p_1(X,N).
+
+:- table p_2/2.
+p_2(_M,N):- between(1,N,X),q_2(X,N).
+
+:- table q_2/2.
+q_2(M,N):- between(1,N,X),(M = N,N = X -> print_sdg_info_modes ; true),p_2(X,N).
+
+:- table p_3/2.
+p_3(_M,N):- between(1,N,X),q_3(X,N).
+
+:- table q_3/2.
+q_3(M,N):- between(1,N,X),(M = N,N = X -> print_sdg_info_functor ; true),p_3(X,N).
+
+

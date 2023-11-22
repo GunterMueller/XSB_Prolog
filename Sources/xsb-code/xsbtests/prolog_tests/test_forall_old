@@ -1,0 +1,2 @@
+forall(q(X),p(X)) succeeded
+forall(qt(X),pt(X)) succeeded

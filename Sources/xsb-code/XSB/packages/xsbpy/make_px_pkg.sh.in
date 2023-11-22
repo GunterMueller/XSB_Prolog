@@ -1,0 +1,40 @@
+#! /bin/sh
+# @configure_input@
+
+echo "*** Installing py-xsb as a Python package"
+cd ../packages/xsbpy
+
+../../bin/xsb <<EOF
+%%consult('.px_mk_setup_query').
+consult(px_mk_setup), mk_setup('px/.tmp_pxsetup.py','@PYTHON_INCLUDE_DIR@').
+halt.
+EOF
+
+cd px
+@PYTHON_BIN@ -m pip install --upgrade setuptools wheel > ../px-install.log 2>&1
+
+@PYTHON_BIN@ .tmp_pxsetup.py bdist_wheel >> ../px-install.log 2>&1
+@PYTHON_BIN@  -m pip -v install --no-index --force-reinstall --find-links=dist px >> ../px-install.log 2>&1
+#@PYTHON_BIN@  -m pip -v install --no-index --find-links=dist px --user >> ../px-install.log 2>&1 
+
+px_errors=`grep -i -e error ../px-install.log | grep -v Werror | grep -v "error checking the latest version of pip"`
+px_warn=`grep -i -e warning ../px-install.log | grep -v "error checking the latest version of pip"`
+#px_warn=`grep -i -e warning ../px-install.log | grep -v "error checking the latest version of pip" | grep -v SetuptoolsDeprecationWarning`
+
+if test -n "$px_errors" ; then
+    echo ""
+    echo "+++++ Errors occurred while configuring the Python-to-XSB bridge:"
+    echo "$px_errors"
+    echo "+++++   The bridge will likely not function properly in this XSB installation."
+    echo "+++++   Check  the log at XSB/packages/xsbpy/px-install.log"
+fi
+if test -n "$px_warn" ; then
+    echo ""
+    echo "+++++ Warnings occurred while configuring the Python-to-XSB bridge:"
+    echo "$px_warn"
+    echo "+++++   The bridge might not function correctly."
+    echo "+++++   Check  the log at XSB/packages/xsbpy/px-install.log"
+fi
+echo ""
+
+

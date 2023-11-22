@@ -1,0 +1,4 @@
+test 1 thread signalled
+test 2 properly cancelled
+test 4 properly cancelled
+test1 thread awakened

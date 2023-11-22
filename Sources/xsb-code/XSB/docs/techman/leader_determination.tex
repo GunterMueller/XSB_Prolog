@@ -1,0 +1,110 @@
+\section{Leader Determination (D.S.Warren 1 July 2019)} \label{sec:leader}
+
+This section describes the algorithm now used (as of 7/1/2019) to
+determine leaders.  XSB maintains a ``completion stack'' which
+contains a node for each active tabled call.  The completion stack
+corresponds to a subset of the choice point stack.  To determine when
+a call is completely evaluated, the system keeps track of ``back
+dependency'' information, i.e., when a tabled call depends on (i.e.,
+calls) another already existing tabled call that is deeper in the
+stack than itself.  This means that the current tabled call cannot be
+completely evaluated until (at least) that deeper tabled call is
+completely evaluated.  A leader is a tabled call that does not depend
+on any tabled call that is deeper than it, and for which no shallower
+tabled call depends on a tabled call deeper than it.  This means that,
+when all answers have been returned to all calls at this level or
+shallower, all tables at the leader and shallower on the stack are
+completely evaluated and can be marked as completed.  (It gets more
+complicated when delay and simplification are included, but the
+concept of a leader is the same and still required.)
+
+The previous algorithm for determining leaders was simple and
+straightforward, but led to quadratic behavior.  We describe it here.
+That algorithm is implemented in XSB by the adjust\_level macro,
+defined in emu/tab\_structs.h.  That algorithm numbers each completion
+frame, and in each completion frame keeps a variable, called
+level\_num, containing the number of the completion frame that is its
+current leader, i.e., the deepest frame it, or a shallower frame,
+depends on.  The value is initialized to its own frame number.  The
+value is maintained (by invocation of adjust\_level) each time a call
+is made to a table whose frame is deeper in the stack.  At this time
+the level\_num of every completion frame between the current call and
+deeper table is updated to be the level\_num of the completion frame
+of the deeper table.  A leader is then a table whose completion frame
+has its own number as level\_num.  I.e., it and no descendant depends
+on any earlier (deeper) table.  This algorithm is simple and clearly
+correct.  However, it may require updating the level\_num field of
+linearly many completion frames at each call to a deeper table.  It is
+straightforward to construct a sequence of propositional programs for
+which this algorithm results in quadratic complexity.
+
+Consider a propositional program with N proposition symbols, $p_i$,
+with rules of the form:
+\begin{enumerate}
+\item $p_i~:-~p_{i+1}$. for $1 \leq i < N$, and
+\item $p_i~:-~p_{i-N/2}$. for $N/2 < i < N$.
+\end{enumerate}
+(We note, as an aside, that all propositions are false in the least
+model of this program.)  A call to $p_1$ will call $p_2$, etc. up to
+$p_{N/2}$. From there on, there is a call to the next (new)
+proposition, and one to an earlier proposition with an existing table.
+Each of these calls will require setting the level\_num fields of all
+calls between them.  This will require O($N^2$) operations in total.
+
+So we seek an algorithm for leader determination that takes
+significantly less time.  In each completion frame we keep a field
+that contains a pointer to another completion frame:
+\begin{enumerate}
+\item If the completion frame is not (currently) a leader, then this
+  points to a chain of completion frames that ends at the leader.
+\item If the completion frame is (currently) a leader, then this
+  pointer is tagged (to indicate current leader) and it points to the
+  next shallower completion frame on the stack that is a (current)
+  leader.
+\end{enumerate}
+So at each point we can determine a current leader by checking that
+its own pointer is tagged as a leader, and we can find a frame's
+leader by running its chain to its leader.  Each new completion frame
+has its pointer initialized to a leader (i.e. tagged) and added to the
+end of the (deep-to-shallow) leader chain.  When the adjust\_level
+macro is called (which now calls adjust\_level\_ptrs, defined in
+emu/tables.c), the leader of the deeper called table is found, and the
+leader chain is traversed to the leader of the shallower calling
+table; each intermediate leader pointer on this chain is changed to be
+an untagged pointer to the deeper called table leader (the beginning
+of the leader chain), and that deeper leader is made the end-of-leader
+chain.  So this has updated the structure so that all the frames
+between the shallow calling table and the deep called table will now
+follow their chains to their new leader.
+
+This algorithm, as it stands, may also exhibit quadratic behavior; a
+chain to a leader may be O(N) long and need to be traversed O(N)
+times.  However, if each traversal of such a chain to a leader
+collapses the chain by pointing every node along the chain to the
+final leader, we can avoid the multiple traversals and the quadratic
+time.  We can see that this algorithm is a version of the union-find
+algorithm, with path compression but without ranking.  The union
+operation is K-way when doing adjust\_level\_ptrs for a deep pointer
+and there are K leader nodes on the chain from the deeper node to the
+top of the stack.  These K sets are unioned to become children of the
+deepest node, regardless of their sizes.  Since we ignore the sizes of
+the sets being unioned, this is the ``without ranking'' union
+operation.  It is known that this algorithm may add a log factor to
+the complexity, so this algorithm is at worst O(N*log N).  But it
+seems to be only for programs with quite complex dependency structures
+that this algorithm is actually worse than linear.
+
+We could, relatively easily, change this algorithm to add ranking, by
+adding another field to the completion frame, which would point to its
+leader, and then when doing the union, find the largest set (easy to
+find by the difference of this and the next node's addresses) and
+point all the others to this largest one, which we can call the
+``representative'' of the set.  And then we set the representative's
+new leader pointer to point to the actual leader.  Finding the leader
+of a completion frame would run its chain to the representative, and
+then follow its new leader pointer to the actual leader.  But I don't
+think the gain (in the worst case, changing the log factor to an
+``inverse Ackermann's'' factor) for most programs would be worth the
+overhead (minimal though it might be).  (Of course, I could be wrong
+on this.)
+

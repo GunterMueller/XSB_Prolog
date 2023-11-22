@@ -1,0 +1,12 @@
+
+test(Str):- 
+	writeln(Str,0'\ ),
+	writeln(Str,0' ),
+	writeln(Str,0',),
+	writeln(Str,0'n),
+	writeln(Str,0'1),
+	writeln(Str,0'"),
+	writeln(Str,0'`),
+	writeln(Str,0'\n),
+	writeln(Str,0'\t).
+

@@ -1,0 +1,16 @@
+%% Compile the C program that calls XSB using the flags in xsb_configuration.
+%% Execute the C program, which calls and compiles XSB
+
+test :- xsb_configuration(compiler_flags,CFLAGS),
+	xsb_configuration(loader_flags,LDFLAGS),
+	xsb_configuration(config_dir,CONFDIR),
+	xsb_configuration(compiler,Compiler),
+	xsb_configuration(emudir,EmuDir),
+	str_cat(CONFDIR, '/saved.o/', ObjDir),
+	shell([Compiler, ' -c ', CFLAGS, ' -I', EmuDir,
+	       ' -I', CONFDIR, ' c_calls_xsb.c ']),
+	shell([Compiler, ' -o ', 'c_calls_xsb.exe ',
+	       ObjDir, 'xsb.o ', ' c_calls_xsb.o ', LDFLAGS]),
+	xsb_configuration(install_dir,InstallDir),
+	shell(['./c_calls_xsb.exe ', InstallDir, ' c_calls_xsb > temp1']),
+	shell('cat temp1 >> temp; rm temp1').

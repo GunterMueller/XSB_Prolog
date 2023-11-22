@@ -1,0 +1,30 @@
+bt2: {'truth': True, 'return': 'foo'}
+bt2: {'truth': True, 'return': {1, 2, 3}}
+bt2: {'truth': True, 'return': {'foo': 'bar', 'bar': 'baz'}}
+bt2: {'truth': True, 'return': ('t1', 't2')}
+bt2: {'truth': True, 'return': ['foo', 1, 3.14]}
+bt2: {'truth': True, 'return': 3.14}
+bt2: {'truth': True, 'return': 1}
+--------------------------
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', 'foo', 1, 3.14, ['foo', 1, 3.14], ('t1', 't2'), {'foo': 'bar', 'bar': 'baz'}, {1, 2, 3})}
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', {1, 2, 3}, 'foo', 1, 3.14, ['foo', 1, 3.14], ('t1', 't2'), {'foo': 'bar', 'bar': 'baz'})}
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', {'foo': 'bar', 'bar': 'baz'}, {1, 2, 3}, 'foo', 1, 3.14, ['foo', 1, 3.14], ('t1', 't2'))}
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', ('t1', 't2'), {'foo': 'bar', 'bar': 'baz'}, {1, 2, 3}, 'foo', 1, 3.14, ['foo', 1, 3.14])}
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', ['foo', 1, 3.14], ('t1', 't2'), {'foo': 'bar', 'bar': 'baz'}, {1, 2, 3}, 'foo', 1, 3.14)}
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', 3.14, ['foo', 1, 3.14], ('t1', 't2'), {'foo': 'bar', 'bar': 'baz'}, {1, 2, 3}, 'foo', 1)}
+bt1: {'truth': True, 'return': ('plgTerm', 'bind_test', 1, 3.14, ['foo', 1, 3.14], ('t1', 't2'), {'foo': 'bar', 'bar': 'baz'}, {1, 2, 3}, 'foo')}
+--------------------------
+one_ary_fail: {'truth': False}
+for anti_member: {'truth': True, 'return': 1}
+for anti_member: {'truth': True, 'return': 2}
+for anti_member: {'truth': True, 'return': 3}
+--------------------------
+anti_member: 1 {'truth': True, 'return': 1}
+anti_member: 2 {'truth': True, 'return': 2}
+anti_member: 3 {'truth': True, 'return': 3}
+anti_member: 4 None
+--------------------------
+am_3: {'truth': True, 'return': 1}
+am_3: {'truth': True, 'return': 2}
+am_3: {'truth': True, 'return': 3}
+--------------------------

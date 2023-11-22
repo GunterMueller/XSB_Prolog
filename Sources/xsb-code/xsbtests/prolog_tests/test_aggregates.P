@@ -1,0 +1,13 @@
+
+/* Test to make sure we can find prolog_commons */
+
+:- use_module(c_aggregate,[aggregate/3]).
+
+
+p(1).
+p(2).
+p(3).
+p(4).
+p(5).
+
+test:- aggregate(sum(X),p(X),Sum),writeln(sum(Sum)).

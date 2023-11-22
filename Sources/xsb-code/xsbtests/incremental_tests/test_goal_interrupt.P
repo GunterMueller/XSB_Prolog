@@ -1,0 +1,10 @@
+
+:- import interrupt_with_goal/1 from mutex_xsb.
+test:- p(1000).
+
+p(0):- !.
+p(N):- 
+       (N mod 5 =:= 0 -> writeln(p(N)) ; true),
+       (N mod 10 =:= 0 -> interrupt_with_goal(writeln(hello(N))) ; true),
+       N1 is N - 1,
+       p(N1).

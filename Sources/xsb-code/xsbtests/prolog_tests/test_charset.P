@@ -1,0 +1,74 @@
+:- import append/3, member/2 from basics.
+:- import stat_set_flag/2 from machine.
+
+%%%% cp1252
+
+test :- test_rw,fail.
+test :- test_gp,fail.
+test.
+
+test_rw :-
+	get_codes(Code,L),
+	stat_set_flag(101,Code),  % set code
+	atom_codes(Atom,L),
+	
+	open(temp_charset,write,OStr),
+	writeq(OStr,Atom),writeln(OStr,'.'),
+	close(OStr),
+
+	open(temp_charset,read,IStr),
+	read(IStr,Atom1),
+	close(IStr),
+
+	atom_codes(Atom1,LL),
+	(Atom = Atom1,
+	 L = LL
+	 ->	writeln(read_succeeded(Code))
+	 ;	writeln(read_failed(Code))
+	),
+		       
+	open(temp_charset,read,IStr2),
+	read_canonical(IStr2,Atom2),
+	close(IStr2),
+
+	atom_codes(Atom1,LLL),
+	(Atom = Atom2,
+	 L = LLL
+	 ->	writeln(read_can_succeeded(Code))
+	 ;	writeln(read_can_failed(Code))
+	).
+
+test_gp :-
+	get_codes(Code,L),
+	stat_set_flag(101,Code),  % set code
+
+	open(temp_charset,write,OStr),
+	(member(C,L),put_code(OStr,C),fail ; true),
+	close(OStr),
+
+	open(temp_charset,read,IStr),
+	findall(C,(repeat,peek_code(IStr,C1),get_code(IStr,C),(C=<0->!,fail;C=:=C1)),List),
+	close(IStr),
+	(L = List
+	 ->	writeln(getput_succeeded(Code))
+	 ;	writeln(getput_failed(Code))
+	).
+	
+get_codes(3,L) :-
+	bld_int_list(1,127,L1),
+	L2 = [16'20AC,16'0081,16'201A,16'0192,16'201E,16'2026,16'2020,16'2021,
+	      16'02C6,16'2030,16'0160,16'2039,16'0152,16'008D,16'017D,16'008F,
+	      16'0090,16'2018,16'2019,16'201C,16'201D,16'2022,16'2013,16'2014,
+	      16'02DC,16'2122,16'0161,16'203A,16'0153,16'009D,16'017E,16'0178],
+	bld_int_list(16'00A0,16'00FF,L3),
+	append(L2,L3,L23),
+	append(L1,L23,L).
+get_codes(1,L) :-
+	bld_int_list(1,255,L).
+get_codes(2,L) :-
+	bld_int_list(1,1000,L).
+
+
+bld_int_list(N,N,[N]) :- !.
+bld_int_list(N,M,[N|L]) :- N < M, N1 is N+1, bld_int_list(N1,M,L).
+

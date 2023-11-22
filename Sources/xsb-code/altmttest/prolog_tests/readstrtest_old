@@ -1,0 +1,10 @@
+123
+56.7700
+A
+[(p(a,f(b,3.5000,14,A),B,A) :- r(A)  ','  s(C)),[vv(X,A),vv(Y,B),vv(T,C)]]
+[1,2,a,A,B,A,5.9000,f([],[ab,c(d)])]
+[]
+[p(a,f(b,3.5000,14,A),B,A),[vv(X,A),vv(Y,B)]]
+[qq(a,d(e),f(b,14,A),B,A),[vv(X,A),vv(Y,B)]]
+abc
+f([a,b|1],g(A,B,A))

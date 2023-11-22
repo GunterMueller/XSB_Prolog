@@ -1,0 +1,293 @@
+
+This chapter first describes how to configure \janusplg , followed by
+introductory examples.  Next is a more precise description of its
+functions, its current limitations followed by applications and
+further examples.
+
+\section{Configuration and Loading}
+
+XSB's configure/make processes will also confgure and make \janus{}
+for Linux, Mac and Windows.  On these platforms, \janusplg{} has been
+tested using versions 3.5 -- 3.11 of Python and its
+libraries.\footnote{The
+\janusplg{} configuration script was written by Michael Kifer.  It has
+been tested on Windows 10; on Ubuntu, Fedora and CentOs Linuxes; and
+on MacOs.}  The \janusplg configuration script can be found in {\tt
+XSB/packages/janus}.  \janusplg configuration also can be run
+separately from the main configuration script if desired.
+
+\subsection{Installing \janusplg{} to work with Anaconda}
+
+Installing \janusplg under Anaconda has been tested under a few
+versions of Anaconda.  Anaconda has the advantage that it includes all
+of the Python development extensions needed for \janusplg.  To make
+use of them, simply activate your conda environment, (re)configure and
+(re)make XSB as described in the manual.  However, there are numerours
+configurations for Anaconda, and some configurations include separate
+compilers and library files than are found in the main operating
+system.  As a result it is {\em {\bf critical}} that the XSB
+configured for a particular anaconda environment is {\em always} used
+within that environment, and {\em only} within that environment.  If
+XSB is to be used outside of a given anaconda environment or in a
+different environmen<t a separate copy of XSB should be downloaded and
+configured.
+
+\subsection{Configuring \janusplg{} for {\tt venv} or without a virtual environment} \label{sec:xsbpy-linux}
+
+If you use {\tt venv} as your environment manager or if you are
+configuring a system installation of {\tt xsbpy} for several users,
+configuration may be slightly more complicated than using Anaconda.
+In principle, when XSB is configured on Linux or the Mac, \janusplg{}
+will also be configured so that it can be used like any other 
+module.  However, for this configuration to work several pieces of
+software much be in place.
+
+\begin{itemize}
+\item {\tt git} and {\tt gcc} (or some other compiler) must be present
+  and usable by the user performing the configuration.  Most of these
+  tools need to be installed on Linux or macOS to configure and
+  compile XSB, so they will not usually be an issue.
+
+\item A version of C-Python (the usual implementation of Python) 3.x
+  with development extensions must be present and usable.\footnote{In
+    particular {\tt libpython} and {\tt Python.h} are needed from the
+    development version.}  Unfortunately, Python development
+  extensions are not contained in a {\tt venv} environment (unlike
+  with Anaconda) so they will need to be installed.\footnote{{\tt
+      venv} is not designed to support applications like \janusplg{}
+    that embed Python in another process.  When a virtual environment
+    is created using {\tt venv}, the virtual environment contains a
+    Python executable, but not {\tt libpython} or {\tt Python.h} which
+    must be linked or included from system directories.}
+
+  \item \janusplg{} configuration uses a Python package called {\tt
+    find\_libpython}, and will try to do a {\tt pip} installation if
+    it is not present.  {\tt pip} will install this package under the
+    {\tt venv} or user's {\tt site-packages} directory; otherwise a
+    system {\tt site-packages} directory will be used.\footnote{Some
+    Linuxes like Ubuntu do not include {\tt pip} in their default
+    distribution(!), in which case the Linux package for {\tt pip}
+    must be installed.}
+\end{itemize}
+
+
+%\subsubsection{Installing {\tt xsbpy} to work with a system Python}
+
+\subsubsection{Troubleshooting}
+
+%If you have {\tt sudo} privileges and want to make {\tt xsbpy} work
+%with a system version of Python there are a few more steps needed than
+%when working with Anaconda.  First, your system needs a development
+%version of Python~\footnote{If several versions of Python 3.x are
+%  installed, the most recent will be used by the configure script.}
+%The Python development extensions are needed because they contain
+%Python as a shared object ({\tt .so}) file along with Python header
+%({\tt .h}) files.  While some version of Python-3 is included in
+%almost any version of Linux, additional Linux package installations
+%either may be needed for these development extensions or to install a
+%more recent version of Python.
+%  
+%  As an example, suppose version 3.8 of Python is desired.  If it is
+%  not present on the platform, it may be installed with its
+%  development extensions as:
+
+%  {\tt sudo apt-get install python3.8-dev}
+%
+%\noindent
+%  in Ubuntu; or
+%
+%  {\tt sudo dnf install python3.10-dev}
+%
+%\noindent
+%  in Fedora (newer versions) or CentOs.
+%
+%%Otherwise, if Python3.8 has been installed but the development version
+%%is not present the development extensions ({\tt libpython3.8.so} and
+%{\tt Python.h}) can be installed as:
+%
+%{\tt apt-get install libpython3.8-dev}.
+
+If there are difficulties in configuring \janusplg , it is likely that
+one of the above requirements is not met.  However, if these
+requirements are met, but the configuration does not work properly, it
+is best to check the file {\tt packages/janus/xsb2py\_connect\_defs.h}
+to check whether its definitions are correct ({\tt
+  xsb2py\_connect\_defs.h} is created when Janus is
+configured).\footnote{If you can determine that the required software
+is present and that there is a problem with the configuration please
+report the problem at {\tt https://sourceforge.net/p/xsb/bugs}.}
+
+The definitions in {\tt xsb2py\_connect\_defs.h} are used in {\tt
+  get\_compiler\_options/2} in {\tt init\_janus.P} to properly compile
+{\tt xsbpy} and link in {\tt libpython3x.so}.  These final steps are
+done automatically when \janusplg{} is consulted into XSB via a normal
+consult or {\tt ensure\_loaded/[1,2]}.  As part of this process, in
+{\tt init\_janus.P} the main C code for  \janusplg{} is compiled using
+gcc compiler options that are appropriate for the version of {\tt
+  libpython} used.\footnote{See {\tt get\_compiler\_options/2} in {\tt
+  init\_janus.P}.}  When the  \janusplg{} module is consulted into XSB,
+the {\tt libpython} shared object file is loaded dynamically along
+with the \janus{} shared object file.
+
+%If installing {\tt xsbpy} on Ubuntu, the first step is to ensure that
+%the proper Python libraries and header files are present.  If using
+%Python version 3.7 this command is:
+%
+%{\tt sudo apt-get install libpython3.7-dev}
+%
+%For {\tt xsbpy} to work properly in Linux:
+%\begin{itemize}
+%\item The {\tt xsbpy} code must be compiled and dynamically loaded into XSB.
+%\item A version of {\tt libpython.so} also needs to be dynamically
+%  loaded into XSB, and configured with the proper C library paths.
+%\item The proper paths must be set for the Python Standard Library.
+%\item Paths to {\tt xsbpy} and to {\tt xsbpy/apps} must be set up to
+ % access both XSB and Python modules.
+%\end{itemize}
+
+%\begin{verbatim}
+%-I <path to XSB's emu directory>  
+%-I/usr/include/python3.7m  -I/usr/include/python3.7  
+%-lpython3.7m -L/usr/lib/python3.7 
+%-Wl -rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 
+%-Wl -rpath=/usr/lib/python3.7
+%\end{verbatim}
+
+\noindent
+%In the above compilation options, {\tt xsbpy} initialization
+%configures the path to the XSB {\tt emu} directory but all other paths
+%are currently hard-coded.
+
+\subsection{Installing a development version of Python under  macOS (if Anaconda is not used)}
+
+Most of the discussion in Section~\ref{sec:xsbpy-linux} pertains
+directly to macOS.  As with Linux, installation of \janus{} under
+Anaconda will be easiest for most users, and it is worthwhile noting
+that whether or not Anaconda is used both XSB and \janus{} can be
+compiled using either {\tt clang} or {\tt gcc} on both macOS or Linux.
+%When XSB is configured on the Mac, the configuration script also tries
+%to configure {\tt xsbpy} so that it can be loaded and used like any
+%other module.  However for this process to work correctly additional
+%software must be present.
+%
+%\subsubsection{A Development Version of Python}
+%
+However, if XSB is not configured using an Anaconda version of Python
+a development version of Python 3.x needed, but is not included by
+default in {\tt macOS}, so that code needed by {\tt xsbpy} like {\tt
+  Python.h} or {\tt libpython<xxx>.dylib} needs to be installed.  This
+software is not always contained in {\tt xtools} either.
+
+Fortunately, there are several installation tools available for the
+Mac.  One of the most popular is {\tt brew}.  Once {\tt brew} itself
+is installed it will be used to make two further installations.
+First, type:
+
+{\tt brew install autoconf automake libtool}
+
+\noindent
+which is a prerequisite for a development version of Python to be
+installed.  Next, type 
+
+{\tt brew install python@3.8}
+
+\noindent
+to install the Python itself (other version numbers of Python can be used)
+and save the output of this installation.  Brew installs this Python in a
+directory that for many users is not on the execution path determined by
+the \texttt{PATH} environment variable.  Therefore the directory
+\emph{Python-installation-folder}\texttt{/bin/} will need to be added to
+the user's execution path (to the \texttt{PATH} variable), as instructed in
+the brew installation output that appears after installing Python.
+This can be done, for instance, by executing
+%% 
+\begin{verbatim}
+echo 'export PATH="/usr/local/opt/python@3.8/bin:$PATH"' >> ~/.zshrc
+echo 'export LDFLAGS="-L/usr/local/opt/python@3.8/lib"' >> ~/.zshrc
+\end{verbatim}
+%% 
+if the development version of
+Python is installed in \texttt{/usr/local/opt/python@3.8}. This
+addition is important, because XSB's configuration checks the user's
+execution paths as one way to find software.
+
+%\subsubsection{A C Compiler and Loader}
+%
+%Second -- naturally -- there must be a C compiler installed on your
+%Mac.  C compilers can be installed on the Mac through Xcode or Apple's
+%Command Line Tools.  (A user needn't be familiar with how a compiler
+%works -- the compiler just needs to be installed).  Two compilers are
+%available on macOS, Clang and GCC; XSB and {\tt xsbpy} have been
+%tested using both compilers.
+%
+%\subsubsection{The Configuration Itself}
+%
+%Once a C compiler has been installed; and a development version of
+%Python has been installed and added to the user's execution paths,
+%simply run the {\tt configure} and {\tt makexsb} scripts in {\tt
+%  \$XSB\_ROOT/XSB/build} and {\tt xsbpy} will be built automatically.
+%
+%As you can see, the entire process is simplicity itself!
+%
+\subsection{Configuring {\tt xsbpy} under Windows}
+
+To run the {\tt xsbpy} interface under Windows 10, you must first
+download and install Python as described above.
+
+You must set a windows environment variable (local or global) named
+PYTHON\_LIBRARY to the name of the Python DLL, which is part of the
+Python system.  That DLL can be found by using the python script:
+{\tt find\_libpython} executed on a Python command line.  To run this
+script, you will probably have to install it, using the command
+{\tt pip install find-libpython}, start Python, and then type:
+%% 
+\begin{verbatim}
+   from find_libpython import find_libpython
+   find_libpython()
+\end{verbatim}
+%% 
+This will print out the name of
+the file containing the necessary DLL.  Simply define the environment
+variable PYTHON\_LIBRARY to be this .dll file.  (If you don't have
+administrative permission on your computer, you can define it using
+``Edit the environment variables for your account'' from that
+lower-left windows command lookup box.)
+
+To see if the interface is installed correctly and is functional, it
+is suggested (just below) that you run: {\tt bash} test.sh in
+directory {\tt <XSB>/packages/xsbpy/test/}.  While this can be made to
+work when cygwin is installed, under windows, it may be easier to run
+{\tt xsb} in that directory and do:
+\begin{verbatim}
+| ?- [testSuite], testSuite.
+\end{verbatim}
+This should load the Python interface and run a few tests, printing
+out results.  If it succeeds without errors and without printing
+failed test notifications, the interface is available for use.
+
+It is possible that XSB will try to recompile the interface, if the
+file times are inconsistent.  In this case, be sure that the file time
+of {\tt xsbpym.xwam} is later than that of {\tt xsbpym.H} in {\tt
+  <XSB>/packages/xsbpy/} and try again.
+This cab be done in the Windows command window like this (assuming
+the current directory is the root of your XSB installation):
+%% 
+\begin{verbatim}
+  copy /b packages\xsbpy\xsbpym.xwam +,,
+\end{verbatim}
+%% 
+(You may alternatively simply
+rename {\tt xsbpym.H} to another name.)
+
+\subsection{Testing whether the {\tt xsbpy} configuration was successful}
+
+No matter what platform {\tt xsbpy} is installed on, to test out
+whether {\tt xsbpy} has been loaded and is working properly, simply
+change the working directory to {\tt packages/xsbpy/test} and execute the
+command
+
+\begin{verbatim}
+  bash test.sh
+\end{verbatim}
+
+

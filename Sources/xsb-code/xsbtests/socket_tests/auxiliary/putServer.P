@@ -1,0 +1,87 @@
+:- compiler_options([xpp_on]).
+#include "socket_defs_xsb.h"
+#include "timer_defs_xsb.h"
+#include "char_defs.h"
+
+:- ['auxiliary/auxdefs'].
+:- import tryN/5 from auxdefs.
+
+#define Q_LENGTH  10
+
+
+:- import 
+     socket/2, socket_bind/3, socket_listen/3, socket_accept/3, 
+     socket_set_option/3, socket_close/2, socket_get0/3,
+     socket_put/3 from socket.
+
+:- import fmt_write/3 from file_io.
+:- import ground/1 from basics.
+
+
+%% Port on which the server is listening
+xsb_port(6025).
+
+server :-
+	socket(Sockfd0, ErrCode),
+	(ErrCode =\= SOCK_OK
+	-> writeln('Cannot open socket'), fail
+	; true),
+	writeln(socket(sockfd0, ErrCode)),
+	socket_set_option(Sockfd0,linger,SOCK_NOLINGER),
+	xsb_port(XSBPort),
+	tryN(4,
+	     socket_bind(Sockfd0, XSBPort, ErrBind),
+	     writeln(socket_bind(sockfd0, XSBPort, ErrBind)),
+	     (writeln('Cannot bind'), socket_close(Sockfd0,_)),
+	     ErrBind
+	    ),
+	
+	socket_listen(Sockfd0,Q_LENGTH, ErrListen),
+	writeln(socket_listen(sockfd0,Q_LENGTH, ErrListen)),
+	
+	tryN(4,
+	     (set_timer(10),
+		 socket_accept(Sockfd0, Sockfd0_out1, ErrorCode)),
+	     writeln(socket_accept1(sockfd0, sockfd0_out1, ErrorCode)),
+	     (writeln('Cannot accept connection1'),
+		 socket_close(Sockfd0,_)),
+	     ErrorCode
+	    ),
+	set_timer(10),
+	socket_accept(Sockfd0, Sockfd0_out2, ErrorCode2), 
+	(ErrorCode2 < 0
+	-> writeln('Connection2: timed out'),
+	    socket_close(Sockfd0,_), fail
+	; true),
+	writeln(socket_accept(sockfd0, sockfd0_out2, ErrorCode2)),
+	set_timer(2),
+	server_loop(Sockfd0, Sockfd0_out1, Sockfd0_out2).
+
+
+
+server_loop(Sockfd_orig, Sockfd0, Sockfd1) :-
+	set_timer(10),
+	socket_get0(Sockfd0, Char,Ecode),
+	(Ecode == TIMEOUT_ERR
+	-> writeln('Timeout'),
+	    socket_close(Sockfd0,_),
+	    socket_close(Sockfd1,_),
+	    socket_close(Sockfd_orig,_),
+	    !,
+	    fail
+	; true),
+	((Char==CH_EOF_C; Char == 4) -> 
+	    writeln('Client quits...'),
+	    socket_close(Sockfd0,_),
+	    socket_close(Sockfd1,_),
+	    socket_close(Sockfd_orig,_),
+	    true
+	;	ground(Char) ->
+	    fmt_write('%c', f(Char)), fail
+	;   fail
+	).
+
+  
+server_loop(Sockfd_orig, Sockfd0, Sockfd1) :-
+  server_loop(Sockfd_orig, Sockfd0,Sockfd1).
+

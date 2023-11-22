@@ -1,0 +1,183 @@
+:- import thread_create/3, thread_join/2, thread_cancel/1 from thread.
+:- import message_queue_create/1,message_queue_create/2, thread_get_message/2 from mutex_xsb.
+:- import thread_send_message/2 from mutex_xsb.
+:- import thread_self/1 from thread.
+
+:- import message_queue_destroy/1 from mutex_xsb.
+:- import usleep/1 from thread.
+
+test:- test1, test2, test2pr, test3, test4, test5, test6, test7.
+
+%================= 
+% test of cancelling a thread while it is waiting on
+% a public queue.
+
+test1 :- message_queue_create(M),
+%     thread_self(S),
+     thread_create(q1(M),T,[]),
+%     writeln(S-T),
+     sleep(1),
+     thread_cancel(T),
+     % thread_send_message(M,ola),
+     % writeln(join),
+     thread_join(T,J),
+     J = cancelled(error(thread_cancel,_,_)),
+     writeln(test_1_cancelled_thread_ok).
+
+q1(M) :- 
+     thread_self(_S),
+%     writeln(started(S)),
+     thread_get_message(M,T),
+     loop1,
+     writeln(got(T)).
+
+loop :- loop.
+
+%================= 
+% test of (maybe) sending to a destroyed public queue.
+% In this test q2_1 may succeed, or may throw an existence
+% error, so I'm just printing out the fact that it succeeds.
+
+test2 :- message_queue_create(M, [max_terms(2)]),
+     thread_create(q2(M),T1,[]),
+     thread_create(q2(M),T2,[]),
+     usleep(3000),
+     message_queue_destroy(M),
+     thread_join(T1,_J1),
+     thread_join(T2,_J2),
+     writeln(test_2_destroy_ok).
+
+q2(M) :- 
+	catch(q2_1(M),error(existence_error(_,_),_,_),true).
+
+q2_1(M):-
+        thread_self(S),
+%        writeln(started(S)),
+        thread_send_message(M,ola1(S)),
+%        writeln(send1(S)),
+        usleep(1000),
+        thread_send_message(M,ola2(S)).
+%	writeln(send2(S)).
+
+%================= 
+% test of (maybe) sending to a destroyed private queue.
+
+test2pr :- 
+	catch(main2pr,error(existence_error(_,_),_,_),
+	writeln(test2pr_existence_error_caught)).
+
+main2pr :- 
+     thread_self(S),
+     thread_create(q2pr(S),T1,[]),
+     thread_get_message('Im alive'),
+     sleep(1),
+     thread_send_message(T1,'How about now').
+    
+q2pr(Id) :- 
+	thread_send_message(Id,'Im alive').
+
+%===================
+% test of reading from a destroyed public queue.
+
+:- import thread_create/3, thread_join/2, thread_cancel/1 from thread.
+:- import message_queue_create/1, thread_get_message/2 from mutex_xsb.
+:- import message_queue_destroy/1 from mutex_xsb.
+:- import thread_send_message/2 from mutex_xsb.
+:- import thread_self/1 from thread.
+
+test3 :- message_queue_create(M),
+     thread_create(q3(M),T1,[]),
+     thread_create(q3(M),T2,[]),
+     sleep(1),
+     message_queue_destroy(M),
+     thread_join(T1,_J1),
+     thread_join(T2,_J2),
+     writeln(test3_existence_error_ok).
+
+q3(M) :- 
+	catch(q3_1(M),error(existence_error(_,_),_,_),writeln(queue_existence_error_caught)).
+
+q3_1(M) :- 
+        thread_self(_S),
+%        writeln(started(S)),
+        thread_get_message(M,T),
+        writeln(got(T)).
+
+%===================
+% Test of cancelling a thread in execution
+
+test4:- 
+     thread_self(Tid),
+     thread_create(test4_1(Tid),T1,[]),
+     thread_get_message('Im alive'),
+     thread_cancel(T1),
+     thread_join(T1,_Ball),
+     writeln(test4_ok).
+
+test4_1(Tid):- 
+     thread_send_message(Tid,'Im alive'),
+     loop,
+     writeln(test_4_child_finito).
+
+:- import thread_signal/2 from thread.
+:- import thread_get_message/1 from mutex_xsb.
+
+%===================
+% Test of signalling a thread in execution
+
+test5:- 
+     thread_self(Tid),
+     thread_create(test5_1(Tid),T1,[]),
+%     usleep(500),
+     thread_get_message('Im alive'),
+     thread_signal(T1,writeln(call_foo_for_test5)),
+%     thread_send_message(T1,foo),
+     thread_join(T1,_Ball),
+     writeln(test5_ok).
+
+test5_1(Tid):- 
+     thread_send_message(Tid,'Im alive'),
+     loop(1000000),
+     writeln(test_5_child_finito).
+	
+loop(0):- !.
+loop(N):- N1 is N - 1,
+%	writeln(N),
+	loop(N1).
+
+%===================
+% Test of signalling a thread (when it wakes from sleep)
+
+test6:- 
+     thread_self(Tid),
+     thread_create(test6_1(Tid),T1,[]),
+%     usleep(500),
+     thread_get_message('Im alive'),
+     thread_signal(T1,writeln(call_foo_for_test5)),
+%     thread_send_message(T1,foo),
+     thread_join(T1,_Ball),
+     writeln(test6_ok).
+
+test6_1(Tid):- 
+     thread_send_message(Tid,'Im alive'),
+     sleep(1),
+     writeln(test_6_child_finito).
+	
+%================= 
+% test of cancelling main thread
+
+test7:- 
+	catch(thread_cancel(main),
+	      error(permission_error(cancel,main_thread,_),_,_),
+	      writeln(caught_main_thread_cancel_permission_error)).
+
+end_of_file.
+
+test5:- 
+     thread_create(read(X),T1,[]),
+     usleep(400),
+     thread_cancel(T1),
+     thread_join(T1,Ball),
+     writeln(test5_ok).
+
+

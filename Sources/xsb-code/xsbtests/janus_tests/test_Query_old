@@ -1,0 +1,81 @@
+for one_ary_fail: {'truth': False}
+--------------------------
+for anti_member: {'FX': 1, 'truth': True}
+for anti_member: {'FX': 2, 'truth': True}
+for anti_member: {'FX': 3, 'truth': True}
+--------------------------
+for anti_member w input dict: {'FX': 1, 'truth': True}
+for anti_member w input dict: {'FX': 2, 'truth': True}
+for anti_member w input dict: {'FX': 3, 'truth': True}
+--------------------------
+anti_member 1: {'X': 1}
+anti_member 2: {'X': 2}
+anti_member 3: {'X': 3}
+anti_member 4: None
+--------------------------
+am_3 1: {'X': 1}
+am_3 2: {'X': 2}
+am_3 3: {'X': 3}
+am_3 4: None
+--------------------------
+bind_test {'A': 'foo', 'B': 1, 'C': 3.14, 'D': ['foo', 1, 3.14], 'E': ('t1', 't2'), 'F': {'foo': 'bar', 'bar': 'baz'}, 'G': {1, 2, 3}, 'truth': True}
+bind_test {'A': {1, 2, 3}, 'B': 'foo', 'C': 1, 'D': 3.14, 'E': ['foo', 1, 3.14], 'F': ('t1', 't2'), 'G': {'foo': 'bar', 'bar': 'baz'}, 'truth': True}
+bind_test {'A': {'foo': 'bar', 'bar': 'baz'}, 'B': {1, 2, 3}, 'C': 'foo', 'D': 1, 'E': 3.14, 'F': ['foo', 1, 3.14], 'G': ('t1', 't2'), 'truth': True}
+bind_test {'A': ('t1', 't2'), 'B': {'foo': 'bar', 'bar': 'baz'}, 'C': {1, 2, 3}, 'D': 'foo', 'E': 1, 'F': 3.14, 'G': ['foo', 1, 3.14], 'truth': True}
+bind_test {'A': ['foo', 1, 3.14], 'B': ('t1', 't2'), 'C': {'foo': 'bar', 'bar': 'baz'}, 'D': {1, 2, 3}, 'E': 'foo', 'F': 1, 'G': 3.14, 'truth': True}
+bind_test {'A': 3.14, 'B': ['foo', 1, 3.14], 'C': ('t1', 't2'), 'D': {'foo': 'bar', 'bar': 'baz'}, 'E': {1, 2, 3}, 'F': 'foo', 'G': 1, 'truth': True}
+bind_test {'A': 1, 'B': 3.14, 'C': ['foo', 1, 3.14], 'D': ('t1', 't2'), 'E': {'foo': 'bar', 'bar': 'baz'}, 'F': {1, 2, 3}, 'G': 'foo', 'truth': True}
+--------------------------
+anti_member input_dict 1: {'Y': 1, 'truth': True}
+anti_member input_dict 1: {'Y': 2, 'truth': True}
+anti_member input_dict 1: {'Y': 3, 'truth': True}
+--------------------------
+test_comp{'X': 'a', 'truth': True}
+test_comp{'X': 'b', 'truth': True}
+test_comp{'X': 'c', 'truth': True}
+test_comp{'X': 'd', 'truth': True}
+test_comp{'X': 'e', 'truth': Undefined}
+test_comp{'X': 'e', 'truth': Undefined}
+--------------------------
+test_comp{'X': 'a', 'truth': True}
+test_comp{'X': 'b', 'truth': True}
+test_comp{'X': 'c', 'truth': True}
+test_comp{'X': 'd', 'truth': True}
+test_comp{'X': 'e', 'truth': Undefined}
+test_comp{'X': 'e', 'truth': Undefined}
+--------------------------
+test_comp{'X': 'a', 'truth': True}
+test_comp{'X': 'b', 'truth': True}
+test_comp{'X': 'c', 'truth': True}
+test_comp{'X': 'd', 'truth': True}
+test_comp{'X': 'e', 'truth': Undefined}
+test_comp{'X': 'e', 'truth': Undefined}
+--------------------------
+test_comp{'DelayList': [('plgTerm', 'unk', 'something_else')], 'X': 'e'}
+test_comp{'DelayList': [('plgTerm', 'unk', 'something')], 'X': 'e'}
+test_comp{'DelayList': [], 'X': 'd'}
+test_comp{'DelayList': [], 'X': 'c'}
+test_comp{'DelayList': [], 'X': 'b'}
+test_comp{'DelayList': [], 'X': 'a'}
+--------------------------
+test_comp{'DelayList': [('plgTerm', 'unk', 'something_else')], 'X': 'e'}
+test_comp{'DelayList': [('plgTerm', 'unk', 'something')], 'X': 'e'}
+test_comp{'DelayList': [], 'X': 'd'}
+test_comp{'DelayList': [], 'X': 'c'}
+test_comp{'DelayList': [], 'X': 'b'}
+test_comp{'DelayList': [], 'X': 'a'}
+--------------------------
+test_comp{'X': 'a'}
+test_comp{'X': 'b'}
+test_comp{'X': 'c'}
+test_comp{'X': 'd'}
+test_comp{'X': 'e'}
+test_comp{'X': 'e'}
+--------------------------
+test_comp{'X': 'a'}
+test_comp{'X': 'b'}
+test_comp{'X': 'c'}
+test_comp{'X': 'd'}
+test_comp{'X': 'e'}
+test_comp{'X': 'e'}
+--------------------------

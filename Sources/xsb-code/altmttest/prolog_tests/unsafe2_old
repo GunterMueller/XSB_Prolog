@@ -1,0 +1,7 @@
+completed_p([[A]],[A])
+completed_p([[]],[])
+completed_p([],[])
+incomplete_p([[A]],[A])
+incomplete_p([[]],[])
+incomplete_p([],[])
+unsafe2.xwam removed

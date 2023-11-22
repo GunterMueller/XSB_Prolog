@@ -1,0 +1,12 @@
+:- table a/2.
+
+test(Str) :- a(X,Y),write(Str,X),write(Str,' '),write(Str,Y),write(Str,'   '),nl(Str),fail.
+test(_).	
+
+a(X,Y) :- p(X,Y) ; a(X,Z),p(Z,Y).
+
+p(1,2).
+p(2,3).
+p(3,4).
+p(4,5).
+p(5,1).

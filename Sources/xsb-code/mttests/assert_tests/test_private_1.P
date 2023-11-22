@@ -1,0 +1,55 @@
+
+:- thread_private(mypriv/1).
+:- dynamic(mypriv/1).
+
+:- thread_shared(myshar/1).
+:- dynamic(myshar/1).
+
+:- dynamic(mydefault/1).
+
+test:- 
+	testpriv,testshar,testdefault,
+	testpriv1,testshar1,testdefault1.
+
+testpriv:- assert(mypriv(ab)),
+	thread_create(testpriv_sub,Id),
+	thread_join(Id).
+
+testpriv_sub:- mypriv(X),writeln(mypriv(X)).
+
+testshar:- assert(myshar(ab)),
+	thread_create(testshar_sub,Id),
+	thread_join(Id).
+
+testshar_sub:- myshar(X),writeln(myshar(X)).
+
+testdefault:- assert(mydefault(ab)),
+	thread_create(testdefault_sub,Id),
+	thread_join(Id).
+
+testdefault_sub:- mydefault(X),writeln(mydefault(X)).
+
+
+testpriv1:- 
+	thread_private(mypriv1/1),
+	assert(mypriv1(ab)),
+	thread_create(testpriv1_sub,Id),
+	thread_join(Id).
+
+testpriv1_sub:- mypriv1(X),writeln(mypriv1(X)).
+
+testshar1:- 
+	thread_shared(myshar1/1),
+	assert(myshar1(ab)),
+	thread_create(testshar1_sub,Id),
+	thread_join(Id).
+
+testshar1_sub:- myshar1(X),writeln(myshar1(X)).
+
+
+testdefault1:- assert(mydefault1(ab)),
+	thread_create(testdefault1_sub,Id),
+	thread_join(Id).
+
+testdefault1_sub:- mydefault1(X),writeln(mydefault1(X)).
+

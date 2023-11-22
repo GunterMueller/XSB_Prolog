@@ -1,0 +1,15 @@
+
+test:-
+    setup,fail.
+test:- 
+    sk_not(p(_)),!.
+test:-
+    writeln(failed_on_sk_not),
+    p(_X),
+    writeln(succeeded_on_pos_call).
+
+setup:- 
+    abolish_all_tables,
+    table(p/1),
+    assert(p(_)),
+    catch(tnot(p(_)),_E,writeln(caught_tnot)).

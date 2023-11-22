@@ -1,0 +1,36 @@
+++                                                      b ( X , Y ) :- Y is X + 4  - lpos(3,20))
+--------------------
+--------------------
+--------------------
+--------------------
+--------------------
+--------------------
+--------------------
+caught(existence_error(predicate,usermod : smt_no_export / 3))
+dcg([dcg_executed])
+dyn_caught(syntax_error,b ( X , Y ) :- Y is X + 3  <--- HERE? ************ 
+dync_caught(syntax_error(),[More than ,25, non canonical terms in the input ,non_canon,: loading aborted])
+kb_dync1_count(24)
+kb_dync1_index([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3,2])
+kb_dync2_count(23)
+kb_dync2_index([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3])
+kb_dync_executing_on_load
+kb_dync_executing_on_load
+kb_dync_executing_on_reload
+kb_dync_mod_index_mod([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3])
+kb_dync_mod_index_usermod([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3])
+kb_dync_mod_loading
+kb_dync_mod_mod_count(25)
+kb_dync_mod_usermod_count(25)
+kb_mod_no_export_index_mod([1 + 2 + 3,2 + 3,1 + 2,1 + 3,1,3,2])
+kb_mod_no_export_mod_count(24)
+kb_trie_count(24)
+kb_trie_executing_on_load
+kb_trie_index(trie)
+kb_trie_mod_executing_on_load
+kb_trie_mod_index_mod(trie)
+kb_trie_mod_index_usermod(1)
+kb_trie_mod_mod_count(24)
+kb_trie_mod_usermod_count(24)
+lanc_1(a,a)
+lanc_1(a,b)

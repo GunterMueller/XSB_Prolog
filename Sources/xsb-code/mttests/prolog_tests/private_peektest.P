@@ -1,0 +1,46 @@
+:- import thread_create/2, thread_join/2,thread_self/1 from thread.
+:- import message_queue_create/2, thread_send_message/2, 
+	thread_peek_message/1from mutex_xsb.
+
+test:- 
+	test_0,
+	test_1(3),
+	test_2.
+
+%--------------------------
+% backtracking through empty queue
+test_0:- 
+	thread_peek_message(ola(M)),
+	writeln(got(M)).
+test_0:- 
+	writeln('test 0 failed correctly').
+%--------------------------
+% peek gets the first
+
+test_1(N):- 
+	thread_self(Tid),
+	thread_create(producer_1(N,Tid),Id1),
+	thread_join(Id1,_),
+	thread_peek_message(M),
+	writeln(test_1_got(M)).
+
+producer_1(0,_Queue):- !.
+producer_1(N,Queue):- 
+	thread_send_message(Queue,ola(N)),
+	N1 is N - 1,
+	producer_1(N1,Queue).
+
+%--------------------------
+% peek has to backtrack to succeed.
+test_2:- 
+	thread_self(Tid),
+	thread_create(producer_3(Tid),Id1),
+	thread_join(Id1,_),
+	thread_peek_message(ola(M)),
+	writeln(test_2_got(M)).
+
+producer_3(Queue):- 
+	thread_send_message(Queue,hello(1)),
+	thread_send_message(Queue,hello(2)),
+	thread_send_message(Queue,ola(3)).
+

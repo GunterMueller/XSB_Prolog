@@ -1,0 +1,21 @@
+:- import incr_trans_depends/2,incr_assert/1 from increval.
+:- import numbervars/1 from num_vars.
+
+:- dynamic d/2 as incremental,abstract(0).
+%:- dynamic d/2 as incremental.
+d(1,2).
+d(2,3).
+d(3,2).
+
+:- table anc/2 as incremental.
+
+anc(X,Y):- d(X,Y).
+anc(X,Y):- anc(X,Z),d(Z,Y).
+
+test:- anc(1,Y),writeln(anc_1(1,Y)),fail.
+test:- incr_trans_depends(anc(1,B),G),numbervars(B-G),writeln(trans_depends(anc(1,B),G)),fail.
+test:- incr_assert(d(3,4)),fail.
+test:- anc(1,Y),writeln(anc_2(1,Y)),fail.
+test.
+
+

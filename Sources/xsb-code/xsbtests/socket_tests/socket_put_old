@@ -1,0 +1,50 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Client quits...
+Exiting.
+Success: sock_connect1(sockfd0,6025,localhost,0)
+Success: socket_accept1(sockfd0,sockfd0_out1,0)
+Success: socket_bind(sockfd0,6025,0)
+connected to server...
+g(X).
+h(X).
+h(sddsfd).
+sddfg.
+socket(sockfd0,0)
+socket_accept(sockfd0,sockfd0_out2,0)
+socket_connect(sockfd1,6025,localhost,0)
+socket_listen(sockfd0,10,0)
+started client...

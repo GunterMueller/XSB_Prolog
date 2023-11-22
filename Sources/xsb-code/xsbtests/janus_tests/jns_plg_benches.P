@@ -1,0 +1,127 @@
+:- ensure_loaded(janus).
+:- import py_func_int/6,py_dot_int/6 from janusm.
+:- import reverse/2 from basics.
+   
+bench:-
+    writeln('--------- py_func_int_incr(500000) ---------'),
+    bench_call(func_int_incr(500000)),
+    writeln('--------- py_func_incr(500000) ---------'),
+    bench_call(func_incr(500000)),
+    writeln('--------- py_func_kw_incr(500000) ---------'),
+    bench_call(func_kw_incr(500000)),
+    writeln('--------- py_dot_int_incr(500000) ---------'),
+    bench_call(dot_int_incr(500000)),
+    writeln('--------- py_dot_incr(500000) ---------'),
+    bench_call(dot_incr(500000)),
+    writeln('--------- py_dot_incr_kw(500000) ---------'),
+    bench_call(dot_incr_kw(500000)),
+    writeln('--------- py_iter_list(2,000,000) ---------'),
+    bench_call(py_iter_list(2000000)),
+    writeln('--------- py_func_send_list(2,000,000) ---------'),
+    bench_call(py_func_send_list(2000000)),
+    writeln('--------- py_func_get_list(1,000,000) ---------'),
+    bench_call(py_func_get_list(1000000)),
+    writeln('--------- plg_incr(4,000,000) ---------'),
+    bench_call(plg_incr(4000000)).
+
+bench_call(Call):-     
+    arg(1,Call,N),    walltime(_WStart),
+    cputime(Start),
+    Call,
+    cputime(End),walltime(_WEnd),
+    CPU is End-Start,
+    PerSec is N/CPU,
+    write('% Time: '),    write_term(CPU,[float_precision(8)]),
+    write(' ; '),
+%    write_term(PerSec,[float_precision(8)]), nl.
+    make_readable(PerSec,RPerSec),write(RPerSec),writeln(' Per sec.').
+
+make_readable(PerSec,RPerSec):-
+    number_chars(PerSec,List),
+    reverse(List,RevList),
+    trim_frac(RevList,RevList1),
+    RevList1 = [_N,'.'|IntPart],
+    put_in_commas(IntPart,IntCommas),
+    reverse(IntCommas,RList),
+    atom_chars(RPerSec,RList).
+
+trim_frac([],[]).
+trim_frac([N,'.'|Rest],[N,'.'|Rest]):-!.
+trim_frac([_|R1],Out):-
+    trim_frac(R1,Out).
+
+put_in_commas([One,Two,Three,Four|R],[One,Two,Three,','|NR]):- !,
+    put_in_commas([Four|R],NR).
+put_in_commas(L,L).
+    
+func_int_incr(0):- !.
+func_int_incr(Num):- 
+    py_func_int(jns_plg_benches,incr(0),0,1,0,_),
+    Num1 is Num-1,
+    func_int_incr(Num1).
+
+func_incr(0):- !.
+func_incr(Num):-
+    py_func(jns_plg_benches,incr(Num),_),
+    Num1 is Num-1,
+    func_incr(Num1).
+
+func_kw_incr(0):- !.
+func_kw_incr(Num):-
+    py_func(jns_plg_benches,kw_incr(0,a=b),_),
+    Num1 is Num-1,
+    func_kw_incr(Num1).
+
+py_func_get_list(N):-
+    py_func(jns_plg_benches,makelist_ret(N),_F).
+
+py_func_send_list(N):-
+    makelist(N,List),
+    py_func(jns_plg_benches,dummy(List),_F).
+
+makelist(0,[]):-!.
+makelist(N,[N|R]):-
+    N1 is N - 1,
+    makelist(N1,R).
+
+py_iter_list(N):-
+    py_iter(jns_plg_benches,makelist_ret(N),_F),
+    fail.
+py_iter_list(_N).
+
+dot_int_incr(Num):-
+    py_dot(jns_plg_benches,'BenchClass'(),Obj),
+    dot_int_incr_1(Num,Obj).
+
+dot_int_incr_1(0,_):- !.
+dot_int_incr_1(Num,Obj):-
+    py_dot_int(Obj,incr(Num),0,1,0,_),
+    Num1 is Num-1,
+    dot_int_incr_1(Num1,Obj).
+
+dot_incr(Num):-
+    py_dot(jns_plg_benches,'BenchClass'(),Obj),
+    dot_incr_1(Num,Obj).
+
+dot_incr_1(0,_):- !.
+dot_incr_1(Num,Obj):-
+    py_dot(Obj,incr(Num),_),
+    Num1 is Num-1,
+    dot_incr_1(Num1,Obj).
+
+dot_incr_kw(Num):-
+    py_dot(jns_plg_benches,'BenchClass'(),Obj),
+    dot_incr_kw_1(Num,Obj).
+
+dot_incr_kw_1(0,_):- !.
+dot_incr_kw_1(Num,Obj):-
+    py_dot(Obj,incr_kw(Num,a=b),_),
+    Num1 is Num-1,
+    dot_incr_kw_1(Num1,Obj).
+
+plg_incr(0):- !.
+plg_incr(N):-
+    plg_decr(N,N1),
+    plg_incr(N1).
+
+plg_decr(N,N1):- N1 is N - 1.

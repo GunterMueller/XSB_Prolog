@@ -1,0 +1,26 @@
+
+/* These calls create an SCC of 100 calls.  A failing call is made,
+and the tables completed.  Its then repeated 10,000 times. */
+
+:- import random_pause/1, for/3 from mttestutils.
+
+comptest(N,Str):-	
+	make_goals(N,fail(a),[Call|Rest]),
+	make_big_loop([Call|Rest]),
+	(table_loop_list(1000,Call,[Call|Rest]) ; true),
+	nv_writeln(Str,Call),
+	fail.
+comptest(_,_).
+
+make_big_loop([Call1|Rest]):- 
+	make_big_loop_1(Rest,Call1,Call1).
+
+make_big_loop_1([],Call1,Call):- 
+	functor(Call,F,N),
+	table(F/N),
+	assert((Call :- call(Call1))).
+make_big_loop_1([H|R],Call1,Call):- 
+	functor(Call,F,N),
+	table(F/N),
+	assert((Call :- call(H))),
+	make_big_loop_1(R,Call1,H).

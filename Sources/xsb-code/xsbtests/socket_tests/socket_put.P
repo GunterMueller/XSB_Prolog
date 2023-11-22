@@ -1,0 +1,52 @@
+
+:- import spawn_process/5, process_control/2, process_status/2 from shell.
+:- import slash/1 from machine.
+:- import file_flush/2, file_clone/3, file_reopen/4 from file_io.
+:- import file_put/2, copyIOport/2 from file_io.
+
+
+test :- xsb_configuration(config_bindir, Bindir), slash(S),
+	fmt_write_string(Cmd, '%s%sxsb', args(Bindir,S)),
+	spawn_process([Cmd, '--nobanner', '--quietload', '--noprompt',
+		       '-e', '[''auxiliary/putServer''].'],
+		      ToServer, FromServer, ServErr, Servproc),
+	fmt_write(ToServer,
+		  "file_reopen('/dev/null', w, 4, _), file_reopen('/dev/null', w, 6, _).\n", _),
+	file_flush(ToServer,_),
+	fmt_write(ToServer, "server.\n", _), file_flush(ToServer,_),
+	spawn_process([Cmd, '--nobanner', '--quietload', '--noprompt',
+		       '-e', '[''auxiliary/putClient''].'],
+		      ToClient, FromClient, ClientErr, ClientProc),
+	fmt_write(ToClient,
+		  "file_reopen('/dev/null', w, 4, _), file_reopen('/dev/null', w, 6, _).\n", _),
+	file_flush(ToClient,_),
+	fmt_write(ToClient, "client.\n", _), file_flush(ToClient,_),
+	fmt_write(ToClient, "sddfg.\n",_),
+	file_flush(ToClient,_),
+	file_write(ToClient, 'h(sddsfd).'),
+	file_nl(ToClient), file_flush(ToClient,_),
+	fmt_write(ToClient, "h(X).\n",_),
+	file_flush(ToClient,_),
+	fmt_write(ToClient, "g(X).\n",_),
+	file_flush(ToClient,_),
+	file_put(ToClient, 255), % stop the client/server loop
+	file_flush(ToClient,_),
+	file_write(ToClient, 'end_of_file.'), % stop client subprocess
+	file_nl(ToClient), file_flush(ToClient,_),
+	file_write(ToServer, 'end_of_file.'), % stop server subprocess
+	file_nl(ToServer), file_flush(ToServer,_),
+	file_close(ToServer),
+	file_close(ToClient),
+	file_reopen(temp, w, 1, _),
+	copyIOport(FromServer, 1),
+	copyIOport(FromClient, 1),
+	copyIOport(ServErr, 1),
+	copyIOport(ClientErr, 1),
+	file_close(FromServer),
+	file_close(FromClient),
+	file_close(ServErr),
+	file_close(ClientErr),
+	process_control(Servproc,wait(XX)),
+	process_control(ClientProc,wait(XX)),
+	file_flush(1,_).
+

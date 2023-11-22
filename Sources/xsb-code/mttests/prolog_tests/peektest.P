@@ -1,0 +1,78 @@
+:- import thread_create/2, thread_join/2 from thread.
+:- import message_queue_create/2, thread_send_message/2, 
+	thread_get_message/2, thread_peek_message/2 from mutex_xsb.
+
+test:- 
+	test_1(3),
+	test_2(3),
+	test_3,
+	test_4.
+
+%--------------------------
+% peek gets the first
+test_1(N):- 
+	message_queue_create(Queue,[max_terms(10)]),
+	thread_create(producer_1(N,Queue),Id1),thread_join(Id1,_),
+	thread_create(consumer_1(Queue),Id2),
+	thread_join(Id2,_).
+
+producer_1(0,_Queue):- !.
+producer_1(N,Queue):- 
+	thread_send_message(Queue,ola(N)),
+	N1 is N - 1,
+	producer_1(N1,Queue).
+
+consumer_1(Queue):- 
+	thread_peek_message(Queue,M),
+	writeln(got(M)).
+
+%--------------------------
+% peek cannot get any.
+test_2(N):- 
+	message_queue_create(Queue,[max_terms(10)]),
+	thread_create(producer_2(N,Queue),Id1),thread_join(Id1,_),
+	thread_create(consumer_2(Queue),Id2),
+	thread_join(Id2,_).
+
+producer_2(0,_Queue):- !.
+producer_2(N,Queue):- 
+	thread_send_message(Queue,hello(N)),
+	N1 is N - 1,
+	producer_2(N1,Queue).
+
+consumer_2(Queue):- 
+	thread_peek_message(Queue,ola(M)),
+	writeln(got(M)).
+consumer_2(_Queue):- 
+	writeln('test 2 failed correctly').
+
+%--------------------------
+% peek has to backtrack to succeed.
+test_3:- 
+	message_queue_create(Queue,[max_terms(10)]),
+	thread_create(producer_3(Queue),Id1),thread_join(Id1,_),
+	thread_create(consumer_3(Queue),Id2),
+	thread_join(Id2,_).
+
+%producer_3(_Queue):- !.
+producer_3(Queue):- 
+	thread_send_message(Queue,hello(1)),
+	thread_send_message(Queue,hello(2)),
+	thread_send_message(Queue,ola(3)).
+
+consumer_3(Queue):- 
+	thread_peek_message(Queue,ola(M)),
+	writeln(got(M)).
+
+%--------------------------
+% backtracking through empty queue
+test_4:- 
+	message_queue_create(Queue,[max_terms(10)]),
+	thread_create(consumer_4(Queue),Id2),
+	thread_join(Id2,_).
+
+consumer_4(Queue):- 
+	thread_peek_message(Queue,ola(M)),
+	writeln(got(M)).
+consumer_4(_Queue):- 
+	writeln('test 4 failed correctly').

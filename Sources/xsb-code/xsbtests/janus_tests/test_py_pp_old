@@ -1,0 +1,83 @@
+| ?- | ?- 
+------------------------------------ pformat 
+(3,
+ 3.14159,
+ 100000000,
+ ['d',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v'],
+ {'one': 'two', 'three': 'four'})
+------------------------------------  pformat 
+{'confirmed': True,
+ 'created': {'day': None, 'month': 'December', 'year': 2007},
+ 'members': [1, 2, 3],
+ 'name': 'Demo term'}
+==================================== py_pp.P
+(
+ 3
+ 3.14159
+ 100000000
+py_set(
+  a
+  b
+  c
+ )
+ [
+  d
+  e
+  f
+  g
+  h
+  i
+  j
+  k
+  l
+  m
+  n
+  o
+  p
+  q
+  r
+  s
+  t
+  u
+  v
+ ]
+ {
+   one: two
+   three: four
+ }
+)
+------------------------------------ py_pp.P
+{
+  name: Demo term
+  created: 
+          {
+            day: @(none)
+            month: December
+            year: 2007
+          }
+  confirmed: @(true)
+  members: 
+          [
+           1
+           2
+           3
+          ]
+}

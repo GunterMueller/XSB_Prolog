@@ -1,0 +1,69 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    +++Invalid goal: sddfg
+    g(1)
+    g(2)
+    g(3)
+    g(4)
+    g(5)
+    h(a)
+    h(b)
+    h(c)
+    h(d)
+    h(e)
+Answers: 
+Answers: 
+Answers: 
+Answers: 
+Client quits...
+Exiting.
+Invalid goal: sddfg
+Please enter goal: g(X). or h(X).  Type e. to finish. Goal: 
+Please enter goal: g(X). or h(X).  Type e. to finish. Goal: 
+Please enter goal: g(X). or h(X).  Type e. to finish. Goal: 
+Please enter goal: g(X). or h(X).  Type e. to finish. Goal: 
+Please enter goal: g(X). or h(X).  Type e. to finish. Goal: 
+Success: sock_connect1(sockfd0,6022,localhost,0)
+Success: socket_accept(sockfd0,sockfd0_out2,0)
+Success: socket_accept1(sockfd0,sockfd0_out1,0)
+Success: socket_bind(sockfd0,6022,0)
+Success: socket_connect(sockfd1,6022,localhost,0)
+Timeout or EOF: -1
+Timeout or EOF: -2
+Timeout or EOF: -2
+Timeout or EOF: -2
+Timeout or EOF: -2
+connected to server...
+recv(sockfd0,tmsg,-1)
+recv(sockfd0,tmsg,-2)
+recv(sockfd0,tmsg,-2)
+recv(sockfd0,tmsg,-2)
+recv(sockfd0,tmsg,-2)
+serverloop1
+serverloop1
+serverloop1
+serverloop1
+serverloop1
+serverloop2
+serverloop2
+serverloop2
+serverloop2
+socket(sockfd0,0)
+socket_listen(sockfd0,10,0)
+started client...

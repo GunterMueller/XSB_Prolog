@@ -1,0 +1,34 @@
+		  XSB Distribution for Windows
+
+Current version: XSB Version 5.0. of May 15, 2022.
+
+WEB
+===
+
+Up-to-date information on XSB can be found on the XSB homepage below.
+You will find the latest sources (also accessible through SVN), a
+mailing list archive, various additional packages, etc.
+
+	http://xsb.sourceforge.net
+
+
+DOCUMENTATION
+=============
+
+A 2-volume manual in pdf format is distributed with XSB binaries or
+source files.  
+
+
+MODIFYING XSB
+====================
+
+You are free to modify XSB code the LGPL with the exception of
+Prolog-commons code, most of whose code is also under LGPL (see
+specific Prolog-commons files).
+
+
+CONTRIBUTING TO XSB
+========================
+
+Please see the XSB manual for details.
+

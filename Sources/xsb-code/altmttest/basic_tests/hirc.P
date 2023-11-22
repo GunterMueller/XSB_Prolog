@@ -1,0 +1,23 @@
+
+:- table(boss/2).
+
+:- hilog manage.
+:- hilog p.
+:- hilog tc.
+:- table(apply/3).
+
+test(Str):- tc(manage)(X,Y),write(Str,X),write(Str,' '),write(Str,Y),nl(Str),fail.
+test(_).
+
+tc(R)(X,Y) :- R(X,Y).
+tc(R)(X,Y) :- tc(R)(X,Z),R(Z,Y).
+
+boss(X,Y) :- manage(X,Y).
+boss(X,Y) :- boss(X,Z),manage(Z,Y).
+
+manage(bill,mary).
+manage(mary, sue).
+manage(sue, john).
+
+p(a,b).
+p(b,c).

@@ -1,0 +1,7 @@
+----------------------- asserting q(1)
+first_residual([tnot p(1)])
+first_residual([tnot p(1)])
+----------------------- p(1) first call
+----------------------- p(1) second call
+----------------------- p(1) third call
+----------------------- retracting q(1)

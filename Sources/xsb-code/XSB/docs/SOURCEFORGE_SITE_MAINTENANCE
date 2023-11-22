@@ -1,0 +1,59 @@
+
+Sourceforge keeps changing its policies and procedures for site
+maintenance.  Here are the notes from putting out version 5.0
+
+To update the web page do the following steps.
+
+-- make whatever changes you need in docs/homepage, and when you are
+   done update git.
+
+-- log in to shell.sourceforge.net (as yourself or xsb). This is done
+   as:
+
+ssh -t <name>,xsb@shell.sourceforge.net create
+
+then cd to /home/project-web/xsb/htdocs
+
+Copy into the various directories any of the .html or other files you
+need.  Eg.
+
+scp index.html <name>,xsb@web.sourceforge.net:/home/project-web/xsb/htdocs
+scp changelog.html <name>,xsb@web.sourceforge.net:/home/project-web/xsb/htdocs
+
+-- For full releases, add the release file following the instructions found from clicking on the Files tab in
+https://sourceforge.net/projects/xsb.
+
+-- There are several other directories that may need to be updated.
+
+manual1 -- subdirectory for manual vol. 1    
+	scp manual1.pdf <name>,xsb@web.sourceforge.net:/home/project-web/xsb/htdocs/manual1
+manual2 -- subdirectory for manual vol. 2     /* TES: not maintained in v. 3.2 */
+	scp manual2.pdf <name>,xsb@web.sourceforge.net:/home/project-web/xsb/htdocs/manual2
+
+packages -- subdirecotry for any separate packages manuals 
+api -- has generated documentation for XSB    /* TES: not maintained in v. 3.2 */
+
+-- Finally, update the news.  Login to sourceforge, under the admin
+menu, click news, then submit.  this will bring you to a form where
+you can submit the news story.
+
+For Binaries, you can run 
+
+admin/TarRelease.sh (Needs to be updated for git) 
+
+to make an XSB.tar.gz and an XSB.zip, then move the tar file
+somewhere, untar it, cd to the admin directory, and run
+configure_release.sh.  This makes optimized versions of
+
+sequential, 64-bit, local
+
+Next, run TarBin.sh to create tarball, and copy over to sourceforge.
+
+Problems
+
+If the xsb password expires, you can't login to shell.sourceforge.net,
+even though you can log into sourceforge through a browser.  If this
+happens, simply change the password through the browser and things
+should work (make sure to notify the relevant developers).
+
+

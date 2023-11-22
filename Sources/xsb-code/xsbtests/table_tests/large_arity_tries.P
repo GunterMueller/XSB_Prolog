@@ -1,0 +1,28 @@
+
+:- import new_trie/1 , trie_intern/2, trie_interned/4, trie_interned/2,  trie_unintern_nr/2,
+	  trie_unintern/2, delete_trie/1, trie_retractall/2  from intern.
+
+test:- test_ti2,fail.
+test:- test_ti3,fail.
+test.
+
+init:- 
+	new_trie(Trie),
+	assert(ptrie(Trie)).
+
+% works, but gives pdl panic for 50000.
+test_ti2:- init,ptrie(Trie),functor(F,f,5000),trie_intern(F,Trie),fail.
+test_ti2:- ptrie(Trie),trie_interned(Term,Trie,_Leaf,Skel),
+           functor(Term,Tf,Ta),functor(Skel,Sf,Sa),writeln(test_ti2(Tf/Ta,Sf/Sa)),fail.
+test_ti2:- ptrie(Trie),trie_interned(_Term,Trie,Leaf,_Skel),
+           trie_unintern(Trie,Leaf),writeln(test_ti2_uninterned),fail.
+test_ti2:- ptrie(Trie),delete_trie(Trie),writeln(test_ti2_deleted).
+
+test_ti3:- init,ptrie(Trie),functor(F2,f2,5000),trie_intern(F2,Trie),functor(F3,f3,5000),trie_intern(F3,Trie),fail.
+test_ti3:- ptrie(Trie),functor(F2,f2,5000),trie_retractall(F2,Trie),fail.
+test_ti3:- ptrie(Trie),trie_interned(Term,Trie),
+           functor(Term,Tf,Ta),writeln(test_ti3(Tf/Ta)),fail.
+
+%testti:- functor(T,f,50000),trie_intern(T,_,Arity),writeln(test2(Arity)),fail.
+
+

@@ -1,0 +1,14 @@
+:- compiler_options([xpp_on]).
+#include "extensions_xsb.h"
+
+test :- q(_,Y), writeln(res(Y)), fail.
+test :- shell(['rm varcond', XSB_OBJ_EXTENSION_ATOM]),
+	fmt_write('varcond%s removed', arg(XSB_OBJ_EXTENSION_ATOM)).
+
+q(A,B) :-
+   ((var(A); A==a) ->
+        B = b
+   ;
+        B = c
+   ).
+

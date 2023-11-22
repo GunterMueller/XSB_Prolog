@@ -1,0 +1,5 @@
+t1_incr_goalatom(t1_incr(_v0))
+t1_incr_goal(t1_incr(A))
+t1_incr_message( An incremental update is trying to invalidate the non-completed goal t1_incr(_v0))
+t1_incr_tag(typed_table_error(incremental_tabling))
+t1_non_incr_message( In call to d/1, the calling predicate usermod:t1_non_incr/1 was not declared incrementally_tabled)

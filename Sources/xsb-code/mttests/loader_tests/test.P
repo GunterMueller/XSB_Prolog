@@ -1,0 +1,92 @@
+:- import concat_atom/2 from string.
+:- import xsb_thread_create/3,
+	  xsb_thread_detach/2, 
+	  xsb_thread_exit/2, 
+	  xsb_thread_join/3, 
+	  xsb_thread_self/2 from thread.
+
+exec_goals([],[]).
+exec_goals([Goal|Grest],[Id|Rest]):- 
+	xsb_thread_create(Goal,Id,_),
+	exec_goals(Grest,Rest).
+
+join_list([]).
+join_list([Id|Rest]):- 
+	xsb_thread_join(Id,_,_),
+	join_list(Rest).	
+	
+exec_goals_and_join([],[]).
+exec_goals_and_join([Goal|Grest],[Id|Rest]):- 
+	xsb_thread_create(Goal,Id,_),
+	xsb_thread_join(Id,_Exit,_),
+	exec_goals_and_join(Grest,Rest).
+
+test_concurrent_goal(M,Goal):- 
+	make_duplicate_goals(M,Goal,List),
+	exec_goals(List,Ids),
+	join_list(Ids).
+
+make_duplicate_goals(0,_Goal,[]):-!.
+make_duplicate_goals(N,Goal,[Goal|Rest]):-
+	N1 is N - 1,
+	make_duplicate_goals(N1,Goal,Rest).
+
+thread_open(File,Mode,Handle):- 
+	xsb_thread_self(Id,_),
+	number_chars(Id,L),
+	atom_chars(Atom_id,L),
+	concat_atom([File,Atom_id],Real_file),
+	open(Real_file,Mode,Handle).
+
+%----------------------------------------------------------------------	
+dumb_test(N,File):- 
+	thread_open(File,write,Handle),	
+	write_int(N,Handle),
+	close(Handle).
+
+write_int(0,_):-!.
+write_int(N,Handle):-
+	writeln(Handle,N),
+	N1 is N -1,
+	write_int(N1,Handle).
+
+exec(self,Goal):- call(Goal).
+exec(_,Goal):- xsb_thread_create(Goal,_,_).
+
+write_self(N):- 
+	xsb_thread_self(Id,_Err),
+	write_self(N,Id).
+
+write_self(0,_):- !.
+write_self(N,Id):- 
+	shell(' sleep 1'),
+	writeln(i_am(Id)),
+	N1 is N - 1,
+	write_self(N1,Id).
+
+write_other(N,Id):-
+	xsb_thread_create(write_other_1(N),Id,_).
+
+write_other_1(N):- 
+	xsb_thread_self(Id,_Err),
+%	xsb_thread_detach(Id,_),
+	write_other_2(N,Id).
+	
+write_other_2(0,_):- !,
+	writeln('exiting...'),
+	xsb_thread_exit(0,_Err).
+write_other_2(N,Id):- 
+	shell(' sleep 1'),
+	writeln(i_am(Id)),
+	N1 is N - 1,
+	write_other_2(N1,Id).
+
+test(N,M):- 
+	(write_other(N),fail ; true),
+	write_self(M).
+
+test_join(N,M):- 
+	xsb_thread_create(write_other_1(N),Thread,_Err),
+	xsb_thread_join(Thread,_Exit,_),
+	write_self(M).
+

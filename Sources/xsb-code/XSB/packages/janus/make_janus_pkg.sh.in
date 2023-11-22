@@ -1,0 +1,40 @@
+#! /bin/sh
+# @configure_input@
+
+echo "*** Installing janus as a Python package"
+cd ../packages/janus
+
+../../bin/xsb <<EOF
+%%consult('.janus_mk_setup_query').
+consult(janus_mk_setup), mk_setup('janus-py/.tmp_janussetup.py','@PYTHON_INCLUDE_DIR@').
+halt.
+EOF
+
+cd janus-py
+@PYTHON_BIN@ -m pip install --upgrade setuptools wheel > ../janus-py-install.log 2>&1
+
+@PYTHON_BIN@ .tmp_janussetup.py bdist_wheel >> ../janus-py-install.log 2>&1
+@PYTHON_BIN@  -m pip -v install --no-index --force-reinstall --find-links=dist janus_xsb >> ../janus-install.log 2>&1
+#@PYTHON_BIN@  -m pip -v install --no-index --find-links=dist janus_xsb --user >> ../janus-py-install.log 2>&1 
+
+janus_errors=`grep -i -e error ../janus-py-install.log | grep -v Werror | grep -v "error checking the latest version of pip"`
+janus_warn=`grep -i -e warning ../janus-install.log | grep -v "error checking the latest version of pip"`
+#janus_warn=`grep -i -e warning ../janus-py-install.log | grep -v "error checking the latest version of pip" | grep -v SetuptoolsDeprecationWarning`
+
+if test -n "$janus_errors" ; then
+    echo ""
+    echo "+++++ Errors occurred while configuring the Python-to-XSB bridge:"
+    echo "$janus_errors"
+    echo "+++++   The bridge will likely not function properly in this XSB installation."
+    echo "+++++   Check  the log at XSB/packages/janus/janus-py-install.log"
+fi
+if test -n "$janus_warn" ; then
+    echo ""
+    echo "+++++ Warnings occurred while configuring the Python-to-XSB bridge:"
+    echo "$janus_warn"
+    echo "+++++   The bridge might not function correctly."
+    echo "+++++   Check  the log at XSB/packages/janus/janus-py_install.log"
+fi
+echo ""
+
+

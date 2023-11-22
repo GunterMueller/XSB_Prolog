@@ -1,0 +1,70 @@
+
+:- import u_not/1 from tables.
+:- import numbervars/1 from num_vars.
+
+test:- p(_X),get_residual(p(1),R),numbervars(R),writeln(test(p(1),R)),fail.
+test:- r(_X),get_residual(r(1),R),numbervars(R),writeln(test(r(1),R)),fail.
+test:- i_1(_X),get_residual(i_1(1),R),numbervars(R),writeln(test(i(1),R)),fail.
+test:- m_1(_X),get_residual(m_1(1),R),numbervars(R),writeln(test(m(1),R)),fail.
+test:- testr2.
+test:- testr3.
+test:- testr4.
+test:- testr5.
+test:- testr6.
+test:- testr7.
+test.
+
+
+:- table p/1.
+p(1):- u_not(q(_X)).
+
+:- table r/1.
+r(1):- u_not(q(X)),s(X).
+
+:- table p/2.
+p(1,2).
+
+
+:- table r1/1.
+r1(1):- u_not(q(X)),u_not(q(_Y)),u_not(p(X)).
+testr1:- r1(X),get_residual(r1(1),R),numbervars(R),writeln(test(r1(X),R)),fail.
+
+:- table r2/1.
+r2(1):- u_not(q(X)),u_not(q(Y)),u_not(p(X)),u_not(p(Y)).
+testr2:- r2(X),get_residual(r2(1),R),numbervars(R),writeln(test(r2(X),R)),fail.
+
+:- table r3/1.
+r3(_Z):- u_not(q(X)),u_not(q(Y)),u_not(p(X)),u_not(p(Y)).
+testr3:- r3(X),get_residual(r3(X),R),numbervars([r3(X),R]),writeln(test(r3(X),R)),fail.
+
+:- table r4/1.
+r4(Z):- u_not(q(X)),u_not(q(Y)),u_not(p(X)),u_not(p(Z,Y)).
+testr4:- r4(X),get_residual(r4(X),R),numbervars([r4(X),R]),writeln(test(r4(X),R)),fail.
+
+:- table r5/1.
+r5(Z):- u_not(q(X)),u_not(q(Y)),u_not(p(X,Y)),u_not(p(Z,Y)).
+testr5:- r5(X),get_residual(r5(X),R),numbervars([r5(X),R]),writeln(test(r5(X),R)),fail.
+
+:- table r6/1.
+r6(f(Z)):- u_not(q(X)),u_not(q(Y)),u_not(p(X,Y)),u_not(p(Z,Y)).
+testr6:- r6(X),get_residual(r6(X),R),numbervars([r6(X),R]),writeln(test(r6(X),R)),fail.
+
+:- table r7/1.
+r7(f(Z)):- u_not(q(g(X))),u_not(q(Y)),u_not(p(X,Y)),u_not(p(Z,Y)).
+testr7:- r7(X),get_residual(r7(X),R),numbervars([r7(X),R]),writeln(test(r7(X),R)),fail.
+
+:- table q/1.
+q(1).
+
+s(1).
+
+:- table i_1/1, i_2/1 as incremental.
+i_1(1):- u_not(i_2(_X)).
+
+i_2(2).
+
+:- table m_1/1.
+:- table m_2/1 as incremental.
+m_1(1):- u_not(m_2(_X)).
+
+m_2(2).

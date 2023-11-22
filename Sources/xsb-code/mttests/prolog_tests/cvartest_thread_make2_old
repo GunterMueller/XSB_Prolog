@@ -1,0 +1,35 @@
+/******************************************/
+/******************************************/
+Closed return p a|b|c
+Closed return p a|b|c
+Closed return r c|b|a
+Closed return r c|b|a
+Planned command error p: /
+Planned command error p: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Planned command error r: type_error/++Error[XSB/Runtime/P]: [Type (a in place of integer)] in arg 3 of predicate functor/3
+Planned command error r: type_error/++Error[XSB/Runtime/P]: [Type (a in place of integer)] in arg 3 of predicate functor/3
+Planned query Error p: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Planned query Error r: type_error/++Error[XSB/Runtime/P]: [Type (a in place of integer)] in arg 3 of predicate functor/3
+Pre-err return p a|b|c
+Pre-err return r c|b|a
+Return p 1|2|3
+Return p 1|2|3
+Return p [1,2]|[3,4]|[5,6]
+Return p [1,2]|[3,4]|[5,6]
+Return p a|b|c
+Return p a|b|c
+Return r 3|2|1
+Return r 3|2|1
+Return r [5,6]|[3,4]|[1,2]
+Return r [5,6]|[3,4]|[1,2]
+Return r c|b|a
+Return r c|b|a
+p([c,3,[5,6]])
+p([c,3,[5,6]])
+p_fail failed properly
+p_fail failed properly
+r([a,1,[1,2]])
+r([a,1,[1,2]])
+r([a,1,[1,2]])
+r_fail failed properly
+r_fail failed properly

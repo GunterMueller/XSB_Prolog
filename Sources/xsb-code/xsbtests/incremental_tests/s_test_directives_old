@@ -1,0 +1,64 @@
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+prop(d1,dynamic).
+prop(d1,exported).
+prop(d2,dynamic).
+prop(d2,exported).
+prop(d2,updating = incremental).
+prop(d3,dynamic).
+prop(d3,exported).
+prop(d3,updating = opaque).
+prop(d4,dynamic).
+prop(d4,exported).
+prop(d4,table_reuse = variant).
+prop(dd_1,dynamic).
+prop(dd_1,exported).
+prop(dd_1,updating = incremental).
+prop(dd_2,dynamic).
+prop(dd_2,exported).
+prop(dd_2,updating = opaque).
+prop(non_tabled,caught_permission_error_0).
+prop(p1,imported_from(usermod)).
+prop(p1,static).
+prop(p1,table_reuse = variant).
+prop(p2,imported_from(usermod)).
+prop(p2,static).
+prop(p2,table_reuse = variant).
+prop(p2,updating = incremental).
+prop(p3,imported_from(usermod)).
+prop(p3,static).
+prop(p3,table_reuse = variant).
+prop(p3,updating = opaque).
+prop(p4,imported_from(usermod)).
+prop(p4,static).
+prop(p4,table_reuse = variant).
+prop(p_inc,caught_permission_error_1).
+prop(p_noninc,caught_permission_error_3).
+prop(p_opaque,caught_permission_error_2).
+prop(t1,table_reuse = variant).
+prop(t2_1,table_reuse = subsumptive).
+prop(t2_1,updating = incremental).
+prop(t2,table_reuse = variant).
+prop(t2,updating = incremental).
+prop(t3,table_reuse = variant).
+prop(t3,updating = opaque).
+prop(t4,table_reuse = variant).
+prop(t5,table_reuse = subsumptive).

@@ -1,0 +1,26 @@
+:- import numbervars/1 from num_vars.
+my_writeln(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeln(Term)
+	).
+
+my_writeq(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeq(Term)
+	).
+
+
+test :- write('Testing dynamic mod: '),my_writeln(modp_file:p(_,_)),fail.
+test :- Mod = modp_file,findall(p(X,Y),Mod:p(X,Y),List), writeln(Mod:List), fail.
+
+test :- write('Testing dynamic mod: '),my_writeln(modp>>modp_file:p(_,_)),fail.
+test :- Mod = modp>>modp_file,findall(p(X,Y),Mod:p(X,Y),List), writeln(Mod:List), fail.
+
+test :- write('Testing dynamic mod: '),my_writeln(modp_filec:p(_,_)),fail.
+test :- Mod = modp_filec,findall(p(X,Y),Mod:p(X,Y),List), writeln(Mod:List), fail.
+
+test :- write('Testing dynamic mod: '),my_writeln(modpc>>modp_filec:p(_,_)),fail.
+test :- Mod = modpc>>modp_filec,findall(p(X,Y),Mod:p(X,Y),List), writeln(Mod:List), fail.
+

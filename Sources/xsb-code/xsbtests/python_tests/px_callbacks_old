@@ -1,0 +1,3 @@
+xp_unicode:unicode_upper: ('Η GOOGLE ΜΟΥ ΤΟ ΜΕΤΈΦΡΑΣΕ', 1)
+px_callbacks:test_json: ({'name': 'Bob', 'languages': ['English', 'Fench', 'GERMAN']}, 1)
+px_callbacks test_class: joe

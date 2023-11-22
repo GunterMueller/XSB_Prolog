@@ -1,0 +1,78 @@
+:- import abolish_persistent_table_calls/1 from persistent_tables.
+
+test :- shell('rm -f *.xwam'),fail.
+test :- shell('rm -f pm_subdir/*.xwam'),fail.
+
+:- import out/2 from join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in) as pred1/2.
+test :- write('testing: '),my_writeln(join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in):out(_A,_B)),fail.
+test :- pred1(A,B),my_writeln(out(A,B)),fail.
+
+:- import out/2 from parent(mother_us,father) as pred2/2.
+test :- write('testing: '),my_writeln(parent(mother_us,father):out(_X,_Y)),fail.
+test :- pred2(X,Y),my_writeln(par(X,Y)),fail.
+
+:- import p/3 from parmodtst(basics) as pred3/3.
+test :- write('testing: '),my_writeln(parmodtst(basics):p(_A,_B,[a,b])),fail.
+test :- pred3(A,B,[a,b]),my_writeln(p(A,B,_C)),fail.
+
+:- import p/3 from 'TESTQUOTE' as pred4/3.
+test :- write('testing: '),my_writeln('TESTQUOTE':p(_,_,_)),fail.
+test :- pred4(A,B,C),my_writeln(p(A,B,C)),fail.
+
+:- import q/2 from call_testquote as pred5/2.
+test :- write('testing: '),my_writeln(call_testquote:q(_A,_B)),fail.
+test :- pred5(A,B),my_writeln(q(A,B)),fail.
+
+:- import still_my_app/3 from callQParMod as pred6/3.
+test :- write('testing: '),my_writeln(callQParMod:still_my_app(_A,_B,[a,b,c])),fail.
+test :- pred6(A,B,[a,b,c]),my_writeln(still_my_app(A,B)),fail.
+
+:- import q/3 from usermod('TTSTUSRMD').  
+test :- write('testing: '),my_writeln(usermod('TTSTUSRMD'):q(_A,_B,_C)),fail.
+test :- q(A,B,C),my_writeln(q(A,B,C)),fail.
+
+:- import s1/3 from usermod>>'pm_subdir/ttstusrmduc'.
+test :- write('testing: '),my_writeln(usermod('pm_subdir/ttstusrmduc'):s1(_A,_B,_C)),fail.  
+test :- s1(A,B,C),my_writeln(s1(A,B,C)),fail.
+
+:- import w/3 from usermod>>'pm_subdir/ttstusrmduc'.
+test :- write('testing: '),my_writeln(usermod('pm_subdir/ttstusrmduc'):w(_A,_B,_C)),fail.  
+test :- w(A,B,C),my_writeln(w(A,B,C)),fail.
+
+:- import c/3 from docim as pred15/3.
+test :- write('testing: '),my_writeln(docim:c(_A,_B,_C)),fail.  
+test :- pred15(A,B,C),my_writeln(p(A,B,C)),fail.
+
+:- import tmt/1 from 'test-mod'.
+test :- write('testing: '),my_writeq('test-mod':tmt(_A)),nl,fail.  
+test :- tmt(A),my_writeln(tmt(A)),fail.
+
+:- import tp/3 from usermod(load_dyn(afile)).
+test :- write('testing: '),my_writeln(usermod(dyn_load(afile))),fail.
+test :- tp(A,B,C),my_writeln(tp(A,B,C)),fail.
+
+:- import tp2/3 from usermod(consult:load_dyn(bfile,0)).
+test :- write('testing: '),my_writeln(usermod(consult:dyn_load(bfile,0))),fail.
+test :- tp2(A,B,C),my_writeln(tp2(A,B,C)),fail.
+
+:- import pd/2 from usermod>>(proc_files:load_dsv('dsv.txt',pd/2,[])).
+test :- write('testing: '),my_writeln(usermod((proc_files:load_dsv('dsv.txt',pd/2,[]))):pd(_X,_Y)),fail.
+test :- pd(X,Y),my_writeln(pd(X,Y)),fail.
+
+
+test :- my_writeln('Testing with imports finished!').
+
+
+:- import numbervars/1 from num_vars.
+my_writeln(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeln(Term)
+	).
+
+my_writeq(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeq(Term)
+	).
+

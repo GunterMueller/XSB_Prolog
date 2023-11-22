@@ -1,0 +1,44 @@
+% Testing intern with dynamic and opaque.
+
+test:- test_dyn,fail.
+test:- test_opq,fail.
+test.
+%------------------------------
+
+test_dyn:- path(a,X),writeln(p(a,X)),fail.
+
+:- table path/2 as dyn,intern.
+
+path(X,Y):- path(X,Z),edge(Z,Y).
+path(X,Y):- edge(X,Y).
+
+edge(a,a).
+edge(a,b).
+edge(b,c).
+
+%------------------------------
+
+:- import incr_assert/1 from increval.
+:- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
+
+:- dynamic d/1 as incremental.
+
+:- table r/1,r_i/1 as incremental.
+:- table p/1 as intern,opaque.
+:- table p_i/1 as incremental.
+
+r(X):- p(X).
+p(X):- d(X).
+p(X):- p(X).
+
+r_i(X):- p_i(X).
+p_i(X):- d(X).
+p_i(X):- p_i(X).
+
+test_opq:- incr_assert(d(1)),fail.
+test_opq:- r(X),writeln(r1(X)),fail.
+test_opq:- r_i(X),writeln(r_i1(X)),fail.
+test_opq:- incr_assert(d(2)),fail.
+test_opq:- r(X),writeln(r2(X)),fail.
+test_opq:- r_i(X),writeln(r_i2(X)),fail.
+test_opq.

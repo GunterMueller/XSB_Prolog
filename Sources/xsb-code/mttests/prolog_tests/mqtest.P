@@ -1,0 +1,141 @@
+:- import thread_create/2, thread_join/2 from thread.
+:- import message_queue_create/2, thread_send_message/2, thread_get_message/2 from mutex_xsb.
+
+test:- 
+	test_1(20),
+	test_2(20),
+	test_3(20,_),
+	alias_test(20),
+	qt(_F,X,Y),writeln(qt(X,Y)).
+
+%--------------------------
+% simplest -- 1 writer, 1 reader.
+test_1(N):- 
+	message_queue_create(Queue,[max_terms(10)]),
+	thread_create(producer_1(N,Queue),Id1),
+	thread_create(consumer_1(N,Queue),Id2),
+	thread_join(Id1,_),thread_join(Id2,_).
+
+producer_1(0,_Queue):- !.
+producer_1(N,Queue):- 
+	thread_send_message(Queue,ola(N)),
+	N1 is N - 1,
+	producer_1(N1,Queue).
+
+consumer_1(0,_Queue):- !.
+consumer_1(N,Queue):- 
+	thread_get_message(Queue,M),
+	writeln(got(M)),
+	N1 is N - 1,
+	consumer_1(N1,Queue).
+
+%--------------------------
+% 1 writer, 2 readers (who read different things)
+test_2(N):- 
+	message_queue_create(Queue,[max_terms(10)]),
+	thread_create(producer_2(N,Queue),_),
+	thread_create(consumer_2_howdy(N,Queue),Id1),
+	thread_create(consumer_2_doody(N,Queue),Id2),
+	thread_join(Id1,_),thread_join(Id2,_).
+
+producer_2(0,_Queue):- !.
+producer_2(N,Queue):- 
+	thread_send_message(Queue,howdy(N)),
+%	writeln(put(howdy(N))),
+	thread_send_message(Queue,doody(N)),
+%	writeln(put(doody(N))),
+	N1 is N - 1,
+	producer_2(N1,Queue).
+
+consumer_2_howdy(0,_Queue):- !.
+consumer_2_howdy(N,Queue):- 
+	thread_get_message(Queue,howdy(M)),
+	writeln(got(howdy(M))),
+	N1 is N - 1,
+	consumer_2_howdy(N1,Queue).
+
+consumer_2_doody(0,_Queue):- !.
+consumer_2_doody(N,Queue):- 
+	thread_get_message(Queue,doody(M)),
+	writeln(got(doody(M))),
+	N1 is N - 1,
+	consumer_2_doody(N1,Queue).
+
+%--------------------------
+% 2 writers, 2 readers -- all with different things
+
+test_3(N,Queue):- 
+	message_queue_create(Queue,[max_terms(20)]),
+	thread_create(producer_3_white(N,Queue),Id1),
+	thread_create(producer_3_black(N,Queue),Id2),
+	thread_create(consumer_3_black(N,Queue),Id3),
+	thread_create(consumer_3_white(N,Queue),Id4),
+	thread_join(Id1,_),
+	thread_join(Id2,_),
+	thread_join(Id3,_),
+	thread_join(Id4,_).
+
+producer_3_white(0,_Queue):- !.
+producer_3_white(N,Queue):- 
+	thread_send_message(Queue,white(N)),
+	N1 is N - 1,
+	producer_3_white(N1,Queue).
+
+producer_3_black(0,_Queue):- !.
+producer_3_black(N,Queue):- 
+	thread_send_message(Queue,black(N)),
+%	writeln(put(black(N))),
+	N1 is N - 1,
+	producer_3_black(N1,Queue).
+
+%:- import print_message_queue/1 from mutex_xsb.
+
+consumer_3_white(0,_Queue):- !.
+consumer_3_white(N,Queue):- 
+	thread_get_message(Queue,white(M)),
+	writeln(got(white(M))),
+	N1 is N - 1,
+	consumer_3_white(N1,Queue).
+
+consumer_3_black(0,_Queue):- !.
+consumer_3_black(N,Queue):- 
+	thread_get_message(Queue,black(M)),
+	writeln(got(black(M))),
+	N1 is N - 1,
+	consumer_3_black(N1,Queue).
+
+%--------------------------
+% Test of reading things out of order.
+
+qt(F,X,Y):-
+	message_queue_create(F,[max_terms(20)]),
+	thread_send_message(F,howdy(1)),
+	thread_send_message(F,doody(1)),
+	thread_send_message(F,howdy(2)),
+	thread_send_message(F,doody(2)),
+	thread_get_message(F,doody(X)),
+	thread_get_message(F,doody(Y)),
+	thread_get_message(F,howdy(X)),
+	thread_get_message(F,howdy(Y)).
+
+%--------------------------
+
+alias_test(N):- 
+	message_queue_create(_Queue,[max_terms(10),alias(foo)]),
+	thread_create(alias_producer(N,foo),Id1),
+	thread_create(alias_consumer(N,foo),Id2),
+	thread_join(Id1,_),thread_join(Id2,_).
+
+alias_producer(0,_Queue):- !.
+alias_producer(N,Queue):- 
+	thread_send_message(Queue,alias_ola(N)),
+	N1 is N - 1,
+	alias_producer(N1,Queue).
+
+alias_consumer(0,_Queue):- !.
+alias_consumer(N,Queue):- 
+	thread_get_message(Queue,M),
+	writeln(alias_got(M)),
+	N1 is N - 1,
+	alias_consumer(N1,Queue).
+

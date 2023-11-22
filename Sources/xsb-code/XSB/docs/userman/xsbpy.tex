@@ -1,0 +1,1893 @@
+
+\newcommand{\xsbpyversion}{Version 1.0}
+
+\begin{center}
+\chapter[XSB and Python]{{\tt xsbpy}: The XSB-Python 3 Interface} \label{chap:xsbpy}
+\end{center}
+
+\vspace*{-.30in} 
+\begin{center}
+{\Large {\bf  \xsbpyversion}}
+\end{center}
+
+\begin{center}
+  {\Large {\bf By Theresa Swift, Muthukumar Suresh, Carl Andersen}}
+\end{center}
+
+\noindent
+%{\large {\bf {\em This chapter documents beta-level software.}}}
+
+%Both XSB and Python are written in C, which makes possible a robust
+%and efficient interface.  
+%
+{\em {\tt xsbpy} has been replaced by Janus
+  (Chapter~\ref{chap:januspy}) and will be removed from future
+  versions of XSB.  This documentation from a previous XSB release is
+  temporarily included for those who are still using {\tt xsbpy}}.
+
+The new {\tt xsbpy} package provides an efficient and easy way for XSB
+to call Python 3 functions and methods.  {\tt xsbpy} leverages the
+fact that XSB and most Pythons are written in C, so that both systems
+can be readily loaded into the same process. The core interface
+routines are also written entirely in C, so the interface is very
+efficient and -- it is hoped -- very robust within its known
+limitations.\footnote{The {\tt xsbpy} package was partly funded by BBN
+  Technologies.}
+
+This chapter first describes how to configure {\tt xsbpy}, followed by
+introductory examples.  Next is a more precise description of its
+functions, its current limitations followed by applications and
+further examples.
+
+\section{Configuration and Loading}
+
+Configuration processes of {\tt xsbpy} have been written for Linux, Mac
+and Windows.  On these platforms, {\tt xsbpy} has been tested using
+versions 3.5 -- 3.10 of Python and its libraries.\footnote{The {\tt
+    xsbpy} configuration script was written by Michael Kifer.  It has
+  been tested on Windows 10; on Ubuntu, Fedora and CentOs Linuxes; and
+  on on Intel-based Mac.}  The {\tt xsbpy} configuration script is
+called by the main XSB configuration script, and can be found in {\tt
+  XSB/packages/xsbpy}.  {\tt xsbpy} configuration can be run
+separately from the main configuration script if desired.
+
+\subsection{Installing {\tt xsbpy} to work with Anaconda}
+
+For most users, installing {\tt xsbpy} under Anaconda is
+recommended.  Anaconda comes with all of the Python development
+extensions needed for {\tt xsbpy}.  To make use of them, simply
+activate your conda environment, (re)configure and (re)make XSB as
+described in the manual.
+
+As long as the Anaconda environment is active when you configure,
+that's all you need to do!
+
+\subsection{Configuring {\tt xsbpy} for {\tt venv} or without a virtual environment} \label{sec:xsbpy-linux}
+
+If you use {\tt venv} as your environment manager or if you are
+configuring a system installation of {\tt xsbpy} for several users,
+configuration may be slightly more complicated than using Anaconda.
+In principle, when XSB is configured on Linux or the Mac, {\tt xsbpy}
+will also be configured so that it can be used like any other XSB
+module.  However, for this configuration to work several pieces of
+software much be in place.
+
+\begin{itemize}
+\item {\tt git} and {\tt gcc} (or some other compiler) must be present
+  and usable by the user performing the configuration.  Most of these
+  tools need to be installed on Linux or macOS to configure and
+  compile XSB, so they will not usually be an issue.
+
+%\item As discussed below, a version of C-Python 3.x (the usual
+\item A version of C-Python (the usual implementation of Python) 3.x
+  with development extensions must be present and usable.\footnote{In
+    particular {\tt libpython} and {\tt Python.h} are needed from the
+    development version.}  Unfortunately, Python development
+  extensions are not contained in a {\tt venv} environment (unlike
+  with Anaconda) so they will need to be installed.\footnote{{\tt
+      venv} is not designed to support applications like {\tt xsbpy}
+    that embed Python in another process.  When a virtual environment
+    is created using {\tt venv}, the virtual environment contains a
+    Python executable, but not {\tt libpython} or {\tt Python.h} which
+    must be linked or included from system directories.}
+
+  \item {\tt xsbpy} configuration uses a Python package called {\tt
+    find\_libpython}, and will try to do a {\tt pip} installation if
+    it is not present.  {\tt pip} will install this package under the
+    {\tt venv} or user's {\tt site-packages} directory; otherwise a
+    system {\tt site-packages} directory will be used.\footnote{Some
+      Linuxes like Ubuntu do not include {\tt pip} in their default
+      distribution(!), in which case the Linux package for {\tt pip} must
+      be installed.}
+\end{itemize}
+
+
+%\subsubsection{Installing {\tt xsbpy} to work with a system Python}
+
+\subsubsection{Troubleshooting}
+
+%If you have {\tt sudo} privileges and want to make {\tt xsbpy} work
+%with a system version of Python there are a few more steps needed than
+%when working with Anaconda.  First, your system needs a development
+%version of Python~\footnote{If several versions of Python 3.x are
+%  installed, the most recent will be used by the configure script.}
+%The Python development extensions are needed because they contain
+%Python as a shared object ({\tt .so}) file along with Python header
+%({\tt .h}) files.  While some version of Python-3 is included in
+%almost any version of Linux, additional Linux package installations
+%either may be needed for these development extensions or to install a
+%more recent version of Python.
+%  
+%  As an example, suppose version 3.8 of Python is desired.  If it is
+%  not present on the platform, it may be installed with its
+%  development extensions as:
+
+%  {\tt sudo apt-get install python3.8-dev}
+%
+%\noindent
+%  in Ubuntu; or
+%
+%  {\tt sudo dnf install python3.10-dev}
+%
+%\noindent
+%  in Fedora (newer versions) or CentOs.
+%
+%%Otherwise, if Python3.8 has been installed but the development version
+%%is not present the development extensions ({\tt libpython3.8.so} and
+%{\tt Python.h}) can be installed as:
+%
+%{\tt apt-get install libpython3.8-dev}.
+
+If there are difficulties in configuring {\tt xsbpy}, it is likely
+that one of the above requirements is not met.  However, if these
+requirements are met, but the configuration does not work properly, it
+is best to check the file {\tt packages/xsbpy/xsb2py\_connect\_defs.h}
+to check whether its definitions are correct ({\tt
+  xsb2py\_connect\_defs.h} is created when {\tt xsbpy} is
+configured).\footnote{If you can determine that the required software
+  is present and that there is a problem with the configuration please
+  report the problem at {\tt https://sourceforge.net/p/xsb/bugs}.}
+
+The definitions in {\tt xsb2py\_connect\_defs.h} are used in {\tt
+  get\_compiler\_options/2} in {\tt init\_xsbpy.P} to properly compile
+{\tt xsbpy} and link in {\tt libpython3x.so}.  These final steps are
+done automatically when {\tt xsbpy} is consulted into XSB via a normal
+consult or {\tt ensure\_loaded/[1,2]}.  As part of this process, in
+{\tt init\_xsbpy.P} the main C code for {\tt xsbpy} is compiled using
+gcc compiler options that are appropriate for the version of {\tt
+  libpython} used.\footnote{See {\tt get\_compiler\_options/2} in {\tt
+    init\_xsbpy.P}.}  When the {\tt xsbpy} module is consulted into
+XSB, the {\tt libpython} shared object file is loaded dynamically
+along with the {\tt xsbpy} shared object file.
+
+%If installing {\tt xsbpy} on Ubuntu, the first step is to ensure that
+%the proper Python libraries and header files are present.  If using
+%Python version 3.7 this command is:
+%
+%{\tt sudo apt-get install libpython3.7-dev}
+%
+%For {\tt xsbpy} to work properly in Linux:
+%\begin{itemize}
+%\item The {\tt xsbpy} code must be compiled and dynamically loaded into XSB.
+%\item A version of {\tt libpython.so} also needs to be dynamically
+%  loaded into XSB, and configured with the proper C library paths.
+%\item The proper paths must be set for the Python Standard Library.
+%\item Paths to {\tt xsbpy} and to {\tt xsbpy/apps} must be set up to
+ % access both XSB and Python modules.
+%\end{itemize}
+
+%\begin{verbatim}
+%-I <path to XSB's emu directory>  
+%-I/usr/include/python3.7m  -I/usr/include/python3.7  
+%-lpython3.7m -L/usr/lib/python3.7 
+%-Wl -rpath=/usr/lib/python3.7 -lpython3.7m -L/usr/lib/python3.7 
+%-Wl -rpath=/usr/lib/python3.7
+%\end{verbatim}
+
+\noindent
+%In the above compilation options, {\tt xsbpy} initialization
+%configures the path to the XSB {\tt emu} directory but all other paths
+%are currently hard-coded.
+
+\subsection{Installing a development version of Python under  macOS (if Anaconda is not used)}
+
+Most of the discussion in Section~\ref{sec:xsbpy-linux} pertains
+directly to macOS.  As with Linux, installation of {\tt xsbpy} under
+Anaconda will be easiest for most users, and it is worthwhile noting
+that whether or not Anaconda is used both XSB and {\tt xsbpy} can be
+compiled using either {\tt clang} or {\tt gcc} on both macOS or Linux.
+%When XSB is configured on the Mac, the configuration script also tries
+%to configure {\tt xsbpy} so that it can be loaded and used like any
+%other module.  However for this process to work correctly additional
+%software must be present.
+%
+%\subsubsection{A Development Version of Python}
+%
+However, if XSB is not configured using an Anaconda version of Python
+a development version of Python 3.x needed, but is not included by
+default in {\tt macOS}, so that code needed by {\tt xsbpy} like {\tt
+  Python.h} or {\tt libpython<xxx>.dylib} needs to be installed.  This
+software is not always contained in {\tt xtools} either.
+
+Fortunately, there are several installation tools available for the
+Mac.  One of the most popular is {\tt brew}.  Once {\tt brew} itself
+is installed it will be used to make two further installations.
+First, type:
+
+{\tt brew install autoconf automake libtool}
+
+\noindent
+which is a prerequisite for a development version of Python to be
+installed.  Next, type 
+
+{\tt brew install python@3.8}
+
+\noindent
+to install the Python itself (other version numbers of Python can be used)
+and save the output of this installation.  Brew installs this Python in a
+directory that for many users is not on the execution path determined by
+the \texttt{PATH} environment variable.  Therefore the directory
+\emph{Python-installation-folder}\texttt{/bin/} will need to be added to
+the user's execution path (to the \texttt{PATH} variable), as instructed in
+the brew installation output that appears after installing Python.
+This can be done, for instance, by executing
+%% 
+\begin{verbatim}
+echo 'export PATH="/usr/local/opt/python@3.8/bin:$PATH"' >> ~/.zshrc
+echo 'export LDFLAGS="-L/usr/local/opt/python@3.8/lib"' >> ~/.zshrc
+\end{verbatim}
+%% 
+if the development version of
+Python is installed in \texttt{/usr/local/opt/python@3.8}. This
+addition is important, because XSB's configuration checks the user's
+execution paths as one way to find software.
+
+%\subsubsection{A C Compiler and Loader}
+%
+%Second -- naturally -- there must be a C compiler installed on your
+%Mac.  C compilers can be installed on the Mac through Xcode or Apple's
+%Command Line Tools.  (A user needn't be familiar with how a compiler
+%works -- the compiler just needs to be installed).  Two compilers are
+%available on macOS, Clang and GCC; XSB and {\tt xsbpy} have been
+%tested using both compilers.
+%
+%\subsubsection{The Configuration Itself}
+%
+%Once a C compiler has been installed; and a development version of
+%Python has been installed and added to the user's execution paths,
+%simply run the {\tt configure} and {\tt makexsb} scripts in {\tt
+%  \$XSB\_ROOT/XSB/build} and {\tt xsbpy} will be built automatically.
+%
+%As you can see, the entire process is simplicity itself!
+%
+\subsection{Configuring {\tt xsbpy} under Windows}
+
+To run the {\tt xsbpy} interface under Windows 10, you must first
+download and install Python as described above.
+
+You must set a windows environment variable (local or global) named
+PYTHON\_LIBRARY to the name of the Python DLL, which is part of the
+Python system.  That DLL can be found by using the python script:
+{\tt find\_libpython} executed on a Python command line.  To run this
+script, you will probably have to install it, using the command
+{\tt pip install find-libpython}, start Python, and then type:
+%% 
+\begin{verbatim}
+   from find_libpython import find_libpython
+   find_libpython()
+\end{verbatim}
+%% 
+This will print out the name of
+the file containing the necessary DLL.  Simply define the environment
+variable PYTHON\_LIBRARY to be this .dll file.  (If you don't have
+administrative permission on your computer, you can define it using
+``Edit the environment variables for your account'' from that
+lower-left windows command lookup box.)
+
+To see if the interface is installed correctly and is functional, it
+is suggested (just below) that you run: {\tt bash} test.sh in
+directory {\tt <XSB>/packages/xsbpy/test/}.  While this can be made to
+work when cygwin is installed, under windows, it may be easier to run
+{\tt xsb} in that directory and do:
+\begin{verbatim}
+| ?- [testSuite], testSuite.
+\end{verbatim}
+This should load the Python interface and run a few tests, printing
+out results.  If it succeeds without errors and without printing
+failed test notifications, the interface is available for use.
+
+It is possible that XSB will try to recomplile the interface, if the
+file times are inconsistent.  In this case, be sure that the file time
+of {\tt xsbpym.xwam} is later than that of {\tt xsbpym.H} in {\tt
+  <XSB>/packages/xsbpy/} and try again.
+This cab be done in the Windows command window like this (assuming
+the current directory is the root of your XSB installation):
+%% 
+\begin{verbatim}
+  copy /b packages\xsbpy\xsbpym.xwam +,,
+\end{verbatim}
+%% 
+(You may alternatively simply
+rename {\tt xsbpym.H} to another name.)
+
+\subsection{Testing whether the {\tt xsbpy} configuration was successful}
+
+No matter what platform {\tt xsbpy} is installed on, to test out
+whether {\tt xsbpy} has been loaded and is working properly, simply
+change the working directory to {\tt packages/xsbpy/test} and execute the
+command
+
+\begin{verbatim}
+  bash test.sh
+\end{verbatim}
+
+
+\section{Introductory Examples}
+
+We introduce some of the core functionality of {\tt xsbpy} via a
+series of simple examples.  As background, when {\tt xsbpy} is loaded,
+Python is also loaded and initialized within the XSB process, the core
+Prolog modules of {\tt xsbpy} are loaded into XSB, and paths to {\tt
+  xsbpy} and its sub-directories are added both to Prolog and to Python
+(the latter paths are added by modifying Python's {\tt
+  sys.path}). Later, XSB calls Python, Python will search for modules
+and packages in the same manner as if they were stand-alone.
+
+\begin{example} \rm {\bf Calling a Python Function (I)} \label{ex:xsbpy-json}
+  %
+
+  {{\em The translation of JSON through xsbpy in this example,
+      although it is functional, is mainly presented for pedagogic
+      purposes.  In general, we recommend using XSB's native JSON
+      interface described in Chapter \ref{chap:json} of this manual.
+  }}
+
+  
+\noindent  
+Consider the following call:
+
+ \begin{verbatim}
+pyfunc(xp_json,
+       prolog\_loads('{"name": "Bob", "languages": ["English","French","GERMAN"]}'),
+       Ret)
+\end{verbatim}
+ 
+\noindent 
+which loads the Python {\tt xp\_json} module in {\tt
+  packages/xsbpy/starters} if needed (and by extension the Python
+system {\tt json} module), then calls the Python function
+
+{\tt xp\_json.prolog\_loads()}
+
+\noindent
+with the JSON string
+\verb|'{"name": "Bob", "languages": ["English","French","GERMAN"]}'|
+as the argument.
+This call converts the argument to a Python
+dictionary.  In this case, the dictionary would have the Python form:
+\begin{verbatim}
+{
+  "name":"Bob",
+  "languages":["English", "French","GERMAN"]
+}
+\end{verbatim}
+Next,
+{\tt xsbpy} translates this dictionary to a Prolog term, that can
+be pretty printed as:
+\begin{verbatim}
+pyDict([
+        ''(name,'Bob'),
+        ''(languages,['English','French','GERMAN'])
+        ]).
+\end{verbatim}
+%%
+Note that \verb|''| here is an empty string (i.e., a Prolog 0-length
+atom).  XSB uses \verb|''| as a functor for terms that are converted
+from or to Python tuples: in this case \verb|''/2| is used.  We call a
+term that maps to a Python dictionary either {\em a Python dictionary
+  in term form} or just {\em a Prolog dictionary} although the latter
+slightly abuses terminology.
+\end{example}
+
+Note that although the above example used {\tt
+  xp\_json.prolog\_loads()}, the Python system package call {\tt
+  json.loads()} could also have been used.  Such a switch would not
+require writing {\em any} special new Prolog or Python code.  This is
+in part because Python's basic data structures -- dictionaries, lists,
+tuples, sets and so on -- are mapped to Prolog terms
+(cf. Section~\ref{sec:bi-translation}).  As a result, calling Python
+is often a simple matter of setting up input terms for a Python
+function, and processing the terms that Python returns to
+Prolog.
+%\footnote{The module {\tt xp\_json} basically imports and
+%  re-exports {\tt loads()}.}
+
+\begin{example} \rm {\bf Calling a Python Function (II): Glue Code} \label{xsbpy-examp:glue}
+
+\noindent
+  A slightly more complex call to Python is:
+ \begin{verbatim}
+pyfunc(xp_json,prolog_load('test.json'),Ret)
+\end{verbatim}
+
+\noindent
+which loads a JSON string from the file {\tt test.json} into a Prolog
+term.  However, the Python function {\tt json.load()} call requires a
+Python file pointer as its input, and Python file pointers do not
+correspond to XSB I/O streams.  As we shall see in
+Example~\ref{xsbpy-examp:method}, a reference to a Python file pointer
+could be passed back to XSB, but in most cases it is probably easiest
+to write some simple Python glue code such as:
+
+\begin{verbatim}   
+def prolog_load(File):
+    with open(File) as fileptr:
+        return(json.load(fileptr))
+\end{verbatim}
+\noindent
+As in the previous example, the above Prolog goal produces a Prolog
+dictionary corresponding to the JSON file.
+\end{example}
+
+\begin{example} \rm {\bf Calling a Python Function (III): Keyword Arguments}
+  
+\noindent
+Python functions often make heavy use of keyword arguments.  These can
+be easily handled by {\tt pyfunc/4}:
+\begin{verbatim}
+pyfunc(xp_json,prolog_dump(Dict,'new.json'),[indent=2],Ret)
+\end{verbatim}
+
+\noindent
+in which the third argument is a list of {\tt =/2} terms.  This list
+is turned into a Prolog dictionary and then translated into Python.
+Because {\tt json.dump()} needs a file pointer in the same way {\tt
+  json.load()}, glue code will also be needed, but the glue code passes
+keyword arguments in the usual manner of Python:
+\begin{verbatim}
+def prolog_dump(Dict,File,**Features):
+    with open(File,"w") as fileptr:
+        ret = json.dump(Dict,fileptr,**Features)
+        return(ret)
+\end{verbatim}
+\end{example}
+
+The previous examples have sketched an approach that can efficiently
+call virtually any Python function or method,\footnote{{\tt xsbpy}
+  does not currently support Python's binary types.}  although it
+might require a small amount of glue code.  However, Python methods can
+also be called directly.
+
+\begin{example} \rm {\bf Calling a Python Method} \label{xsbpy-examp:method}
+
+\noindent
+Consider the following simple Python class:
+
+\begin{verbatim}
+class Person:
+  def __init__(self, name, age, ice_cream=None):
+    self.name = name
+    self.age = age
+    if favorite_ice_cream is None:
+      favorite_ice_cream = 'chocolate'
+    self.favorite_ice_cream = favorite_ice_cream
+
+  def hello(self,mytype):
+    return("Hello my name is " + self.name + " and I'm a " + mytype)
+\end{verbatim}
+
+\noindent
+The call
+
+\begin{verbatim}
+    pyfunc('Person','Person'(john,35),Obj),
+\end{verbatim}
+\noindent
+creates a new instance of the {\tt Person} class, and returns a
+reference to this instance which has a form such as {\tt
+  pyObj(p0x7fb1947b0210)}.  XSB can later use this reference to call a
+method:
+\begin{verbatim}
+    pydot('Person',pyObj(p0x7fb1947b0210),hello(programmer),Ret2).
+\end{verbatim}
+
+\noindent
+which returns the Prolog atom:
+
+{\tt 'Hello my name is john and I'm a programmer'}
+
+\noindent
+Although Python methods, like Python functions, can include keyword
+arguments, {\tt xsbpy} does not support keyword arguments in {\tt
+  pydot/4} because Version 3.9.4 of the Python C API does not permit
+this.
+\end{example}
+
+\begin{example} \rm {\bf Examining a Python Object} \label{xsbpy-examp:exam-object}
+
+\noindent
+Example \ref{xsbpy-examp:method} showed how to create a Python object,
+pass it back to Prolog and apply a method to it.  Suppose we create
+another {\tt Person} instance:
+
+\begin{verbatim}
+    pyfunc('Person','Person'(bob,34),Obj),
+\end{verbatim}
+\noindent
+and later want to find out all attributes of {\tt bob} both explicitly
+assigned, and default.  This is easily done by {\tt
+  xp\_utils:obj\_dict/2}.  Assuming that {\tt pyObj(p0x7f386e1e9650)}
+is the object reference for {\tt bob} in Prolog, the call
+\begin{verbatim}
+obj_dict(pyObj(p0x7f386e1e9650) ,ObjD ) .
+\end{verbatim}
+returns
+\begin{verbatim}
+    ObjD = pyDict([(name,bob),(age,34),(favorite_ice_cream,chocolate)])
+\end{verbatim}
+
+There are times when using the dictionary associated with a class is
+not appropriate.  For instance, not all Python classes have {\tt
+  \_\_dict\_\_} methods defined for them, or only a single attribute
+of an object might be required.  In these cases, {\tt pydot/4} can be
+used:
+
+\begin{verbatim}
+    pydot('Person',pyObj(p0x7f386e1e9650),favorite_ice_cream,I)
+\end{verbatim}
+\noindent
+returns {\tt I = chocolate}.
+
+\noindent
+
+Summarizing from Example~\ref{xsbpy-examp:method} and the above
+paragraph, {\tt pydot/4} can be used in two ways.  If the third
+argument, {\tt arg3}, in a call to {\tt pydot/4} is a Prolog
+structure, {\tt arg3} is interpreted as a method.  In this case, a
+Python method is applied to the object, and its return is unified with
+the last argument of {\tt pydot/4}. If {\tt arg} is a Prolog atom,
+{\tt arg3} is interpreted as attribute of the object.  In this case,
+the attribute is accessed and unified with {\tt arg3}.  Note that the
+functionality of {\tt pydot/4} is overloaded in analogy to the
+functionality of the {\tt '.'} connector in Python.
+\end{example}
+
+A great deal of Python functionality is directly available via {\tt
+  pyfunc/[3,4]} and {\tt pydot/4}.  In our experience so far, many
+Python libraries can be called directly and will ``just work''
+immediately.  Cases where glue code is needed include the following.
+
+\begin{itemize}
+\item In a case like Example \ref{xsbpy-examp:glue} where a Python
+  method or function like {\tt json.load()} requires a Python resource
+  as input, a small amount of code might be useful to, say, open a
+  file and perform an operation.  However as an alternative, the file
+  might be opened, the file pointer passed back to XSB, and the
+  function called directly from XSB using the file pointer.
+
+  \item As mentioned, {\tt pydot/4} does not support keyword
+    arguments, due to restrictions in the Python C API.
+
+  \item Suppose a class with several attributes is defined as a
+    subclass of, say a string type.  Currently {\tt xsbpy} will simply
+    pass back such objects as strings, rather than as object
+    references.  An example of this in fact occurs in the sample
+    interface {\tt packages/xsbpy/starters/xp\_rdflib} (see
+    Section~\ref{secLxp-rdflib}).  In the {\tt rdflib} package {\tt
+      rdflib.Literal} objects are in fact subclasses of a string type.
+    These {\tt rdflib.Literal} objects have additional attributes
+    representing language tags and data types; and these attributes
+    are critical for RDF I/O from Prolog.  An example of how to handle
+    this is seen in {\tt xp\_rdflib.py}, where slightly more elaborate
+    glue code is needed to marshal an object's attributes as elements
+    of a tuple, and passed back along with the object.\footnote{This
+      behavior may change in future versions.}
+\end{itemize}
+
+With those disclaimers in mind, all glue code that we have needed to
+write so far has been simple and straightforward.
+
+\section{Bi-translation between Prolog Terms and Python Data Structures} \label{sec:bi-translation}
+
+{\tt xsbpy} takes advantage of a C-level bi-translation of a large
+portion of Prolog terms and Python data structures: i.e., Python
+lists, tuples, dictionaries, sets and other data structures are
+translated to their Prolog term forms, and Prolog terms of restricted
+syntax are translated to lists, tuples, dictionaries, sets and so on.
+Bi-translation is recursive in that any of these data structures can
+be nested in any other data structures (subject to limitations on
+mutables in Python).
+     
+Due to syntactic similarities between Prolog terms and Python data
+structures, the Prolog term forms are easy to translate and use -- and
+sometimes appear syntactically identical.
+
+\index{xp\_struct}
+\index{px\_term}
+\index{term form (of a structure}
+%
+As terminology, when a Python data structure $D$, say a dictionary, is
+translated into a Prolog term $T$, $T$ is sometimes called the {\em
+  term form} of $D$.  The type representing any Python structure that
+can be translated to Prolog is called {\em xp\_struct} while the type
+representing a Prolog term that can be translated into a Python data
+structure is called a {\em px\_term}
+
+\subsection{The Bi-translation Specification}
+
+Bi-translation between Prolog and Python can be described from the
+viewpoint of Python types as follows:
+
+\begin{itemize}
+       \item {\em Numeric Types}: Python integers and floats are
+         bi-translated to Prolog integers and floats.  Python complex
+         numbers are not (yet) translated, and integers are only
+         supported for integers between XSB's minimum and maximum
+         integer~\footnote{These integers can be obtained by querying
+           {\tt current\_prolog\_flag/2}.}
+         \begin{itemize}
+           \item {\em Boolean Types} are
+             translated to integer values: {\tt True} as {\tt 1}
+             and {\tt False} as {\tt 0}.
+         \end{itemize}
+       \item {\em String Types}: Python string types are bi-translated
+         to Prolog atoms.  This translation assumes UTF-8 encoding on
+         both sides.
+
+         Note that a Python string can be enclosed in either double
+         quotes (\verb|''|) or single quotes (\verb|'|).  In
+         translating from Python to Prolog, the outer enclosure is
+         ignored, so Python {\tt "'Hello'"} is translated to the
+         Prolog {\tt '\textbackslash{}'Hello\textbackslash{}'{}'},
+         while the Python {\tt '"Goodby"'} is translated to the Prolog
+         {\tt '"Goodby"'}.
+       \item {\em Sequence Types}:
+         \begin{itemize}
+           \item Python lists are bi-translated as Prolog lists and
+             the two forms are syntactically identical.
+           \item A Python tuple of arity {\tt N} is bi-translated with
+             a compound Prolog term \verb|''/N| (i.e., the functor is
+             the empty string, denoted by two apostrophes).
+             \item Python ranges are not (yet) translated (i.e., they
+               are returned as terms with functor {\tt pyObj/1}).
+         \end{itemize}
+       \item {\em Mapping Types}: A Python dictionary is translated
+         into the term form:
+
+         {\tt pyDict(DictList)}
+
+         where {\tt DictList} is a list of tuples in term form: 
+
+         {\tt ''(Key,Value)}
+
+         {\tt Key} and {\tt Value} are the translations of any Python
+         data structures that are both allowable as a dictionary key
+         or value, and supported by {\tt xsbpy}.  For instance, {\tt
+           Value} can be (the term form of) a list, a set, a tuple or
+         another dictionary.
+
+       \item {\em Set Types}: A Python set {\em S} is translated to
+         the term form
+
+         {\tt pySet(SetList)}
+
+         where {\em SetList} is the list containing exactly the
+         translated elements of $S$.  Due to Python's implementation
+         of sets, there is no guarantee that the order of elements
+         will be the same in $S$ and $SetList$.
+       \item {\em None Types.} The Python keyword {\tt None} is
+         translated to the Prolog atom {\tt 'None'}. 
+       \item {\em Binary Types:} are not yet supported.  There are no
+         current plans to support this type.
+     \item Any Python object {\tt Obj} that is a non-primitive type,
+       or of a type that is not translated to a specific Prolog term,
+       as indicated above, is translated to the Prolog term {\tt
+         pyObj(Obj)}.  This {\tt pyObj(Obj)} term can be passed back to
+       Python and used for a method call or other purpose.
+\end{itemize}
+
+Additionally, a user with a minimal knowledge of C can change parts of
+the syntax used in Prolog term forms.  The outer functors {\tt
+  pyDict}, {\tt pySet} and {\tt pyObj} and the constant {\tt None} can
+all be redefined my modifying the file {\tt xsbpy\_defs.h} in the {\tt
+  xsbpy} directory.
+
+\section{Usage}
+
+\begin{description}
+
+\ourrepeatmoditem{pyfunc(+Module,+Function,+Kwargs,+Prolog\_Opts,?Return)}{pyfunc/5}{xsbpy}
+\ourrepeatmoditem{pyfunc(+Module,+Function,+Kwargs,?Return)}{pyfunc/4}{xsbpy}
+\indourmoditem{pyfunc(+Module,+Function,?Return)}{pyfunc/3}{xsbpy}
+%
+ Ensures that the Python module {\tt Module} is loaded, and calls {\tt
+   Module.Function} unifying the return of {\tt Function} with {\tt 
+   Return}.  Lists of keyword arguments ({\tt Kwargs}) and Prolog
+ options ({\tt Prolog\_Opts}) may or may not be included.  For example
+ the goal
+
+\begin{verbatim}
+pyfunc(xp_rdflib,rdflib_write_file(Triples,'new_sample.ttl'),
+       [format=turtle],Ret).
+\end{verbatim}
+
+calls the function {\tt xp\_rdflib.rdflib\_write\_file} to write
+{\tt Triples}, a list of triples in Prolog format, to the file {\tt
+  new\_sample.ttl} using the {\tt turtle} format.  This format is
+specified as a keyword argument to {\tt rdflib\_write\_file()} in the
+third argument of {\tt pyfunc/4}.
+
+In general, {\tt Module} must be the name of a Python module or path
+represented as a Prolog atom, and {\tt Function} is the invocation of
+a Python function in {\tt Module}, where {\tt Function} is a compound
+Prolog structure.  Optional keyword arguments are passed in the third
+argument as lists of {\tt Key = Value} terms; if no such arguments are
+needed, {\tt Kwargs} can be an empty list -- or {\tt pyfunc/3} may be
+used.  Finally the return value from {\tt Function} is unified with
+{\tt Return}.
+
+The only Prolog option currently allowed is {\tt sizecheck(true)},
+which traverses the Python data structure to determine its size before
+returning the data structure to XSB.  (See
+Section~\ref{sec:xsbpy-memory} for details of this option.)
+
+Python modules are searched for in the paths maintained in Python's
+{\tt sys.path} list.  As indicated below, these Python paths can be
+queried from XSB via {\tt py\_lib\_dir/1} and modified via {\tt
+  add\_py\_lib\_dir/1}.
+     
+{\bf Error Cases}
+\bi
+\item {\tt Module} cannot be found in the current Python search paths:
+\bi
+\item {\tt misc\_error}
+\ei
+\item {\tt Function} does not correspond to a Python function in {\tt Module}
+\bi
+\item {\tt misc\_error}
+  \ei \ei
+%
+  In addition, errors thrown by Python are
+  caught by XSB and thrown as {\tt misc\_error} errors.
+
+\ourrepeatmoditem{pydot(+Module,+ObjRef,+MethAttr,+Prolog\_Opts,?Ret)}{pydot/5}{xsbpy}
+\indourmoditem{pydot(+Module,+ObjRef,+MethAttr,?Ret)}{pydot/4}{xsbpy}
+%
+Applies a method to {\tt ObjRef}, or obtains an attribute value for
+\texttt{ObjRef}.  As
+with {\tt pyfunc/[3,4]}, {\tt Module} is a Python module or
+path. However, {\tt ObjRef} is a Python object reference in term form
+(i.e., a term of the form {\tt pyObj(Ref)} where {\tt Ref} is a Prolog
+atom depicting a reference to a Python object). {\tt pydot/4} acts in
+one of two ways:
+\begin{itemize}
+\item If {\tt MethAttr} is a Prolog compound term corresponding to a
+  Python method for {\tt ObjRef}, the method is called and its return
+  unified with {\tt Ret}.
+
+  Unfortunately, limitations in the Python C API version 3.9.4 lead to
+  two limitations in calling Python methods from XSB through C.
+  First, keyword arguments cannot be used when calling Python method
+  as they can for Python functions.  Second, {\tt MethAttr} must have
+  3 or fewer arguments.\footnote{The reason for this is that to
+    execute Python n-ary methods from the C-API a variadic function
+    call must be made, and variadic function {\em calls} cannot be
+    constructed dynamically in C (or at any rate, I don't know how to
+    do this).}
+%
+\item If {\tt MethAttr} is a Prolog atom corresponding to the name of
+  an attribute of {\tt ObjRef}, the attribute value (for \texttt{ObjRef})
+  is accessed and unified
+  with {\tt Ret}.
+\end{itemize}
+
+Both the Prolog options ({\tt Prolog\_Opts}) and the handling of Python
+paths is as with {\tt pyfunc/[3-5]}.
+
+{\bf Error Cases}
+\bi
+\item {\tt Module} cannot be found in the current Python search paths:
+\bi
+\item {\tt misc\_error}
+\ei
+\item {\tt ObjRef} is not a Python object reference in Prolog term form:
+\bi
+\item {\tt misc\_error}
+\ei
+\item {\tt MethAttr} is neither a Prolog compound term nor a Prolog atom:
+\bi
+\item {\tt misc\_error}
+\item {\tt MethAttr} has arity greater than 3.
+\bi
+\item {\tt misc\_error}
+  \ei
+  \ei \ei In addition, errors thrown by Python are
+  caught by XSB and re-thrown as {\tt misc\_error} errors.
+
+  \indourmoditem{free\_python\_object(+ObjRef)}{free\_python\_obj/1}{xsbpy}
+  %
+  In general when {\tt xsbpy} bi-translates between Python objects and
+  Prolog terms it performs a copy: this has the advantage that each
+  system can perform its own memory management independently of the
+  other.  The exception is when a reference to a Python object is
+  passed to XSB.  In this case, Python must explicitly be told that
+  the Python object can be reclaimed, and this is done through {\tt
+    free\_python\_object/1}.
+
+  {\bf Error Cases}
+
+  \bi
+\item {\tt ObjRef} is not a Python object reference.  (Only a syntax
+  check is performed, so no determination is made that {\tt ObjRef} is
+  a {\em valid} Python object reference
+  \bi
+  \item {\tt type\_error}
+  \ei
+  \ei
+  
+
+\ourrepeatmoditem{pp\_py(+Stream,+Term)}{pp\_py/2}{xsbpy}
+\indourmoditem{pp\_py(Term)}{pp\_py/1}{xsbpy}
+%
+Pretty prints the Prolog translation of a Python data structure in
+Python-like syntax.  For instance, the term
+
+\begin{verbatim}
+pydict([''(name,'Bob'),''(languages,['English','French','GERMAN'])]).
+\end{verbatim}
+
+\noindent
+is printed as 
+\begin{verbatim}
+{
+  name:'Bob',
+  languages:[
+   'English','
+   'French',
+   'GERMAN'
+  ]
+} 
+\end{verbatim}
+
+Such pretty printing can be useful for developing applications such as
+with {\tt xp\_elastic}, the {\tt xsbpy} Elasticsearch interface.
+
+\indourmoditem{add\_py\_lib\_dir(+Path)}{add\_py\_lib\_dir/1}{xsbpy}
+%
+This convenience predicate allows the user to add a path to the Python
+library directories in a manner similar to {\tt add\_lib\_dir/1},
+which adds Prolog library directories.
+
+\indourmoditem{py\_lib\_dirs(?Path)}{py\_lib\_dirs/1}{xsbpy}
+%
+This convenience predicate returns the current Python library
+directories as a Prolog list.
+
+\indourmoditem{values(+Dict,+Path,?Val)}{values/3}{xp\_utils}
+%
+  Convenience predicate to obtain a value from a (possibly nested)
+  Prolog dictionary.  The goal
+
+  {\tt values(D,key1,V)}
+
+\noindent
+  is equivalent to the
+  Python expression {\tt D[key1]} while
+
+  {\tt values(D,[key1,key2,key3],V)}
+v
+\noindent
+is equivalent to the Python expression
+
+{\tt D[key1][key2][key3]}.
+
+There are no error conditions associated with this predicate.
+
+\ourrepeatmoditem{keys(+Dict,?Keys)}{keys/2}{xp\_utils}
+\ourrepeatmoditem{key(+Dict,?Keys)}{key/2}{xp\_utils}
+\indourmoditem{items(+Dict,?Items)}{items/2}{xp\_utils}
+%
+Convenience predicates (for the inveterate Python programmer) to
+obtain a list of keys or items from a Prolog dictionary.  There are no
+error conditions associated with these predicates.
+
+The predicate {\tt key/2} returns each key of a dictionary on
+backtracking, rather than returning all keys as one list, as in {\tt keys/2}.
+
+
+
+\indourmoditem{obj\_dict(+ObjRef,-Dict)}{obj\_dict/2}{xp\_utils}
+%
+Given a reference to a Python object as {\tt ObjRef}, this predicate
+returns the dictionary of attributes of {\tt ObjRef} in {\tt Dict}.
+If no {\tt \_\_dict\_\_} attribute is associated with {\tt ObjRef} the
+predicate fails.
+
+{\tt obj\_dict/2} is a convenience predicate, and could be written
+using {\tt pydot/4} as:
+
+\begin{verbatim}
+  pydot('__main__',Obj,'__dict__',Dict).
+\end{verbatim}
+
+\indourmoditem{obj\_dir(+ObjRef,-Dir)}{obj\_dir/2}{xp\_utils}
+%
+Given a reference to a Python object as {\tt ObjRef}, this predicate
+returns the list of attributes of {\tt ObjRef} in {\tt Dir}.  If no
+\_\_dir\_\_ attribute is associated with {\tt ObjRef} the predicate
+fails.
+
+{\tt obj\_dir/2} is a convenience predicate, and could be written
+using {\tt pydot/4} as:
+
+\begin{verbatim}
+  pydot('__main__',Obj,'__dir__'(),Dir).
+\end{verbatim}
+
+\end{description}
+
+\section{Performance and Space Management} \label{sec:xsbpy-perf}
+
+The core {\tt xsbpy} routines -- {\tt pyfunc/[3,4]} and {\tt pydot/4}
+-- are written almost entirely in C, have shown good performance so
+far, and continue to be optimized.  Calling a simple Python function
+to increment a number from XSB and then returning the incremented
+value to XSB should take about a microsecond on a reasonably fast
+machine.  Of course, the overhead for passing large terms from and to
+Python will be somewhat higher.  For instance, the time to pass a list
+of integers from Python to XSB has been timed at about 20-30
+nanoseconds per list element.  Nonetheless, for nearly any practical
+application the time to perform useful functionality within Python
+will far outweigh any {\tt xsbpy} overhead.
+
+Apart from system resource limitations, there is virtually no upper
+limit on the size of Python structures passed back to Prolog: stress
+tests have passed lists of integers of length 100 million from Python
+to Prolog without problems. However, it should be noted that {\tt
+  xsbpy} must ensure that XSB's heap is properly expanded before
+copying a large structure from Python to XSB, a topic to which we now
+turn.
+
+\subsection{Memory Management} \label{sec:xsbpy-memory}
+
+\subsubsection{Space Management for XSB's Heap}
+Because Python data structures are directly copied onto the XSB heap
+stack, the heap serves as a buffer for the return of information from
+Python.  XSB currently relies on the Python C API size routine {\tt
+  Py\_SIZE} to estimate the size of a structure, since accessing this
+routine has a constant-time overhead.\footnote{XSB estimates the size
+  multiplying {\tt Py\_SIZE} by a constant factor.}  However, {\tt
+  Py\_SIZE} only returns the length of a structure, and not its exact
+size.  Accordingly long lists of large structures, heavily nested
+dictionaries and other such structures may present a problem.  It
+should be noted that when {\tt xsbpy} is initialized, XSB's default
+heap margin is reset to 1 megabyte so that any data structure whose
+size is less than 1 megabyte will be copied safely, even if its size
+is under-estimated.\footnote{XSB's default heap margin is 64 kbytes.}
+
+Fortunately, this default works for most users.  In using {\tt xsbpy}
+the only times large data structures have proven a problem is when
+returning large bulk queries from Elasticsearch, or returning large
+sets of ontology instances from Wikidata.  In such a case there are
+two options.  First, one may reset the heap margin to an even larger
+value (see Volume 1 for details).  Alternately, one may use the option
+{\tt sizecheck(true)} for those {\tt pyfunc} or {\tt pydot} calls that
+are expected to return large data structures.  If this option is
+specified, the call performs two traversals of the data structure to
+be returned: one to determine its size and ensure heap space, and another
+to copy the data structure.
+
+\subsection{Python Space Management}
+
+When using Python's C interface, every Python object that is declared
+in C must be explicitly released, a requirement that supports Python's
+garbage collection.  {\tt xsbpy} memory usage has been checked using
+the {\tt guppy} package, which indicates that there are no memory
+leaks.
+
+%\subsection{Allowing Python to Reclaim Space}
+%
+%TBD: Discuss space issues for Python how they are now addressed and
+%how they will be addressed in the future.
+
+\section{Interfaces to Python Libraries}
+
+The {\tt packages/xsbpy/starters} directory contains code to interface
+to various Python libraries---to help users start projects using {\tt
+  xsbpy}.  Some of the files implement useful higher level mappings
+that translate say, embedding spaces or SpaCy graphs to Prolog graphs,
+or translate RDF graphs to lists of Prolog structures.  Others are
+simple collections of examples to show how to query or update
+Elasticsearch, to detect the language of input text or to perform
+machine translation.  Nearly all of the interfaces have been a
+starting point for research or commercial
+applications.  \footnote{Testing has been done of the interfaces, but
+  the testing has not been exhaustive.  As a result, please
+  double-check any results, and report bugs -- or improvements -- to
+  {\tt xsb.sorceforge.net}.}
+
+When {\tt xsbpy} is loaded, both the {\tt xsbpy} directory and its
+{\tt packages/xsbpy/starters} sub-directory is added to the Prolog and
+Python paths.  As a result, modules in these sub-directories can be
+loaded into XSB and Python without changing their library paths.
+
+Note that most of these applications require the underlying Python
+libraries to have been installed via a {\tt pip} or {\tt conda}
+install.
+
+\subsection{Fasttext Queries and Language Detection: {\tt xp\_fasttext}}
+%
+Facebook's {\tt fastText} provides a collection of functionality that
+includes querying pre-trained word vectors in over a hundred
+languages~\cite{FBFJM18}, training sets of vectors, aligning vector
+embeddings~\cite{MUSE2018}, and identifying languages via {\tt
+  lid.176.bin}.  This XSB module uses the Python module {\tt fasttext}
+and allows an XSB programmer to immediately start using fastText's
+pre-trained word embeddings.  A related module, {\tt xp\_faiss}
+provides an interface to Facebook's dense vector management system
+Faiss.  The distinction between the two is that Faiss can manage
+vectors read in from a file, and provides batch-oriented operations;
+the fastText module relies on fastText's binary format and provides
+simpler, though useful, query support.
+
+\paragraph{Queries to Word Embeddings}
+\begin{description}
+  \indourmoditem{load\_model(+BinPath,+Name)}{load\_model/2}{xp\_fasttext}
+  Loads a word embedding model in fastText binary form, the path of
+  which is {\tt BinPath}.  {\tt Name} is an atom to be used as a
+  Prolog referent, and so easily allows use of more than one word
+  embedding model at a time.
+
+  \indourmoditem{get\_nearest\_neighbors(+Name,+Word,-Neighbors)}{get\_nearest\_neighbors/3}{xp\_fasttext}
+  Returns the 10 nearest neighbors of {\tt Word} in the model {\tt
+    Name}.  This feature is useful for determining other words that
+  are distributionally similar to {\tt Word}.  {\tt Neighbors} is a
+  list of tuples (terms with functor {\tt ''/2}) containing a
+  neighboring word and its cosine similarity to {\tt Word}.   Although
+  {\tt Word} must be a Prolog atom, it need not be an actual English
+  word.  Because fastText uses subword embeddings rather than word
+  embeddings \cite{BGJM17}, {\tt Word} need not have been in the
+  training set of the model.  This feature can sometimes be useful for
+  correcting misspellings and other purposes.
+
+  \indourmoditem{cosine\_similarity(+Name,+WordList,-SimMat)}{cosine\_similarity/3}{xp\_fasttext}
+  For a model {\tt Name} and {\tt WordList} a list of atoms of length
+  $N$, this predicate returns a (cosine) similarity matrix of
+  dimension $N \times N$.
+    
+  \indourmoditem{get\_word\_vec(+Name,+Word,-Vec)}{get\_word\_vec/3}{xp\_fasttext}
+  Returns a the vector for {\tt Word} in the model {\tt Name} as a
+  Prolog list of floats.  In general, if a computation on word vectors
+  can be done wholly on the Python side, it is much faster to do so,
+  rather than manipulating vectors in XSB.  This is because the word
+  vectors are actually kept as {\tt numpy} arrays and computations
+  performed in C rather than in Python.
+\end{description}
+
+\paragraph{Language Identification via {\tt lid.176.bin}}
+Assuming that Fasttext's language identification module is in the
+current directory, the command:
+\begin{verbatim}
+ pyfunc(fasttext,load_model('./lid.176.bin'),Obj).
+\end{verbatim}
+Loads the model and unifies {\tt Obj} with a reference to the loaded
+module which might look like {\tt pyObj(p0x7faca3428510)}.  
+Next, a call to the example python module {\tt xp\_fasttext}:
+\begin{verbatim}
+pyfunc(xp_fasttext, fasttext_predict(pyObj(p0x7faca3428510),
+       'xsbpy is a really useful addition to XSB! But language detection
+        requires a longer string than I usually want to type.'),Lang).  
+\end{verbatim}
+returns the detected language and confidence value, which in this case
+
+\begin{verbatim}
+''('__label__en',0.93856)}.
+\end{verbatim}
+
+Note that loading the model can be done by calling the Python {\tt
+  fasttext} module directly.  In fact, the only reason that the module
+{\tt xp\_fasttext} needs to be used (as opposed to calling the Python
+functionality directly) is because the confidence of the language
+detection is returned as a {\tt numpy} array, which {\tt xsbpy} does
+not currently translate automatically. \footnote{The examples {\tt
+    xp\_fasttext} and {\tt googleTrans} were written by Albert Ki;
+  {\tt xp\_faiss} was written by Albert Ki and Theresa Swift.}
+
+\subsection{Dense Vector Queries with xp\_faiss}
+The dense-vector query engine Faiss \cite{JDH17}, developed by
+Facebook offers an efficient way to perform nearest neighbor searches
+in vector spaces produced by word, network, tuple, or other
+embeddings.  The {\tt xp\_faiss} example provides XSB predicates to
+initialize a Faiss index from a text file of vectors, perform queries
+to the index, and to make a weighted Prolog graph out of the vector
+space.  
+
+As with many machine-learning tools, Faiss expects that each of the
+vectors is referenced by an integer.  For instance, a vector for the
+string {\em cheugy} would be referenced by an integer, say 37.  The
+XSB programmer thus would be responsible for associating the string
+{\em cheugy} with 37 in order to use Faiss.  The main predicates
+exported by {\tt xp\_faiss.P} include:
+
+\begin{itemize}
+\item {\tt faissInit(+XbFile,+Dim)} initializes a Faiss index where
+  {\tt XbFile} is a text file containing the vectors to be indexed and
+  {\tt Dim} is the dimension of these vectors. ({\tt xb} is Faiss
+  terminology for the set of {\em base}, i.e., indexed, vectors.)
+  This predicate also creates a {\tt numpy} array with a set of query
+  vectors {\tt xq} consisting of the same vectors.  When the query and
+  index vectors are set up in this manner, a nearest-neighbor search
+  can be performed for any of the indexed vectors.  With this, the
+  vector space can be explored, visualized, and so on.
+
+  After execution of this predicate, a fact for the predicate {\tt
+    xp\_faiss:xq\_num/1} contains the number of query vectors ({\tt
+    xq}), which is the same as the number of indexed vectors ({\tt
+    xb}).
+
+\item {\tt get\_k\_nn(+Node,+K,-Neighbors)} finds the {\tt K} nearest
+  neighbors of a node.  The predicate takes as input {\tt Node}, the
+  integer identifier of a node, and {\tt K} the number of nearest
+  neighbors to be returned.  The return structure {\tt Neighbors} is
+  the Prolog representation of a 2-ary Python tuple (i.e., {\tt ''/2})
+  containing as its first argument a list of {\tt K} distances and as
+  it second argument a list of {\tt K} neighbors.
+
+
+\item {\tt make\_vector\_graph(K)} Given a Faiss index, this predicate
+  asserts a weighted graph in Prolog by obtaining the nearest {\tt K}
+  neighbors for each indexed vector.  Edges of the graph have the form:
+
+  {\tt vector\_edge\_raw(From,To,Dist)}
+
+  \noindent
+  Where {\tt From} and {\tt To} are integer referents for indexed
+  vectors, and {\tt Dist} is the Euclidean distance between the vector
+  with referent {\tt From} and the vector with referent {\tt To}.
+  Each fact of {\tt vector\_edge\_raw/3} is indexed both on its first
+  and second argument.
+
+  If both the number of indexed vectors and {\tt K} are large,
+  construction of the Prolog vector graph may take a few minutes.
+  Construction time is almost wholly comprised of the time to find the
+  set of {\tt K} nearest neighbors for each node.
+
+\item {\tt vector\_edge(Node1,Node2,Dist)}.  The vector graph, which
+  represents distances is undirected.  However to save space, the {\tt
+    vector\_edge\_raw/3} facts are asserted so that if {\tt
+    vector\_edge\_raw(Node1,Node2,Dist}) has been asserted, {\tt
+    vector\_edge\_raw(Node2,Node1,Dist}) will not be asserted.  {\tt
+    vector\_edge/3} calls {\tt vector\_edge\_raw/3} in both
+  directions, and should be used for querying the vector graph.
+  
+\item {\tt write\_vector\_graph(+File,+Header)} writes out the vector
+  graph to {\tt File}.  This predicate ensures that {\tt File}
+  contains the proper indexing directive for {\tt vector\_edge\_raw/3}
+  as well a directive to the compiler describing how to dynamically
+  load {\tt File} in an efficient manner.  Because of these
+  directives, the file can simply be consulted or ensure\_loaded and
+  the user does not need to worry about which compiler options should
+  be used.  The graph is loaded into the module {\tt vector\_graph}.
+
+  {\tt Header} is simply a string that is written as a comment to the
+  first line of {\tt File} that can serve to contain any necessary
+  provenance information.
+\end{itemize}  
+
+\subsection{Translating Between RDF and Prolog: xp\_rdflib} \label{secLxp-rdflib}
+This module interfaces to the Python {\tt rdflib} library to read RDF
+information from files in Turtle, N-triples and N-quads format, and to
+write files in Turtle and N-triples format.  In addition, RDF hdt
+files can be loaded and queried using rdflib-hdt.  As such {\tt
+  xp\_rdflib} augments XSB's RDF package (Chapter~\ref{chapter:RDF})
+which handles XML-RDF.
+
+Within a triple, URIs and blank nodes are returned as Prolog atoms,
+while literals are returned as terms with functor {\tt ''/3} (the
+Prolog representation of a 3-ary tuple) in which the first argument is
+the literal's string as a Prolog atom, the second argument is its
+datatype, and the third argument its language. If the data type or
+language are not included, the argument will be null.  As examples:
+
+\begin{verbatim}
+"That Seventies Show"^^<http://www.w3.org/2001/XMLSchema#string> 
+\end{verbatim}
+is returned as 
+\begin{verbatim}
+('"That Seventies Show"','<http://www.w3.org/2001/XMLSchema#string>',) 
+\end{verbatim}
+while 
+\begin{verbatim}
+"That Seventies Show"@en
+\end{verbatim}
+is returned as
+\begin{verbatim}
+('"That Seventies Show"',,en) 
+\end{verbatim}
+
+The file {\tt xp\_rdflib.P} contains predicates {\tt test\_nt/0}, {\tt
+  test\_ttl/0}, {\tt test\_nq/0} to test reading and writing.  Note
+that Python options needed to deserialize an RDFllb graph write are
+specific to the RDFlib plug-in for a particular format, and these
+plug-ins are not always consistent with one another.  As a result, if
+other formats are desired, minor modifications of {\tt xp\_rdflib} may
+be necessary, though they will often be simple to make.
+
+The use of {\tt xp\_rdflib} differs on the RDF format used.  For the
+{\tt turtle} (or {\tt ttl}), {\tt nt} (or {\tt ntriples}) and {\tt
+  nquads} and {\tt jsonld} formats a file is read into XSB as a
+(large) list, and an XSB list of terms of the proper form can be
+transformed into RDF and written to a file.  For the {\tt hdt} format
+the usage pattern is different: when an {\tt hdt} file is loaded, it
+is simply memory mapped into a process and facts are loaded into a
+rdflib graph (and into XSB) purely on demand~\footnote{At least I
+think that's how it works...}.
+
+\subsubsection{Functionality for Turtle, N-triples and N-quads Formats}
+
+\paragraph{Reading RDF}
+\begin{itemize}
+\item {\tt read\_rdf(+File,+Format,-TripleList)} reads RDF from a file
+  containing an RDF graph formatted as {\tt Format}, where the formats
+  {\tt turtle}, {\tt nt}, {\tt jsonld} and {\tt nquads} have been
+  tested.\footnote{The format {\tt ttl} is allowed as a substitute for
+  {\tt turtle}, and {\tt ntriples} for {\tt nt}.}.  These formats can
+  be tested on {\tt sample.ttl}, {\tt sample.nt} and {\tt sample.nq},
+  all of which are in the {\tt packages/xsbpy/starters} directory.
+
+  Due to the structure of the Python {\tt RDFlib} graph, no guarantee
+  is made that the order of facts in {\tt File} will match the order
+  of facts in {\tt TripleList}.
+\end{itemize}
+  
+{\bf Error Cases}
+\bi
+\item {\tt Format} is not {\tt nt}, {\tt turtle}, {\tt ttl}, or {\tt
+  nquads} \bi
+\item {\tt misc\_error}
+\ei
+\end{itemize}
+
+\paragraph{Writing RDF}
+
+If {\tt TripleList} is a list of terms, structured as {\tt ''/3} terms
+described above, it can be easily be written to {\tt File} as properly
+formatted RDF.  The Python function {\tt
+  rdflib\_write\_file\_no\_decode()} can be called directly as:
+\begin{verbatim}
+pyfunc(xp_rdflib,rdflib_write_file_no_decode(+TripleList,+File),[format=+Fmt],-Ret).
+\end{verbatim}
+where {\tt Fmt} is {\tt turtle} or {\tt nq}.  {\tt
+  rdflib\_write\_file\_no\_decode()} is a simple function that creates
+an RDFlib graph out of {\tt TripleList}, serializes the graph and
+prints it out.  The Python options needed to write to a file are
+specific to the RDFlib plug-in for a particular format, so if other
+formats are desired, minor modifications of {\tt xp\_rdflib} may be
+necessary.
+
+Due to the structure of the Python {\tt RDFlib} graph, no guarantee is
+made that the order of facts in {\tt File} will match the order of
+facts in {\tt TripleList}.
+  
+\subsubsection{Functionality for the Hdt Format}
+
+The RDF hdt format is intended to support large, read-only knowledge
+bases, such as Wikidata, that may contain billions of triples.  A hdt
+file is a compressed binary serialization that can be directly browsed
+and queried.  The advantage of querying over compressed data is that
+large data stores become manageable that otherwise wouldn't be.  For
+instance, a Wikidata snapshot that contains several billion rows along
+with indexes takes up about 160 Gbytes on disk and takes about 3
+seconds to initialize into (xp\_)rdflib.  Furthermore, the data is
+loaded into RAM only as needed for query evaluation.  
+
+{\tt xp\_rdflib} offers two main predicates for use with rdflib hdt:
+
+\begin{description}
+  \indourmoditem{hdt\_load(+Store,-Obj)}{hdt\_load/2}{xsbpy}
+  %
+  Initializes rdflib for the hdt file {\tt Store} and creates a rdflib
+  graph in which to store the results of queries.  {\tt Obj} is the
+  Python reference to the data store.
+  
+  \indourmoditem{hdt\_query(?Arg1,?Arg2,?Arg3,-List)}{hdt\_query/4}{xsbpy}
+  %
+
+  Allows a user to query a HDT store using Prolog-like syntax and
+  returning the results of the query in {\tt List}.  For instance the query
+\begin{verbatim}
+    hdt_query('http://www.wikidata.org/entity/Q144',Pred,Obj,List)
+\end{verbatim}
+finds all triples having the above URI as their subject.  In this
+case, {\tt List} would be unified with a long list beginning with
+\begin{footnotesize}
+\begin{verbatim}
+[('http://www.wikidata.org/entity/Q144','http://schema.org/name',''(dog,'',en))
+ ('http://www.wikidata.org/entity/Q144','http://schema.org/description',''('domestic animal,'',en))
+...
+\end{verbatim}
+\end{footnotesize}
+\end{description}
+
+\subsection{xp\_spacy}
+SpaCy is widely used tool that exploits neural language models to
+analyze text via dependency parses, named entity recognition, and much
+else.  Although SpaCy is a Python tool, much of it is written in
+C/Cython which makes it highly efficient.  The {\tt xp\_spacy} package
+offers a flexible and efficient means to use SpaCy from Prolog (once
+SpaCy has been properly installed for Python, along with appropriate
+SpaCy language models).
+
+In SpaCy, a user first loads one or more language models for the
+language(s) of interest and of a size suitable to the application.
+Text is then run through this language model and through other SpaCy
+code producing a {\tt Document} object containing a great amount of
+detail about the sentences in the text, tokens in the sentence and
+their relations to one another.
+
+Reflecting this sequence, the predicate {\tt load\_model/1} is used to
+load a SpaCy model into the XSB/Python session:
+
+\begin{verbatim}
+load_model(en_core_web_sm) 
+\end{verbatim}
+
+\noindent
+On the Python side the identifier {\tt en\_core\_web\_sm} is
+associated with a {\tt Language} object, and using this
+association the same atom can be used to process text throughout the
+session.  Multiple models can be loaded and used to process different
+text or files in different languages or for different purposes.  For
+instance, the command:
+
+\begin{verbatim}
+proc_string(en_core_web_sm,'She was the youngest of the two daughters of a
+most affectionate, indulgent father; and had, in consequence of her sister's
+marriage, been mistress of his house from a very early period.',Doc)
+\end{verbatim}
+
+\noindent
+processes the above text, and unifying {\tt Doc} with the referent to
+the resulting SpaCy {\tt Document} object, which contains the textual
+analysis of the string.  The predicate {\tt proc\_file/3} works
+similarly for textual files.
+
+At this point, a user of {\tt xp\_spacy} has two options: she can
+either query the {\tt Document} object directly or call {\tt
+  token\_assert/1} to assert information from the {\tt Document}
+object into a Prolog graph that can be conveniently analyzed.  If
+querying a {\tt Document} object directly, a small amount of code may
+need to be written because SpaCy's API often returns generators to its
+data structures rather than its data structures themselves.  Generally
+the code that needs to be written is extremely simple and consists of
+little more than a list comprehension: the functions {\tt get\_nps()},
+{\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
+provide examples of this.
+
+%The predicate {\tt load\_and\_proc/2} loads a SpaCy model and
+%processes text, asserting Python references both to the document and
+%to the function used to invoke the language model on text.  At this
+%point, a user of {\tt xsbpy} has two options: she can either query the
+%document directly or call {\tt token\_assert} to assert information
+%from the document into a Prolog graph that can be conveniently
+%analyzed.  If querying a document directly, a small amount of code may
+%need to be written because SpaCy's API often returns generators to its
+%data structures rather than its data structures themselves.  Generally
+%the code that needs to be written is extremely simple and consists of
+%little more than a list comprehension: the functions {\tt get\_nps()},
+%{\tt get\_ents()} and {\tt get\_token\_info()} in {\tt xp\_spacy.py}
+%provide examples of this.
+
+For most purposes however, it is easier to call the XSB predicate {\tt
+  token\_assert(Doc)} that asserts tokens and their dependency parse
+edges into XSB as explained below.  As an example of how to navigate
+this graph, {\tt show\_all\_trees/0} and its supporting predicates
+provide a simple but clear representation of the SpaCy dependency
+parse in constituency tree form using the Prolog version of the parse.
+Example~\ref{spacy-examp} below shows a similar sequence as it might
+be executed in a simple session.
+
+
+%The code in this package originated as part of a large research
+%project and reflects the needs of that project.  Other applications
+%may have slightly different needs, and the {\tt xp\_spacy} code can be
+%easily refactored to support such needs.
+
+As a final point before presenting the the main predicates, note that
+if text from different languages is to be analyzed, the package {\tt
+  xp\_fasttext} can be used to determine the language of a text
+string, and the text can then be sent to one of several language
+models. 
+
+\paragraph{{\tt xp\_spacy} Predicates}
+
+\begin{description}
+  \ourrepeatmoditem{load\_model(+Model,+Options)}{load\_model/2}{xp\_spacy}
+  \indourmoditem{load\_model(+Model)}{load\_model/1}{xp\_spacy}
+%  
+Loads the SpaCy model {\tt Model} and associates the Prolog atom {\tt
+  Model} with the corresponding SpaCy {\tt Language} object.
+Currently, the only form for {\tt Options} is a (possibly empty) list
+of terms of the form {\tt pipe(Pipe)} where {\tt Pipe} is the name of
+a SpaCy pipe, i.e., a process to add to the NLP pipeline of the SpaCy
+Language object {\tt Model}.
+
+{\tt load\_model(Model)} is a convenience predicate for {\tt
+  load\_model(Model,[])}.
+
+\ourrepeatmoditem{proc\_string(+Model,+Atom,-Doc,+Options)}{proc\_string/4}{xp\_spacy}
+\indourmoditem{proc\_string(+Model,+Atom,-Doc)}{proc\_string/3}{xp\_spacy}
+%
+Processes the text {\tt Atom} using the model {\tt Model} and unifying
+{\tt Doc} with the resulting SpaCy {\tt Document} object.  The only
+option currently allowed in {\tt Options} is {\tt
+  token\_assert}, which in addition asserts information from {\tt Doc}
+into a Prolog graph (after removing information about any previous
+dependency graphs).
+
+{\tt proc\_string(+Model,+File,-Doc)} is a convenience predicate for\\
+{\tt proc\_string(+Model,+Atom,-Doc,[])}.
+
+If {\tt Model} has not been loaded, {\tt proc\_string/[3,4]} will try
+to load it before processing.  If {\tt Model} cannot be found, a
+Python {\tt NameError} error is thrown as an XSB miscellaneous error.
+
+\ourrepeatmoditem{proc\_file(+Model,+File,-Doc,+Options)}{proc\_file/4}{xp\_spacy}
+\indourmoditem{proc\_file(+Model,+File,-Doc)}{proc\_file/3}{xp\_spacy}
+%
+Opens {\tt File} and processes its contents using the model {\tt
+  Model} and unifying {\tt Doc} with the resulting SpaCy {\tt
+  Document} object. {\tt File} is opened in Python, and the stream for
+{\tt File} is closed automatically.  The only option currently allowed
+in {\tt Options} is {\tt token\_assert}, which in addition asserts
+information from {\tt Doc} into a Prolog graph.
+
+{\tt proc\_file(+Model,+File,-Doc)} is a convenience predicate for\\
+{\tt proc\_file(+Model,+File,-Doc,[])}.
+
+If {\tt Model} has not been loaded, {\tt proc\_file/[3,4]} will try to
+load it before processing.  If {\tt Model} cannot be found, a Python
+{\tt NameError} error is thrown as an XSB miscellaneous error.
+
+\indourmoditem{token\_assert(+Doc)}{token\_assert/1}{xp\_spacy}
+%    
+This predicate accesses the SpaCy Document object {\tt Doc}, then
+queries the dependency graph and other information from {\tt Doc}, and
+asserts it to Prolog as a graph (after retracting information from any
+previous dependency graphs).  The Prolog form of the graph uses two
+predicates.  The first:
+\begin{verbatim}  
+    token_info_raw(Index,Text,Lemma,Pos,Tag,Dep,EntType)
+\end{verbatim}
+represents the nodes of the graph; For a given SpaCy {\tt token}
+object the fields in the corresponding {\tt token\_info\_raw/7} fact are:
+are as follows:
+\begin{itemize}
+  \item {\tt Index} ({\tt token.idx}) is the character offset of {\tt
+    token} within the document (i.e., the input file or atom), and
+    serves as an index for the token both in SpaCy and in its Prolog
+    representation.
+  \item {\tt Text} ({\tt token.text}) the verbatim form of {\tt token}
+    in the text that was processed.
+  \item {\tt Lemma} ({\tt token.lemma\_}) the base form of {\tt
+    token}.  If {\tt token} is a verb, {\tt Lemma} is its stem, if
+    {\tt token} is a noun, {\tt Lemma} is its singular form.
+  \item {\tt Pos} ({\tt token.pos\_ }) is the coarse-grained part of
+    speech for {\tt token} according to {\tt
+      https://universaldependencies.org/docs/u/pos}
+  \item {\tt Tag} ({\tt token.tag\_ }) The fine-grained part of speech
+    for {\tt token} that contains some morphological analysis in
+    addition to the part-of-speech.
+    Cf.
+
+    {\tt https://stackoverflow.com/questions/37611061/spacy-token-tag-full-list}
+
+      for a discussion of its meaning and use.
+  \item {\tt Dep} ({\tt token.dep\_ }) The type of relation that {\tt
+    token} has with its parent in the dependency graph.
+  \item {\tt EntType} ({\tt token.ent\_type\_ }) The SpaCy named entity
+    type, e.g., person, organization, etc.
+\end{itemize}  
+
+Edges of the Prolog graph have the form:
+\begin{verbatim}
+token_childOf(ChildIndex,ParentIndex)
+\end{verbatim}
+where {\tt ChildIndex}, and {\tt ParentIndex} are indexes for {\tt
+  token\_info\_raw/7} facts.
+
+Note that SpaCy tokens have many other attributes, of which the above
+are some of the more useful.  If other attributes are needed, the {\tt
+  xp\_spacy} code can easily be expanded to include them.  However
+many aspects of the parse can be easily reconstructed by the Prolog
+graph and don't need to be materialized in Prolog.  For instance the
+code for {\tt show\_all\_trees/0} in {\tt xp\_spacy.P} contains code
+for constructing sentences, subtrees of a given token and so on.
+
+\ourrepeatmoditem{get\_text(Index,Text)}{get\_text/2}{xp\_spacy}
+\ourrepeatmoditem{get\_lemma(Index,Lemma)}{get\_lemma/2}{xp\_spacy}
+\ourrepeatmoditem{get\_pos(Index,Pos)}{get\_pos/2}{xp\_spacy}
+\ourrepeatmoditem{get\_tag(Index,Tag)}{get\_tag/2}{xp\_spacy}
+\ourrepeatmoditem{get\_dep(Index,Dep)}{get\_dep/2}{xp\_spacy}
+\ourrepeatmoditem{get\_ner\_type(Index,NER)}{get\_ner\_type/2}{xp\_spacy}
+\indourmoditem{\tt token\_info(Index,Text,Lemma,Pos,Tag,Dep,Ent\_type)}{token\_info/7}{xp\_spacy}
+%
+Various convenience predicates for accessing {\tt token\_info\_raw/7}.
+{\tt token\_info/7} is a convenience predicate that calls {\tt
+  token\_info\_raw/7} and filters out spaces and punctuation.  {\tt
+  get\_text/2}, {\tt get\_lemma/2} etc. get the appropriate field from
+a {\tt token\_info\_raw/7} fact indexed by {\tt Index}.a
+  
+\indourmoditem{\tt show\_all\_trees()}{show\_all\_trees/0}{xp\_spacy}
+%
+  Given a SpaCy graph asserted to Prolog as described above, {\tt
+    show\_all\_trees/0} navigates the graph, and for each sentence in
+  the graph converts the dependency graph to a tree and prints it out.
+  This predicate is useful for reviewing parses, and its code in {\tt
+    xp\_spacy.P} can be modified and repurposed for other needed
+  functionality.
+
+\indourmoditem{sentence\_roots(-RootList)}{sentence\_root/1}{xp\_spacy}
+%
+Returns a list of the dependency graph nodes (i.e., {\tt
+  token\_info\_raw/7} terms) that are roots of a sentence in the
+Prolog dependency graph.  By backtracking through {\tt RootList},
+sentence by sentence processing can be done for a document.
+
+\indourmoditem{dependent\_tokens(+Root,-Toklist)}{dependent\_tokens/2}{xp\_spacy}
+%
+Given the index of token {\tt Root}, returns a sorted list of the
+tokens dependent on {\tt Root}.  If {\tt Root} is the root of a
+sentence, {\tt Toklist} will be the words in the sentence; if {\tt
+  Root} is the root of a noun phrase, {\tt Toklist} will be the words
+in the noun phrase, etc.
+
+\end{description}  
+
+\begin{example} \rm \label{spacy-examp}
+We provide an example session where {\tt xp\_spacy} is used.  For a
+session like this to work SpaCy would need to be installed along with
+the SpaCy model {\tt en\_core\_web\_sm}.  The session would start by
+consulting the appropriate files and model:
+\begin{verbatim}
+| ?- [xsbpy,xp_spacy].
+:
+| ?- load_model(en_core_web_sm).
+\end{verbatim}
+Next SpaCy is used to process a string (i.e., a Prolog atom):
+\begin{verbatim}
+| ?- proc_string(en_core_web_sm,'She was the youngest of the two daughters of a most affectionate,indulgent father; and had, in consequence of her sister''''s marriage,been mistress of his house from a very early period.  ',Doc,[token_assert]).
+
+Doc = pyObj(p0x7f36ed5b3580)
+
+yes
+\end{verbatim}
+The option {\tt token\_assert} automatically loads the SpaCy
+dependency graph and other information to Prolog.  Alternately, one
+could omit this option and later call {\tt
+  token\_assert(pyObj(p0x7f36ed5b3580))}: i.e., call {\tt
+  token\_assert/1} with the first argument as the reference to the
+SpaCy document object in Python.  Either way, once the dependency
+graph has been loaded into XSB the command: 
+\begin{verbatim}
+show_all_trees().
+\end{verbatim}
+will print out the list of tokens for this sentence followed by:
+    {\footnotesize
+\begin{verbatim}
+token_info(245,was,be,AUX,VBD,ROOT,)
+   token_info(241,She,she,PRON,PRP,nsubj,)
+   token_info(253,youngest,young,ADJ,JJS,attr,)
+      token_info(249,the,the,DET,DT,det,)
+      token_info(262,of,of,ADP,IN,prep,)
+         token_info(273,daughters,daughter,NOUN,NNS,pobj,)
+            token_info(265,the,the,DET,DT,det,)
+            token_info(269,two,two,NUM,CD,nummod,CARDINAL)
+            token_info(283,of,of,ADP,IN,prep,)
+               token_info(317,father,father,NOUN,NN,pobj,)
+                  token_info(286,a,a,DET,DT,det,)
+                  token_info(293,affectionate,affectionate,ADJ,JJ,amod,)
+                     token_info(288,most,most,ADV,RBS,advmod,)
+                  token_info(307,indulgent,indulgent,ADJ,JJ,amod,)
+   token_info(325,and,and,CCONJ,CC,cc,)
+   token_info(375,been,be,VERB,VBN,conj,)
+      token_info(329,had,have,AUX,VBD,aux,)
+         token_info(334,in,in,ADP,IN,prep,)
+            token_info(337,consequence,consequence,NOUN,NN,pobj,)
+               token_info(349,of,of,ADP,IN,prep,)
+                  token_info(365,marriage,marriage,NOUN,NN,pobj,)
+                     token_info(356,sister,sister,NOUN,NN,poss,)
+                        token_info(352,her,her,PRON,PRP$,poss,)
+                        token_info(362,'s,'s,PART,POS,case,)
+      token_info(380,mistress,mistress,NOUN,NN,attr,)
+         token_info(389,of,of,ADP,IN,prep,)
+            token_info(396,house,house,NOUN,NN,pobj,)
+               token_info(392,his,his,PRON,PRP$,poss,)
+      token_info(402,from,from,ADP,IN,prep,)
+         token_info(420,period,period,NOUN,NN,pobj,)
+            token_info(407,a,a,DET,DT,det,)
+            token_info(414,early,early,ADJ,JJ,amod,)
+               token_info(409,very,very,ADV,RB,advmod,)
+\end{verbatim}
+    }
+
+A similar sequence, but with {\tt
+  proc\_file(en\_core\_web\_sm,'emma.txt',Doc,[token\_assert])} parses
+the sentences in {\tt emma.txt} and loads the results into XSB.  In
+this case the command {\tt show\_all\_trees()} displays the dependency
+graph for each sentence in tree form.
+  \end{example}
+ 
+\subsection{xp\_json}
+This module contains an interface to the Python {\tt json} module,
+with predicates to read JSON from and write JSON to files and strings.
+The {\tt json} module transforms JSON objects into and from Python
+dictionaries, which the interface maps to and from their term forms.
+This module can be used to help understand how Python dictionaries
+relate to XSB terms, or as an alternative to XSB's {\tt json} package
+({\tt json} Chapter~\ref{chap:json}).  For instance, while for most
+purposes XSB's {\tt json} package should be used, {\tt xp\_json} can
+be useful if the json constructed and read comes from another {\tt
+  xsbpy} application such as {\tt xp\_elastic}.  This is because the
+format used by {\tt xp\_json} maps directly to a Python dictionary,
+while that of the {\tt json} package maps to other (very useful)
+formats.
+
+The {\tt xp\_json} functions are written in Python and can be
+called directly from Prolog.
+\begin{itemize}
+\item {\tt pyfunc(xp\_json,prolog\_load(+File),+Features,-Json)}
+  opens and reads {\tt File} and returns its JSON content in {\tt
+    Json} as a Prolog dictionary term.
+\item {\tt pyfunc(xp\_json,prolog\_dump(+Dict,+File),+Features,-Ret)}
+  converts {\tt Dict} to a JSON object, write it to {\tt File} and
+  returns the result of the operation in {\tt Ret}.
+\item {\tt pyfunc(xp\_json,prolog\_loads(+Atom),+Features,-Json)}
+  reads the atom {\tt Atom} and returns its JSON content in {\tt Json}
+  as a Prolog dictionary term.
+\item {\tt  pyfunc(xp\_json,prolog\_dumps(+Dict),+Features,-JsonAtom)}
+  converts {\tt Dict} to a JSON string, and returns the string as the
+  Prolog atom {\tt JsonAtom}.
+\end{itemize}  
+
+\subsection{Querying Wikidata from XSB}
+%
+{\sc Documentation is under construction, but the first versions of
+  these modules are complete.}
+
+Wikidata is a multi-language ontology-style knowledge graph created
+from processing Wikipedia articles and from many other sources.  The
+Wikidata graph contains a huge amount of information with 14-15
+billion edges, This information consists of {\em Qnodes} which include
+people, places, things and their classes.  Among the more important
+Qnodes are of course, XSB ({\tt Q8042469}) and Prolog ({\tt Q163468}).
+Qnodes are related to each other using {\em Pnodes}: among the more
+important indicate that one node is a subclass of another ({\tt P279})
+or an instance of another ({\tt P31}).  Both Pnodes and Qnodes have
+various attributes such as their preferred label
+(\verb|http://www.w3.org/2004/02/skos/core#prefLabel|).
+
+Due to the amount of information it contains, Wikidata is widely used
+in knowledge intensive applications such as NLP, entity resolution,
+and content extraction along with many others.  However, Wikidata can
+be difficult to use due to its size and its design.
+
+In terms of its size, while Wikidata can be downloaded and stored in a
+database, this can be time and resource intensive.  Alternately,
+various Wikidata servers can be queried via REST interfaces, although
+the public servers limit the number of queries made from a given
+caller over a time period, making them useful only for a light query
+load.  Easily usable snapshots of a Wikidata at a given time are also
+available in RDF-HDT format (cf. Section
+\ref{secLxp-rdflib}).\footnote{Available at {\tt
+  https://www.rdfhdt.org/datasets}.}  In using XSB with Wikidata, one
+project found it worked well to query RDF-HDT first, with REST queries
+as a backup.
+
+The design of Wikidata also makes it difficult to use.  Information
+useful to one project may simply be noise to another.  In addition
+some Wikidata statements are reified, and others are not.  And
+finally, the need to use identifiers such as {\tt P31} means that
+aliases must be used for code readability.
+
+XSB's Wikidata interfaces help address many of these issues. The HDT
+interface {\tt xp\_wd} and the server interface {\tt xp\_wdi} were
+both developed during a project that heavily used both XSB and
+Wikidata.  While these interfaces worked well for our project, they
+make no claim to tame all of Wikidata's difficulties, just the ones we
+repeatedly ran into.
+
+\subsubsection{{\tt xp\_wd}: Querying Wikidata via HDT}
+
+\begin{description}
+  \indourmoditem{wd\_query(?Arg1,?Arg2,?Arg3,?Lang)}{wd\_query/4}{xp\_wd}
+  This predicate queries the HDT version of Wikidata and unifies the
+  various arguments with Wikidata triples that match the input, so
+  that the caller may backtrack through all results.  {\tt Arg1} and
+  {\tt Arg3} can either be concise Qnode identifiers (e.g., {\tt
+    Q144}: {\em dog}) or URLs that may or may not represent
+  Qnodes.\footnote{Qnode identifiers are automatically expanded to
+  URLs.}  Similarly, {\tt Arg2} may be a concise Pnode identifier
+  (e.g., {\tt P31}) or a full URL. {\tt Lang} is a 2 character language
+  designation, which serves as a filter if instantiated.  {\tt Arg3}
+  can also be a string like {\tt Italy} which {\tt xp\_wd} turns into
+  rdf form using Lang, e.g., {\tt Italy@en}.  This predicate is the
+  basis of many other predicates in this module.
+
+ In order to take advantage of HDT indexes, at least one of {\tt Arg1}
+ and {\tt Arg3} should be instantiated; otherwise the query can take a
+ long time.
+
+Finally, there are many properties indicating provinance and other
+meta-data that are not needed for many purposes.  The file {\tt
+  xp\_wd\_ignore.P} defines the predicate {\tt ignore\_1/1} that
+contains a number of Pnodes ({\tt Arg2} instantiations) that one
+project preferred to filter out of the {\tt wd\_query/4} answers.
+Filtering is off by default, and can be turned on by asserting {\tt
+  xp\_wd:use\_wd\_filter}.  Of course, since filtering may be
+application-specific, Pnodes can be added to or deleted from {\tt
+  xp\_wd\_ignore.P} as desired.
+
+\indourmoditem{wd\_get\_labels(+Qnode,-Label,?Lang)}{wd\_get\_labels/3}{xp\_wd}
+Backtracks through all preferred labels
+(\verb|http://www.w3.org/2004/02/skos/core#prefLabel|), and other
+labels (\verb|http://www.w3.org/2004/02/skos/core#prefLabel| and \\
+  \verb|http://www.w3.org/2000/01/rdf-schema#label|) whose language
+  unifies with {\tt Lang}.
+
+\indourmoditem{wd\_get\_label(+Qnode,-Label,?Lang)}{wd\_get\_label/3}{xp\_wd}
+Tries to find a good label for {\tt Qnode} that unifies with {\tt
+  Lang}, first trying for a preferred label, then
+\verb|http://www.w3.org/2004/02/skos/core#prefLabel|, and finally
+other labels (\verb|http://www.w3.org/2004/02/skos/core#prefLabel| and \\
+\verb|http://www.w3.org/2000/01/rdf-szvchema#label|.
+
+\ourrepeatmoditem{wd\_instance\_of(+SCNode,-CNode)}{wd\_instance\_of/2}{xp\_wd}
+\ourrepeatmoditem{wd\_subclass\_of(+InstNode,-CNode)}{wd\_subclass\_of/2}{xp\_wd}
+\indourmoditem{wd\_parent\_of(+Node,-Parent)}{wd\_parent\_of/2}{xp\_wd}
+%
+Because it is called with the first argument bound, {\tt
+  wd\_subclass\_of/2} and {\tt wd\_instance\_of/2} both go up the
+Wikidata ontology dag and should not have any problems with speed,
+since upward traversals are supported by the HDT indexes.  These
+predicate attempt to handle the case where the obtained class is a
+reified statement.  In this case, it attempts another call from the
+reified statement to try to get a Qnode, a strategy that works at
+least {\em sometimes}.\footnote{Its for reasons like this that this
+section is named {\tt starters} rather than {\tt
+  perefctly\_finished\_interfaces} -- {\tt xp\_wd} cuts through some
+of the brush, but not all of it.  And don't get me started on why some
+of the classes are reified.}
+
+In Wikidata, it is not always apparent whether a node has an instance
+or a subclass relation with its parent, so {\tt wd\_parent\_of/3} is a
+convenience predicate that calls both.
+
+\end{description}
+
+\subsubsection{{\tt xp\_wdi}: Querying Wikidata over the web}
+
+This package provides a simple interface to the Wikidata website via
+the Python library {\tt wikidataintegrator}.  It is one of two ways in
+which {\tt xsbpy} can be used to query Wikidata: the other is to query
+a compressed local snapshot of Wikidata via the {\tt hdt}
+functionality in {\tt xp\_rdflib}.  Each approach has advantages and
+disadvantages.  The use of {\tt hdt} can be much faster: in part
+because it requires no webservice calls, but also because the Wikidata
+site slows down responses to requests from a session that is using the
+site heavily.  On the other hand, to use {\tt hdt} the a Wikidata {\tt
+  hdt} file must be locally mounted; and when a process loads the hdt
+file, it must allocate a large amount of virtual memory, although this
+memory does not usually affect RAM usage.\footnote{In Linux, this
+  means that the process has a large virtual memory size, but its
+  resident set size is low.}  So for applications that take place on
+servers or that use Wikidata extensively the {\tt hdt} approach for
+{\tt xp\_rdflib} is best; for other uses {\tt xp\_wdi} may be more
+convenient.
+
+\begin{description}
+\indourmoditem{wdi\_get\_dict(+Qnode,-Dict))}{wdi\_get\_dict(+Qnode,-Dict)}{xp\_wdi}
+
+\indourmoditem{wdi\_get\_entity(+Qnode,-EDict))}{wdi\_get\_entity/2}{xp\_wdi}
+
+\indourmoditem{wdi\_sparql\_query(+Qnode,+PropertyNode,-Ret)}{wdi\_sparql\_query/3}{xp\_wdi}
+
+\end{description}
+
+\subsection{Other Interfaces, Examples and Demos}
+
+\paragraph{xp\_elastic}
+This module contains example code for using the Python {\tt
+  elasticsearch} package.  A step by step description shows how a
+connection is opened, and index is created and a document added and
+committed.  The example then shows how the document can be searched in
+two ways, and finally deleted.
+
+Much of the information that Elasticsearch reads and writes is in JSON
+format, which the Python interface transforms to dictionaries, and
+{\tt xsbpy} transforms these dictionaries to and from their term form.
+Thus although this example is short, the ideas in it can easily be
+extended to a full interface.\footnote{This has already been done by
+  one company that uses XSB.}  Often the {\tt elasticsearch} functions
+can be called directly, but in certain cases simple Python functions
+must be written to handle default positional arguments. \footnote{{\tt
+    xsbpy} correctly handles default keyword arguments, but the Python
+  C API does not seem to support default positional arguments.}
+
+
+%\paragraph{mpl}
+%This file has a simple example of how to create, display, and save as
+%pdf a simple matplotlib document.
+
+\paragraph{Reading XML files as {\tt xsbpy} Dictionaries}
+%
+Although XSB's {\tt SGML} package allows XML files to be read, the
+ability to read XML structures as {\tt xsbpy} dictionaries can be
+convenient, especially if an application already must navigate through
+{\tt xsbpy} dictionaries for other purposes.  The module {\tt
+  xp\_xmldict}, based on the Python package {\tt
+  xmltodict} \footnote{{\tt https://pypi.org/project/xmltodict}}
+provides a simple implementation of this based on Python's {\tt Expat}
+XML parser, and so retains the advantages of {\tt Expat} in terms of
+reliability, Unicode support and speed.
+
+\begin{description}
+  \indourmoditem{xmldict\_read(+File,-Dict)}{xmldict\_read/2}{xp\_xmldict}
+  
+  Given an XML file {\tt File}, this predicate opens {\tt File},
+  parses its contents, transforms the contents into a dictionary, and
+  unifies {\tt Dict} with dictionary.  
+\end{description}
+
+\noindent
+It is worthwhile noting that the Python {\tt xmltodict} package offers
+several keyword arguments and other options for parsing XML files and
+strings, that can be easily accessed via user-written {\tt xsbpy}
+calls.
+
+\paragraph{xp\_spellcheck}
+This module provides a simple interface to {\tt pyspellchecker}, a
+basic but sometimes useful spell checker and corrector based on
+dictionaries and a minimum edit distance search.  Because a minimum
+edit distance search is relatively expensive, it is best to check
+whether a word is known via {\tt sp\_known/1}, and only call {\tt
+  sp\_correct/2} on unknown words.
+
+The two main predicates are:
+\begin{description}
+\indourmoditem{sp\_known(+Word)}{sp\_known/1}{xp\_spellcheck} Succeeds
+  if {\tt Word} is known to the {\tt pyspellchecker} dictionary, and
+  fails otherwise.
+
+  \indourmoditem{sp\_correct(+WordIn,-WordOut)}{sp\_correct/2}{xp\_spellcheck}
+  If {\tt Word} has a reasonable minimum-edit distance to a word {\em
+    word$_1$} in the {\tt pyspellchecker} dictionary this predicate
+  succeeds, unifying {\tt WordOut} to {\em word$_1$}; otherwise the
+  predicate fails.
+\end{description}
+
+
+\paragraph{xp\_googleTrans}
+This example provides demo code to access Google's web-services for
+language translation and language detection using {\tt xsbpy}.
+
+
+
+\section{Current and Future Work}
+
+\begin{itemize}
+\item A callback mechanism is under development.  This mechanism
+  allows XSB and Python to recursively call each other.  Our intention
+  is to make our callback mechanism consistent with PyXSB, {\tt
+    pypi.org/project/py-xsb}, but currently PyXSB and {\tt xsbpy} are
+  independent of each other.
+
+\item A possible future version may include a hook in XSB's atom
+  garbage collection to list Python objects that may be garbage
+  collected, and to send this information back to Python.  
+\end{itemize}  
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual2"
+%%% End: 

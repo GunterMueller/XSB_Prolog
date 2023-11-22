@@ -1,0 +1,87 @@
+:- import set_predicate_property/2 from curr_sym.
+:- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
+:- import numbervars/1 from num_vars.
+
+:- table t1/1.
+t1(a).
+
+:- table t2/1.
+t2(a).
+
+:- table t3/1 as subsumptive.
+t3(a).
+
+:- table t4/1 as subsumptive, incremental.
+t4(a).
+
+:- table t5/1.
+t5(a).
+
+test:- writeln('----'),fail.
+test:- (predicate_property(t1(_),answer_abstract=N) ->
+	  writeln(t1_before(answer_abstract(N)))
+	; writeln(t1_before(answer_abstract(0))) ),fail.
+test:- set_predicate_property(t1(_),answer_abstract=7),fail.
+test:- (predicate_property(t1(_),answer_abstract=N) ->
+	  writeln(t1_after(answer_abstract(N)))
+	; writeln(t1_after(answer_abstract(0))) ),fail.
+%---
+test:- writeln('----'),fail.
+test:- (predicate_property(t1(_),subgoal_abstract=N) ->
+	  writeln(t1_before(subgoal_abstract(N)))
+	; writeln(t1_before(subgoal_abstract(0))) ),fail.
+test:- set_predicate_property(t1(_),subgoal_abstract=7),fail.
+test:- (predicate_property(t1(_),subgoal_abstract=N) ->
+	  writeln(t1_after(subgoal_abstract(N)))
+	; writeln(t1_after(subgoal_abstract(0))) ),fail.
+%---
+test:- writeln('----'),fail.
+test:- predicate_property(t2(_),table_reuse=M),
+       writeln(t2_before(table_reuse(M))),fail.
+test:- set_predicate_property(t2(_),subsumptive),fail.
+test:- predicate_property(t2(_),table_reuse=M),
+       writeln(t2_after(table_reuse(M))),fail.
+%---
+test:- writeln('----'),fail.
+test:- predicate_property(t3(_),table_reuse=M),
+       writeln(t3_before(table_reuse(M))),fail.
+test:- set_predicate_property(t3(_),variant),fail.
+test:- predicate_property(t3(_),table_reuse=M),
+       writeln(t3_after(table_reuse(M))),fail.
+%---
+test:- writeln('----'),fail.
+test:- (predicate_property(t4(_),updating=M) ->
+	  writeln(t4_before(updating(M)))
+	; writeln(t4_before(updating(none))) ),fail.
+test:- set_predicate_property(t4(_),opaque),fail.
+test:- (predicate_property(t4(_),updating=M) ->
+	  writeln(t4_after(updating(M)))
+	; writeln(t4_after(updating(none))) ),fail.
+%---
+test:- writeln('----'),fail.
+test:- (predicate_property(t4(_),updating=M) ->
+	  writeln(t4_before(updating(M)))
+	; writeln(t4_before(updating(none))) ),fail.
+test:- set_predicate_property(t4(_),nonincremental),fail.
+test:- (predicate_property(t4(_),updating=M) ->
+	  writeln(t4_after(updating(M)))
+	; writeln(t4_after(updating(none))) ),fail.
+%---
+test:- writeln('----'),fail.
+test:- (predicate_property(t5(_),updating=M) ->
+	  writeln(t5_before(updating(M)))
+	; writeln(t5_before(updating(none))) ),fail.
+test:- set_predicate_property(t5(_),incremental),fail.
+test:- (predicate_property(t5(_),updating=M) ->
+	  writeln(t5_after(updating(M)))
+	; writeln(t5_after(updating(none))) ),fail.
+% NOW TEST catching bad combos
+%---
+test:- writeln('----'),fail.
+test:- catch(set_predicate_property(t1(_),subsumptive),E,
+	     (xsb_error_get_message(E,M),numbervars(M),writeln(caught(M)))),fail.
+%---
+test:- writeln('----'),fail.
+test:- t4(_),fail.
+test:- catch(set_predicate_property(t4(_),nonincremental),E,
+	     (xsb_error_get_tag(E,M),numbervars(M),writeln(caught(M)))),fail.

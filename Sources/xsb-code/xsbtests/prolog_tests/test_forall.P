@@ -1,0 +1,23 @@
+
+test:- forall(p(X),q(X)),writeln('forall(p(X),q(X)) succeeded'),fail.
+test:- forall(q(X),p(X)),writeln('forall(q(X),p(X)) succeeded'),fail.
+test:- forall(pt(X),qt(X)),writeln('forall(pt(X),qt(X)) succeeded'),fail.
+test:- forall(qt(X),pt(X)),writeln('forall(qt(X),pt(X)) succeeded'),fail.
+
+
+p(a).
+p(b).
+p(c).
+
+q(a).
+q(b).
+
+
+:- table pt/1, qt/1.
+pt(a).
+pt(b).
+pt(c).
+
+qt(a).
+qt(b).
+

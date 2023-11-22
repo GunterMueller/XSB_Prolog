@@ -1,0 +1,87 @@
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+-----
+Incremental predicates are: [d2(A),t4(B)]
+Opaque predicates are: [brat_undefined,cs_undef,restraint_number_of_answers,undefined,d3(A),floundered_undefined(B),t5(C)]
+prop(d1,dynamic).
+prop(d1,exported).
+prop(d2,dynamic).
+prop(d2,exported).
+prop(d2,updating = incremental).
+prop(d3,dynamic).
+prop(d3,exported).
+prop(d3,updating = opaque).
+prop(d4,dynamic).
+prop(d4,exported).
+prop(d4,table_reuse = variant).
+prop(p1,exported).
+prop(p1,static).
+prop(p2,exported).
+prop(p2,spied).
+prop(p2,static).
+prop(p3,dynamic).
+prop(p3,exported).
+prop(p3,multifile).
+prop(setof,built_in).
+prop(setof,exported).
+prop(setof,(meta_predicate *,0,*)).
+prop(setof,static).
+prop(t1_1,answer_abstract = 7).
+prop(t1_1,imported_from(usermod)).
+prop(t1_1,static).
+prop(t1_1,table_reuse = variant).
+prop(t1_2,ground_term = intern).
+prop(t1_2,imported_from(usermod)).
+prop(t1_2,static).
+prop(t1_2,table_reuse = variant).
+prop(t1_3,imported_from(usermod)).
+prop(t1_3,static).
+prop(t1_3,subgoal_abstract = 7).
+prop(t1_3,table_reuse = variant).
+prop(t1,imported_from(usermod)).
+prop(t1,static).
+prop(t1,table_reuse = variant).
+prop(t2,imported_from(usermod)).
+prop(t2,static).
+prop(t2,table_reuse = subsumptive).
+prop(t3,imported_from(usermod)).
+prop(t3,static).
+prop(t3,table_reuse = variant).
+prop(t4,imported_from(usermod)).
+prop(t4,static).
+prop(t4,table_reuse = variant).
+prop(t4,updating = incremental).
+prop(t5,imported_from(usermod)).
+prop(t5,static).
+prop(t5,table_reuse = variant).
+prop(t5,updating = opaque).
+prop(t6,answer_subsumption = true).
+prop(t6,exported).
+prop(t6,static).
+prop(t6,table_reuse = variant).
+prop(t7,dynamic).
+prop(t7,exported).
+prop(t7,table_reuse = variant).
+prop(t8,dynamic).
+prop(t8,exported).
+prop(t8,table_reuse = variant).
+t4_tabled_succeeded
+t4_updating(incremental)
+Tabled predicates are: [brat_undefined,cs_undef,restraint_number_of_answers,undefined,d4(A),floundered_undefined(B),t1(C),t1_1(D),t1_2(E),t1_3(F),t2(G),t3(H),t4(I),t5(J),t7(K),t8(L),t6(M,N)]
+Updating modes are: [[brat_undefined,opaque],[cs_undef,opaque],[restraint_number_of_answers,opaque],[undefined,opaque],[d2(A),incremental],[d3(B),opaque],[floundered_undefined(C),opaque],[t4(D),incremental],[t5(E),opaque]]

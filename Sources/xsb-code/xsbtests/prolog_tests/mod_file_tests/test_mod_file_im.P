@@ -1,0 +1,43 @@
+
+test :- shell('rm -f *.xwam'),fail.
+
+:- import p/2 from modp>>modp_file.
+test :- write('Testing import mod (filename): '),my_writeln(modp>>modp_file:p(_,_)),fail.
+test :- (do_all p(X,Y), writeln(p(X,Y))), fail.
+
+%% dont see how to test import from absolute filename that works on all systems as required for tests.
+%:- import q/2 from modq>>'c:/XSBSYS/XSBENV/xsbtests/prolog_tests/mod_file_tests/modq_file'.
+%test :- write('Testing import mod: (with absolute path'),my_writeln(modq>>'c:/XSBSYS/XSBENV/xsbtests/prolog_tests/mod_file_tests/modq_file':q(_,_)),fail.
+%test :- (do_all q(X,Y), writeln(q(X,Y))), fail.
+
+:- import r/2 from modr>>'../../prolog_tests/mod_file_tests/modr_file'.
+test :- write('Testing import mod: (with relative path)'),my_writeln(modr>>'../../prolog_tests/mod_file_tests/modr_file':r(_,_)),fail.
+test :- (do_all r(X,Y), writeln(r(X,Y))), fail.
+
+:- import out/2 from parent(mother_us>>mother_us_file,father>>father_file)>>parent_file as par/2.
+test :- write('testing import: parmods '),my_writeln(parent(mother_us,father):out(_X,_Y)),fail.
+test :- par(X,Y),my_writeln(par(X,Y)),fail.
+
+:- import out/2 from parent(mother_us>>mother_us_file,father>>father_file)>>parent_file.
+test :- write('testing import: parent '),my_writeln(parent(mother_us>>mother_us_file,father>>father_file)>>parent_file:out(_X,_Y)),fail.
+test :- out(X,Y),my_writeln(par(X,Y)),fail.
+
+%% dont see how to test import from absolute filename that works on all systems as required for tests.
+%%:- import p/3 from parmodtst(basics)>>'c:/XSBSYS/XSBENV/xsbtests/prolog_tests/mod_file_tests/parmodtst_file.P' as app/3.
+%%test :- write('testing import: parmodtst '),my_writeln(parmodtst(basics)>>'c:/XSBSYS/XSBENV/xsbtests/prolog_tests/mod_file_tests/parmodtst_file.P':p(_A,_B,[a,b])),fail.
+%%test :- app(A,B,[a,b]),my_writeln(p(A,B,[a,b])),fail.
+
+
+:- import numbervars/1 from num_vars.
+my_writeln(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeln(Term)
+	).
+
+my_writeq(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeq(Term)
+	).
+

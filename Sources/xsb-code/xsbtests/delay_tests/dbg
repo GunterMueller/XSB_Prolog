@@ -1,0 +1,191 @@
+d(Var)
+d(r2) - true
+d(s2) - true
+d(r1) - true
+d(s1) - true
+(d(r2) :- [])
+(d(s2) :- [])
+(d(r1) :- [])
+(d(s1) :- [])
+(d(r1) :- [])
+(d(s1) :- [])
+(d(s2) :- [])
+(d(r2) :- [])
+test_d1
+test_d2
+d(Var)
+d(r2) - true
+d(s2) - true
+d(r1) - true
+d(s1) - true
+(d(r2) :- [])
+(d(s2) :- [])
+(d(r1) :- [])
+(d(s1) :- [])
+(d(r1) :- [])
+(d(s1) :- [])
+(d(s2) :- [])
+(d(r2) :- [])
+e(Var)
+e(r4) - true
+e(r1) - true
+e(r6) - true
+e(s4) - true
+e(s1) - true
+e(r3) - true
+e(s6) - true
+e(r5) - true
+e(s3) - true
+e(s2) - true
+e(s5) - true
+e(r2) - true
+(e(r4) :- [])
+(e(r1) :- [])
+(e(r6) :- [])
+(e(s4) :- [])
+(e(s1) :- [])
+(e(r3) :- [])
+(e(s6) :- [])
+(e(r5) :- [])
+(e(s3) :- [])
+(e(s2) :- [])
+(e(s5) :- [])
+(e(r2) :- [])
+(e(r4) :- [])
+(e(r1) :- [])
+(e(r6) :- [])
+(e(s4) :- [])
+(e(s1) :- [])
+(e(r3) :- [])
+(e(s6) :- [])
+(e(r5) :- [])
+(e(s3) :- [])
+(e(s2) :- [])
+(e(s5) :- [])
+(e(r2) :- [])
+top
+top - true
+tnot e(s1)
+tnot e(s1) - failed
+tnot e(p1)
+tnot e(p1) - true
+f(Var)
+f(r4) - undefined
+f(t4) - undefined
+f(u2) - undefined
+f(r1) - undefined
+f(q4) - undefined
+f(u4) - undefined
+f(q3) - undefined
+f(r6) - true
+f(q1) - undefined
+f(s4) - undefined
+f(t5) - undefined
+f(p3) - undefined
+f(u1) - undefined
+f(s1) - undefined
+f(p2) - undefined
+f(p5) - undefined
+f(r3) - undefined
+f(s6) - true
+f(p1) - undefined
+f(t2) - undefined
+f(r5) - true
+f(s3) - undefined
+f(t3) - undefined
+f(q2) - undefined
+f(t1) - undefined
+f(p4) - undefined
+f(u3) - undefined
+f(s2) - undefined
+f(s5) - undefined
+f(r2) - undefined
+(f(r4) :- [[tnot f(q4)]])
+(f(q4) :- [[f(s4),f(u4)],[f(p5)]])
+(f(s4) :- [[tnot f(p4)]])
+(f(p4) :- [[f(q3)],[f(t4)],[tnot f(r4)]])
+(f(q3) :- [[f(s3),f(u3)],[f(p4)]])
+(f(s3) :- [[tnot f(p3)]])
+(f(p3) :- [[f(q2)],[f(t3)],[tnot f(r3)]])
+(f(q2) :- [[f(s2),f(u2)],[f(p3)]])
+(f(s2) :- [[tnot f(p2)]])
+(f(p2) :- [[f(q1)],[f(t2)],[tnot f(r2)]])
+(f(q1) :- [[f(s1),f(u1)],[f(p2)]])
+(f(s1) :- [[tnot f(p1)]])
+(f(p1) :- [[f(t1)],[tnot f(r1)]])
+(f(t1) :- [[f(p1)]])
+(f(r1) :- [[tnot f(q1)]])
+(f(u1) :- [[f(q1)]])
+(f(t2) :- [[f(p2)]])
+(f(r2) :- [[tnot f(q2)]])
+(f(u2) :- [[f(q2)]])
+(f(t3) :- [[f(p3)]])
+(f(r3) :- [[tnot f(q3)]])
+(f(u3) :- [[f(q3)]])
+(f(t4) :- [[f(p4)]])
+(f(r4) :- [[tnot f(q4)]])
+(f(u4) :- [[f(q4)]])
+(f(p5) :- [[f(q4)],[f(t5)]])
+(f(t5) :- [[f(p5)]])
+(f(t4) :- [[f(p4)]])
+(f(u2) :- [[f(q2)]])
+(f(r1) :- [[tnot f(q1)]])
+(f(q4) :- [[f(p5)],[f(s4),f(u4)]])
+(f(u4) :- [[f(q4)]])
+(f(q3) :- [[f(p4)],[f(s3),f(u3)]])
+(f(r6) :- [])
+(f(q1) :- [[f(p2)],[f(s1),f(u1)]])
+(f(s4) :- [[tnot f(p4)]])
+(f(t5) :- [[f(p5)]])
+(f(p3) :- [[f(q2)],[tnot f(r3)],[f(t3)]])
+(f(u1) :- [[f(q1)]])
+(f(s1) :- [[tnot f(p1)]])
+(f(p2) :- [[f(q1)],[tnot f(r2)],[f(t2)]])
+(f(p5) :- [[f(q4)],[f(t5)]])
+(f(r3) :- [[tnot f(q3)]])
+(f(s6) :- [])
+(f(p1) :- [[tnot f(r1)],[f(t1)]])
+(f(t2) :- [[f(p2)]])
+(f(r5) :- [])
+(f(s3) :- [[tnot f(p3)]])
+(f(t3) :- [[f(p3)]])
+(f(q2) :- [[f(p3)],[f(s2),f(u2)]])
+(f(t1) :- [[f(p1)]])
+(f(p4) :- [[f(q3)],[tnot f(r4)],[f(t4)]])
+(f(u3) :- [[f(q3)]])
+(f(s2) :- [[tnot f(p2)]])
+(f(s5) :- [[tnot f(p5)]])
+(f(r2) :- [[tnot f(q2)]])
+(f(r6) :- [])
+(f(s6) :- [])
+(f(r5) :- [])
+(f(s5) :- [[tnot f(p5)]])
+g(Var)
+g(p8) - undefined
+g(p7) - undefined
+g(p6) - undefined
+g(r6) - true
+g(s6) - true
+(g(p8) :- [[undefined]])
+(undefined :- [[tnot undefined]])
+(g(p7) :- [[tnot g(p8)]])
+(g(p8) :- [[undefined]])
+(g(p6) :- [[tnot g(p7)]])
+(g(p7) :- [[tnot g(p8)]])
+(g(r6) :- [])
+(g(s6) :- [])
+(g(r6) :- [])
+(g(s6) :- [])
+p1(Var0,Var1)
+p1(b,A) - undefined
+(p1(b,A) :- [[p13a(f(B),b,f(B))],[p13a(f(b),b,f(c))],[p13a(a,b,c)]])
+(p13a(f(A),b,f(A)) :- [[undefined]])
+(undefined :- [[tnot undefined]])
+(p13a(f(b),b,f(c)) :- [[undefined]])
+(p13a(a,b,c) :- [[undefined]])
+p2
+(p2 :- [[p23a(a,f(A),b),p23a(a,f(A),b)],[p23a(f(B),f(B),C),p23a(f(B),f(B),C)],[p23a(f(D),f(E),F),p23a(f(D),f(E),F)],[p23a(f(G),f(H),I),p23a(f(G),f(H),I)]])
+(p23a(a,f(A),b) :- [[undefined]])
+(undefined :- [[tnot undefined]])
+(p23a(f(A),f(A),B) :- [[undefined]])
+(p23a(f(A),f(B),C) :- [[undefined]])

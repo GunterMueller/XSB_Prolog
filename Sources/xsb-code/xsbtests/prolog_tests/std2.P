@@ -1,0 +1,60 @@
+:- import subsumes_chk/2 from subsumes.
+
+test :- 
+	mysp(a,b,F), Term = sp(a,b,F), writeln(Term), fail
+	;  mysp(a,c,F), Term = sp(a,c,F), writeln(Term), fail
+	;  mysp(a,d,F), Term = sp(a,d,F), writeln(Term), fail
+	;  mysp(a,e,F), Term = sp(a,e,F), writeln(Term), fail
+	;  mysp(a,a,F), Term = sp(a,a,F), writeln(Term), fail
+	;  mysp(b,b,F), Term = sp(b,b,F), writeln(Term), fail
+	;  mysp(b,c,F), Term = sp(b,c,F), writeln(Term), fail
+	;  mysp(b,d,F), Term = sp(b,d,F), writeln(Term), fail
+	;  mysp(b,e,F), Term = sp(b,e,F), writeln(Term), fail
+	;  mysp(b,a,F), Term = sp(b,a,F), writeln(Term).
+
+
+min(MinVal,MinVal,[]).
+min(MinValIn,MinValOut,[H|T]) :-
+	( MinValIn > H
+          -> min(H, MinValOut, T)
+          ; min(MinValIn,MinValOut, T)
+        ).
+
+mysp(X,Y,C) :-
+	tfindall(Dist,sp(X,Y,Dist),DistList),
+	( DistList == [] -> fail ; min(1000,C,DistList) ).
+
+:- table sp/3. 
+
+sp(X,Y,C) :-  
+        dist(X,Y,C), 
+        none_better(X,Y,C). 
+sp(X,Y,C) :- 
+        sp(X,Z,C1), 
+        none_better(X,Z,C1), 
+        dist(Z,Y,C2), 
+%        writeln(add(C1,C2)), 
+        C is C1+C2, 
+        none_better(X,Y,C). 
+ 
+ 
+none_better(X,Y,C) :-
+	Call = sp(X,Y1,C1),
+        get_calls(Call,Cstr,Ret),
+%	writeln(call(Call)-sp(X,Y,_)),
+        subsumes_chk(Call,sp(X,Y,_)), 
+	!, 
+        \+ (    get_returns(Cstr,Ret),
+	        Y1 = Y,
+                C1 < C 
+        ). 
+ 
+dist(a,d,2).
+dist(a,b,5).
+dist(a,c,3).
+dist(c,b,1).
+dist(b,e,3).
+dist(b,d,4).
+dist(e,d,2).
+dist(d,b,1).
+

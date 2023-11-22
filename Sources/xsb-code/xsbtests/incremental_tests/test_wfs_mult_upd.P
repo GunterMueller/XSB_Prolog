@@ -1,0 +1,102 @@
+
+:- import incr_is_invalid/1 from increval.
+%:- import incr_is_recomputing/1 from increval.
+
+:- table s/1 as opaque.
+s(X) :- tnot(s1(X)), tnot(s(X)).
+s(X) :- tnot(s2(X)), tnot(s(X)).
+
+:- table s1/1, s2/1.
+s1(X):- s3(X).
+s2(X):- s3(X).
+
+:- dynamic s3/1.
+
+%-------------------------------------------------------
+:- table t1/1.
+t1(X):- tnot(t1(X)).
+t1(X):- tnot(t1(X)).
+
+%-------------------------------------------------------
+
+:- table p_a/1 as incremental.
+p_a(X) :- tnot(qs_a(X)).
+p_a(X) :- tnot(rs_a(X)).
+
+:- table qs_a/1 as incremental.
+qs_a(X) :- q_a(X).
+:- table rs_a/1 as incremental.
+rs_a(X) :- q_a(X).
+
+:- dynamic q_a/1 as incremental.
+q_a(1).
+
+
+%-------------------------------------------------------
+
+:- table p/1 as incremental.
+p(X) :- tnot(qs(X)), tnot(p(X)).
+p(X) :- tnot(rs(X)), tnot(p(X)).
+%p(X) :- writeln(calling(p(X),tnot(qs(X)))),tnot(qs(X)), tnot(p(X)).
+%p(X) :- writeln(calling(p(X),tnot(rs(X)))),tnot(rs(X)), tnot(p(X)).
+
+:- table qs/1 as incremental.
+qs(X) :-q(X).
+%qs(X) :-writeln(calling(qs(X),q(X))),q(X).
+:- table rs/1 as incremental.
+%rs(X) :- writeln(calling(rs(X),q(X))),q(X).
+rs(X) :- q(X).
+
+:- table p_alt/1 as incremental.
+p_alt(X):- qs(X).
+
+:- dynamic q/1 as incremental.
+q(1).
+
+test:- writeln('----------------------- p(1) first call'),fail.
+test:- p(1),writeln(wrong_answer(first_p(1))),fail.
+test:- get_residual(p(1),R),writeln(zeroth_resid(R)),fail.
+test:- writeln('----------------------- retracting q(1)'),fail.
+test:- increval:incr_retract(q(1)),fail.
+test:- writeln('----------------------- p(1) second call'),fail.
+test:- p(1),get_residual(p(X),R),writeln(first_residual(R)),fail.
+test:- writeln('----------------------- asserting q(1)'),fail.
+test:- increval:incr_assert(q(1)),fail.
+test:- writeln('----------------------- p(1) third call'),fail.
+test:- p(1),get_residual(p(X),R),writeln(second_residual(R)),fail.
+test.
+
+end_of_file.
+
+The execution is:
+
+| ?- p(1).
+no
+| ?- increval:incr_retract(q(1)).
+
+yes
+| ?- p(1).
+
+undefined
+| ?- increval:incr_assert(q(1)).
+
+yes
+| ?- p(1).
+
+undefined
+````
+It is the last answer that is unexpected for me (since I thought it would be "no" as for the first query). Do I miss something? I am using XSB 4.0 under Windows.
+
+
+
+
+| ?- t1(a).
+
+undefined
+| ?- get_residual(t1(X),Y).
+
+X = a
+Y = [tnot t1(a)];
+
+X = a
+Y = [tnot t1(a)];

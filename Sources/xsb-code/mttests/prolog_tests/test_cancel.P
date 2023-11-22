@@ -1,0 +1,81 @@
+
+test:- test1(0.5),test2(1), test4.
+
+test1(N):- 
+	thread_create(q1(N),F),
+	thread_get_message(ready),
+%	writeln(gotit),
+	thread_signal(F,writeln('test 1 thread signalled')).
+
+q1(N):- 
+	thread_send_message(0,ready),
+	thread_sleep(N),
+	writeln('test1 thread awakened').
+
+test1a(N):- 
+	thread_create(q1a(N),_F),
+	thread_get_message(ready),
+	writeln(gotit).
+
+q1a(N):- 
+	thread_send_message(0,ready),
+	thread_sleep(N),
+	writeln('test1 thread awakened').
+
+test2(N):- 
+	thread_create(q2(N),F),
+	thread_get_message(ready),
+	thread_cancel(F),
+	thread_join(F,M),
+	M = cancelled(_),
+	writeln('test 2 properly cancelled').
+
+q2(N):- 
+	thread_send_message(0,ready),
+	thread_sleep(N),
+	writeln('test2 thread awakened').
+
+test3:-
+	thread_create(q3,F),
+	thread_get_message(ready),
+%	writeln(gotit),
+	thread_signal(F,writeln('test 1 thread signalled')).
+
+q3:- 
+	thread_send_message(0,ready),
+	thread_get_message(unicorn),
+	writeln('test1 thread awakened').
+
+test4:-
+	thread_create(q4,F),
+	thread_get_message(ready),
+%	writeln(gotit),
+	thread_cancel(F),
+	thread_join(F,M),
+	M = cancelled(_),
+	writeln('test 4 properly cancelled').
+
+q4:- 
+	thread_send_message(0,ready),
+	thread_get_message(unicorn),
+	writeln('test4 thread awakened').
+
+	
+
+end_of_file.
+
+test1:- 
+	thread_create(q1,F),
+	%thread_sleep(0.5),
+	thread_signal(F,writeln('test 1 thread signalled')).
+
+q1:- 
+	thread_sleep(2),
+	writeln('test1 thread awakened').
+
+test1a:- 
+	thread_create(q1,F).
+
+q1:- 
+	thread_sleep(2),
+	writeln('test1 thread awakened').

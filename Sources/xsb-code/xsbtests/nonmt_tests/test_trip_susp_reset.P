@@ -1,0 +1,244 @@
+:- import numbervars/1 from num_vars.
+:- import xsb_error_get_message/2 from error_handler.
+:- import between/3 from basics.
+:- compiler_options([spec_off]).
+
+test:- 
+	test_mss,
+	test_mis,
+	test_mafs,
+	test_mtas_l,
+	test_mtas_t,
+	test_mtss_l,
+	test_mtss_t.
+
+test_mss:- 
+	set_prolog_flag(max_scc_subgoals,5),
+	set_prolog_flag(max_scc_subgoals_action,suspend),
+	init_mss,
+	mss(20),
+	fail.
+test_mss:- 
+	mss(20),
+	fail.
+test_mss.
+
+:- table mss/1.
+mss(N):- N =< 20,
+	%writeln(mss(N1)),
+	mss(20).
+mss(N):- N > 0,N1 is N-1,
+%	writeln(mss(N1)),
+	mss(N1).
+
+init_mss:- 
+	retractall(mss_state(_)),assert(mss_state(1)),
+	retractall(mss_dyn(_)),assert(mss_dyn(0)),
+	assert((max_scc_subgoals_user_handler:- mss_sequence)).
+
+mss_sequence:- 
+	mss_state(N),
+	(N == 1 -> reset_mss,retractall(mss_state(_)),assert(mss_state(2))
+         ; N == 2 -> reset_mss).
+
+reset_mss:- 
+	current_prolog_flag(max_scc_subgoals,N),
+	N1 is 2*N,
+	set_prolog_flag(max_scc_subgoals,N1),
+	writeln(resetting_mss(N,N1)).
+
+%-----------------------------------------
+test_mis:- 
+	set_prolog_flag(max_incomplete_subgoals,5),
+	set_prolog_flag(max_incomplete_subgoals_action,suspend),
+	init_mis,
+	mis(20),
+	fail.
+test_mis:- 
+	mis(20),
+	writeln(mis(20)),
+	fail.
+test_mis.
+
+:- table mis/1.
+mis(0).
+mis(N):- N > 0,N1 is N-1,
+	%writeln(mis(N1)),
+	mis(N1).
+
+init_mis:- 
+	retractall(mis_state(_)),assert(mis_state(1)),
+	retractall(mis_dyn(_)),assert(mis_dyn(0)),
+	assert((max_incomplete_subgoals_user_handler:- mis_sequence)).
+
+mis_sequence:- 
+	mis_state(N),
+	(N == 1 -> reset_mis,retractall(mis_state(_)),assert(mis_state(2))
+         ; N == 2 -> reset_mis).
+
+reset_mis:- 
+	current_prolog_flag(max_incomplete_subgoals,N),
+	N1 is 2*N,
+	set_prolog_flag(max_incomplete_subgoals,N1),
+	writeln(resetting_mis(N,N1)).
+
+%-----------------------------------------
+test_mafs:- 
+	set_prolog_flag(max_answers_for_subgoal,5),
+	set_prolog_flag(max_answers_for_subgoal_action,suspend),
+	init_mafs,
+	mafs(_X),
+	fail.
+test_mafs:- 
+	mafs(X),
+	writeln(mafs(X)),
+	fail.
+test_mafs.
+
+:- table mafs/1.
+mafs(N):- between(1,20,N).
+
+init_mafs:- 
+	retractall(mafs_state(_)),assert(mafs_state(1)),
+	retractall(mafs_dyn(_)),assert(mafs_dyn(0)),
+	assert((max_answers_for_subgoal_user_handler:- mafs_sequence)).
+
+mafs_sequence:- 
+	mafs_state(N),
+	(N == 1 -> reset_mafs,retractall(mafs_state(_)),assert(mafs_state(2))
+         ; N == 2 -> reset_mafs).
+
+reset_mafs:- 
+	current_prolog_flag(max_answers_for_subgoal,N),
+	N1 is 2*N,
+	set_prolog_flag(max_answers_for_subgoal,N1),
+	writeln(resetting_mafs(N,N1)).
+
+%-----------------------------------------
+
+test_mtss_l:- 
+	set_prolog_flag(max_table_subgoal_size,5),
+	set_prolog_flag(max_table_subgoal_size_action,suspend),
+	init_mtss_l,
+	mtss_l(_X),
+	fail.
+test_mtss_l:- 
+	mtss_l(X),numbervars(mtss_l(X)),writeln(mtss_l(X)),fail.
+test_mtss_l.
+
+:- table mtss_l/1.
+%mtss_l(X):- writeln(mtss_l(X)),mtss_l([1|X]).
+mtss_l(X):- mtss_l([1|X]).
+%mtss_l([2]).
+
+init_mtss_l:- retractall(mtss_l_state(_)),assert(mtss_l_state(1)),
+	   assert((max_table_subgoal_size_user_handler:- mtss_l_sequence)).
+
+mtss_l_sequence:- 
+	mtss_l_state(N),
+	(N == 1 -> reset_mtss_l(_),retractall(mtss_l_state(_)),assert(mtss_l_state(2))
+         ; N == 2 -> reset_mtss_l(_),abstract_mtss_l).
+
+reset_mtss_l(N1):- 
+       current_prolog_flag(max_table_subgoal_size,N),
+       N1 is 2*N,
+       set_prolog_flag(max_table_subgoal_size,N1),
+	writeln(resetting_mtss_l(N,N1)).
+
+abstract_mtss_l:- set_prolog_flag(max_table_subgoal_size_action,abstract).
+
+%-----------------------------------------
+test_mtss_t:- 
+	set_prolog_flag(max_table_subgoal_size,5),
+	set_prolog_flag(max_table_subgoal_size_action,suspend),
+	init_mtss_t,
+	mtss_t(_X),
+	fail.
+test_mtss_t:- 
+	mtss_t(X),numbervars(mtss_t(X)),writeln(mtss_t(X)),fail.
+test_mtss_t.
+
+:- table mtss_t/1.
+mtss_t(X):- mtss_t(f(X)).
+%mtss_t([2]).
+
+init_mtss_t:- retractall(mtss_t_state(_)),assert(mtss_t_state(1)),
+	   assert((max_table_subgoal_size_user_handler:- mtss_t_sequence)).
+
+mtss_t_sequence:- 
+	mtss_t_state(N),
+	(N == 1 -> reset_mtss_t(_),retractall(mtss_t_state(_)),assert(mtss_t_state(2))
+         ; N == 2 -> reset_mtss_t(_),abstract_mtss_t).
+
+reset_mtss_t(N1):- 
+       current_prolog_flag(max_table_subgoal_size,N),
+       N1 is 2*N,
+       set_prolog_flag(max_table_subgoal_size,N1),
+	writeln(resetting_mtss_t(N,N1)).
+
+abstract_mtss_t:- set_prolog_flag(max_table_subgoal_size_action,abstract).
+
+%-----------------------------------------
+
+test_mtas_l:- 
+	set_prolog_flag(max_table_answer_size,5),
+	set_prolog_flag(max_table_answer_size_action,suspend),
+	init_mtas_l,
+	mtas_l(_X),
+	fail.
+test_mtas_l:- 
+	mtas_l(X),numbervars(mtas_l(X)),writeln(mtas_l(X)),fail.
+test_mtas_l.
+
+:- table mtas_l/1.
+mtas_l([1|X]):- mtas_l(X).
+mtas_l([2]).
+
+init_mtas_l:- retractall(mtas_l_state(_)),assert(mtas_l_state(1)),
+	   assert((max_table_answer_size_user_handler:- mtas_l_sequence)).
+
+mtas_l_sequence:- 
+	mtas_l_state(N),
+	(N == 1 -> reset_mtas_l(_),retractall(mtas_l_state(_)),assert(mtas_l_state(2))
+         ; N == 2 -> reset_mtas_l(_),abstract_mtas_l).
+
+reset_mtas_l(N1):- 
+       current_prolog_flag(max_table_answer_size,N),
+       N1 is 2*N,
+       set_prolog_flag(max_table_answer_size,N1),
+	writeln(resetting_mtas_l(N,N1)).
+
+abstract_mtas_l:- set_prolog_flag(max_table_answer_size_action,abstract).
+
+%-----------------------------------------
+
+test_mtas_t:- 
+	set_prolog_flag(max_table_answer_size,5),
+	set_prolog_flag(max_table_answer_size_action,suspend),
+	init_mtas_t,
+	mtas_t(_X),
+	fail.
+test_mtas_t:- 
+	mtas_t(X),numbervars(mtas_t(X)),writeln(mtas_t(X)),fail.
+test_mtas_t.
+
+:- table mtas_t/1.
+mtas_t(f(X)):- mtas_t(X).
+mtas_t(1).
+
+init_mtas_t:- retractall(mtas_t_state(_)),assert(mtas_t_state(1)),
+	   assert((max_table_answer_size_user_handler:- mtas_t_sequence)).
+
+mtas_t_sequence:- 
+	mtas_t_state(N),
+	(N == 1 -> reset_mtas_t(_),retractall(mtas_t_state(_)),assert(mtas_t_state(2))
+         ; N == 2 -> reset_mtas_t(_),abstract_mtas_t).
+
+reset_mtas_t(N1):- 
+       current_prolog_flag(max_table_answer_size,N),
+       N1 is 2*N,
+       set_prolog_flag(max_table_answer_size,N1),
+	writeln(resetting_mtas_t(N,N1)).
+
+abstract_mtas_t:- set_prolog_flag(max_table_answer_size_action,abstract).
+

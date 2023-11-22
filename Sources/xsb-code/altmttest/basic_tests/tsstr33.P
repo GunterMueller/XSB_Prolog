@@ -1,0 +1,49 @@
+:- import set_pil_on/0,set_pil_off/0,
+	  tfindall/3,
+	  abolish_table_pred/1  from tables.
+:- import numbervars/3 from numbervars.
+
+son:- set_pil_on.
+sof:- set_pil_off.
+
+:- table(p/1).
+:- table(r/1).
+:- table(q/1).
+
+r(X) :- p(X).
+p(X) :- q(X).
+
+q(a).
+q(b).
+q(c).
+
+test(Str):-
+	a(Str,W,E),fail
+	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),
+	   abolish_table_pred(p/1),b(Str,X,F),fail
+	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),
+	   abolish_table_pred(p/1),c(Str,X,F),fail
+	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),
+	   abolish_table_pred(p/1),d(Str,X,F),fail
+	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),
+	   abolish_table_pred(p/1),e(Str,X,F),fail
+	 ; abolish_table_pred(r/1),abolish_table_pred(q/1),
+	   abolish_table_pred(p/1),f(Str,X,F),fail
+	 ; true.
+
+a(Str,X,F):-p(X),tfindall(X,p(X),F),write(Str,terma(X,F)),nl(Str).
+b(Str,X,F):-p(X),tfindall(X,r(X),F),write(Str,termb(X,F)),nl(Str).
+c(Str,X,F):-r(X),tfindall(X,r(X),F),write(Str,termc(X,F)),nl(Str).
+d(Str,X,F):-r(X),tfindall(X,p(X),F),write(Str,termd(X,F)),nl(Str).
+e(Str,X,F):-r(X),tfindall(X,q(X),F),write(Str,terme(X,F)),nl(Str).
+f(Str,X,F):-q(X),tfindall(X,q(X),F),write(Str,termf(X,F)),nl(Str).
+
+alta(X,F):-son,p(X),tfindall(X,p(X),F),write(Str,term(X,F)),sof.
+alta1(X,F):-son,p(X),tfindall(Y,p(Y),F),write(Str,term(X,F)),fail ; sof.
+altb(X,F):-son,p(X),tfindall(X,r(X),F),write(Str,term(X,F)),fail ; sof.
+altb1(X,F):-son,p(X),tfindall(Y,r(Y),F),write(Str,term(X,F)),sof.
+altb2(X,F):-son,p(X),mtfindall(Y,r(Y),F),write(Str,term(X,F)),sof.
+altc(X,F):-son,r(X),tfindall(X,r(X),F),write(Str,term(X,F)),sof.
+
+mtfindall(_,B,_) :- call(B),fail.
+mtfindall(A,B,C) :- tfindall(A,B,C).

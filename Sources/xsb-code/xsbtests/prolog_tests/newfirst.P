@@ -1,0 +1,29 @@
+
+:- import append/3,length/2 from basics.
+:- import abolish_table_info/0 from machine.
+
+:- table(first/3).
+:- op(500,xfx,==>).
+
+at :- abolish_table_info.
+
+:- at.
+
+test:- first(5,[s3],F),writeln(F),fail.
+
+first(0,_,[]).
+first(K,[],[]) :- K>0.
+first(K,[S|R],L) :- K>0,
+        S ==> B,
+        first(K,B,L1),
+        length(L1,K1),
+        Kr is K - K1,
+        first(Kr,R,L2),
+        append(L1,L2,L).
+first(K,[S|R],[S|L]) :- K>0,
+        \+ (S ==> _),
+        K1 is K-1,
+        first(K1,R,L).
+
+s3 ==> [s3,a].
+s3 ==> [].

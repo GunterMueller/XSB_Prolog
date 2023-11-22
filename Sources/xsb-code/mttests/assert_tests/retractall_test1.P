@@ -1,0 +1,32 @@
+
+:- import xsb_thread_create/2, xsb_thread_join/2 from thread.
+
+:- dynamic p/1.
+:- dynamic s/1.
+:- thread_shared s/1.
+
+init3:- retractall(p(_)),retractall(s(_)),initp3,inits3.
+initp3:- assert(p(1)),assert(p(2)),assert(p(3)).
+inits3:- assert(s(1)),assert(s(2)),assert(s(3)).
+
+test:- init3,fail.
+test:- p(X),writeln((1-1,p(X))),fail.
+test:- s(X),writeln((1-1,s(X))),fail.
+
+test:- xsb_thread_create((retractall(p(_)),writeln(donep)),ID1),
+       xsb_thread_join(ID1,_),
+       	xsb_thread_create((retractall(s(_)),writeln(dones)),ID2),
+	xsb_thread_join(ID2,_),
+	(p(X),writeln((1-2,p(X))),fail
+	 ;
+	 true
+	),
+	fail.
+test:- s(X),writeln((1-2,s(X))),fail.
+
+test:- gc_dynamic(N),writeln((1-3,gc(N))),fail.
+test:- p(X),writeln((1-4,p(X))),fail.
+test:- s(X),writeln((1-4,s(X))),fail.
+
+end_of_file.
+

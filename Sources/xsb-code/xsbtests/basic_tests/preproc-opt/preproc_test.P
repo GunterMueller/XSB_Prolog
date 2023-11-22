@@ -1,0 +1,21 @@
+:- compiler_options([xpp_on]).
+#include "standard.h"
+
+?- 
+        banner:set_banner_control(quietload,1),
+        banner:set_banner_control(nofeedback,1),
+        banner:set_banner_control(nobanner,1).
+?-
+        [optcompile].
+test :- 
+        banner:set_banner_control(quietload,1),
+        banner:set_banner_control(nofeedback,1),
+        banner:set_banner_control(nobanner,1),
+        file_io:file_reopen(temp1,w,STDWARN,_),
+        compile(progr),
+	file_io:file_close(STDWARN),
+	open(file(temp1),read,Port1),
+	open(file(temp),append,Port2),
+	file_io:copyIOport(Port1,Port2),
+	close(Port1),
+	close(Port2).

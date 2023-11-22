@@ -1,0 +1,11 @@
+
+% TES: not all of the possible double-tabling errors are caught yet.  For instance,
+% table foo/1 as incremental.
+
+:- import xsb_error_get_tag/2 from error_handler.
+
+test:- (table foo/1 as variant,incremental),fail.
+test:- catch((table foo/1 as variant,incremental),E,(xsb_error_get_tag(E,M),writeln(M))),fail.
+test:- (table bar/1 as variant,incremental,if_not_tabled),fail.
+test:- (table bar/1 as variant,incremental,if_not_tabled),fail.
+test.

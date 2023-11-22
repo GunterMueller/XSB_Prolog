@@ -1,0 +1,7 @@
+:- set_prolog_flag(character_set,utf_8).
+
+test:- 
+       compile(test_utf8_atom_1),
+       ensure_loaded(test_utf8_atom_1),
+       test_sub.
+

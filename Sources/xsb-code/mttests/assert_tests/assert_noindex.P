@@ -1,0 +1,39 @@
+
+:- import xsb_thread_self/1 from thread.
+:- import asserti/2 from assert.
+
+odd(X) :- I is X mod 2, I = 1.
+
+:- thread_shared p/2.
+:- dynamic p/2.
+
+test_assert(N,Str):- 
+	xsb_thread_self(Id),
+	( Id mod 5 =:= 1 -> 
+		assert_n(N,p(Id,N)) ; 
+		repeat_access2(N,p(_,_)) 
+	),
+	writeln(Str,done).
+
+repeat(N) :- N>=1.
+repeat(N) :- N>1, N1 is N-1, repeat(N1).
+
+repeat_access(N,Term):- 
+	repeat(N),
+	call(Term),
+	fail.
+repeat_access(_,_).
+
+repeat_access2(N,Term) :-
+	repeat(100),
+	repeat_access(N,Term),
+	fail.
+repeat_access2(_,_).
+
+assert_n(0,_):- !.
+assert_n(N,Term):- 
+	asserti(Term,0),	% shd give no indexing.
+	N1 is N - 1,
+	assert_n(N1,Term).
+
+	

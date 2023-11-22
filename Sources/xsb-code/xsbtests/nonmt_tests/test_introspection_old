@@ -1,0 +1,4 @@
+incr_invalid_subgoals_1([])
+incr_invalid_subgoals_2([usermod : t_1a(A),usermod : t_1b(B),usermod : t_2a(C),usermod : t_2b(D),usermod : t_2c(E),usermod : t_3(F)])
+incr_invalid_subgoals_3([usermod : t_1b(A)])
+incr_is_invalid(t_1b(A))

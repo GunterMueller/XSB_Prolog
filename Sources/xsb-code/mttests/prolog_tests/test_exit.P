@@ -1,0 +1,43 @@
+
+test:- test1,test2,test3,test4,test5.
+
+test1:- 
+	thread_create(call_cleanup(p1,writeln(test1_handled)),Id),
+	thread_join(Id,Status),
+	writeln(Status).
+
+p1:- thread_exit(p1).
+
+test2:- 
+	thread_create(p2,Id,[on_exit(writeln(test2_handled))]),
+	thread_join(Id,Status),
+	writeln(Status).
+
+p2:- thread_exit(p2).
+
+test3:- 
+	thread_create(true,Id,[on_exit(writeln(test3_handled))]),
+	thread_join(Id,Status),
+	writeln(Status).
+
+test4:- 
+	thread_create(fail,Id,[on_exit(writeln(test4_handled))]),
+	thread_join(Id,Status),
+	writeln(Status).
+
+test5:- 
+	thread_create(q(_X),Id,[on_exit(writeln(test5_handled))]),
+	thread_join(Id,Status),
+	writeln(Status).
+
+test6:- 
+	thread_create(thread_call(abort,writeln(test6_handled)),Id),
+	thread_join(Id,Status),
+	writeln(Status).
+
+q(1).
+q(2).
+
+
+end_of_file.
+

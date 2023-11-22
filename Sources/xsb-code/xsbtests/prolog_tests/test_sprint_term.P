@@ -1,0 +1,37 @@
+:- import close_open_tables/1 from machine.
+:- import xsb_error_get_message/2 from error_handler.
+
+?- set_prolog_flag(max_table_answer_size,25).
+?- set_prolog_flag(max_table_subgoal_size,25).
+?- set_prolog_flag(max_table_subgoal_size_action,error).
+?- set_prolog_flag(write_depth,64).
+
+test:- make_term(50,X),
+       BigInt is 2 ** 50, 
+       BigFloat is BigInt/3,
+       Term =  r(a,[a,3.5,[1,BigInt,BigFloat],['3cpo'|'foo''''bar']],X),
+       catch(call(Term),E,(xsb_error_get_message(E,M),writeq(M))),nl,fail.
+test:- make_term(70,X),
+       BigInt is 2 ** 50, 
+       BigFloat is BigInt/3,
+       Term =  r(a,[a,3.5,[1,BigInt,BigFloat],['3cpo'|'foo''''bar']],X),
+       catch(Term,E,(xsb_error_get_message(E,M),writeq(M))),nl,fail.
+
+test:- 
+       catch(call(p(_)),E,(xsb_error_get_message(E,M),writeq(M))),nl,fail.
+test.
+
+:- table p/1.
+p(X):- 
+       BigInt is 2 ** 50, 
+       BigFloat is BigInt/3,
+       X = f(1,2.5,BigInt,BigFloat,X,1,2.5,BigInt,BigFloat).
+
+:- table r/3.
+r(_,_,_).
+
+make_term(0,0):-!.
+make_term(N,f(X)):-
+	N1 is N - 1,
+	make_term(N1,X).
+

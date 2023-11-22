@@ -1,0 +1,4 @@
+Return 1|2|3 15 6
+Return [1,2]|[3,4]|[5,6] 18 18
+Return a|b|c 15 6
+reallocating (18)

@@ -1,0 +1,49 @@
+/*
+ * Checks whether the number_codes/2, number_chars/2, number_digits/2 
+ * implemented in C works. 
+ *	 - Kostis.
+ */
+
+%% number codes
+test(Str) :- num(Num), number_codes(Num, List), writeln(Str,List), fail.
+test(Str) :- num(N), number_codes(N, L), number_codes(Num, L),
+	integer(Num), writeln(Str,created_integer(Num)), fail.
+test(Str) :- num(N), number_codes(N, L), number_codes(Num, L),
+	float(Num), writeln(Str,created_float(Num)), fail.
+test(Str) :- failing(List), number_codes(_, List), writeln(Str,bug(List)), fail.
+
+%% number chars
+test(Str) :- num(Num), number_chars(Num, List), writeln(Str,List), fail.
+test(Str) :- num(N), number_chars(N, L), number_chars(Num, L),
+	integer(Num), writeln(Str,created_integer(Num)), fail.
+test(Str) :- num(N), number_chars(N, L), number_chars(Num, L),
+	float(Num), writeln(Str,created_float(Num)), fail.
+test(Str) :- failing2(List), number_chars(_, List), writeln(Str,bug(List)), fail.
+
+%% number digits
+test(Str) :- num(Num), number_digits(Num, List), writeln(Str,List), fail.
+test(Str) :- num(N), number_digits(N, L), number_digits(Num, L),
+	integer(Num), writeln(Str,created_integer(Num)), fail.
+test(Str) :- num(N), number_digits(N, L), number_digits(Num, L),
+	float(Num), writeln(Str,created_float(Num)), fail.
+test(Str) :- failing3(List), number_digits(_, List), writeln(Str,bug(List)), fail.
+test(S).
+
+num(0).
+num(23).
+num(-23).
+num(0.0).
+%num(23.233456).
+%num(23.234567).
+%num(-23.234567).
+
+failing([]).
+failing([69]).
+% failing([53,69]).
+failing([53,46,48,48,48,70]).
+
+failing2(['5',.,'0','0','F']).
+failing2([]).
+
+failing3([5,.,0,0,'F']).
+failing3([]).

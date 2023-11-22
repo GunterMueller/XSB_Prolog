@@ -1,0 +1,22 @@
+[xsb_configuration loaded]
+[sysinitrc loaded]
+[xsbbrat loaded]
+
+Evaluating command line goal:  
+ asserta(library_directory('.')),see(userin),[optcompile],flr_cmpopt,halt.
+[optcompile loaded]
+
+%%File ./optstructures is loaded
+%%Reading next clause
+%%Reading next clause
+%%Reading next clause
+  %%Trying to query preproc_struct/1
+  %%Nothing in preproc_struct/1?????
+%%Reading next clause
+  %%Trying to query preproc_struct/1
+  %%Nothing in preproc_struct/1?????
+%%Reading next clause
+  %%Trying to query preproc_struct/1
+  %%Nothing in preproc_struct/1?????
+%%Reading next clause
+  %%End of file

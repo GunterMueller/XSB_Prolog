@@ -1,0 +1,14 @@
+caught(misc_error,Aborting...)
+caught(misc_error,tc_2 : enough_of_this)
+caught(misc_error,tc_3 phew!)
+caught(permission_error(nested_call,predicate,timed_call(writeln(nested_call))),( in ,timed_call/2))
+caught_dummy(misc_error,Either maximum or repeating intervals/handlers must be specified in timed_call/2)
+tc_1: mycall!!!
+tc_2 interrupt(1)
+tc_2 interrupt(2)
+tc_2 interrupt(3)
+tc_2 interrupt(4)
+tc_3 heres an interrupt
+tc_3 heres an interrupt
+tc_3 heres an interrupt
+tc_3 heres an interrupt

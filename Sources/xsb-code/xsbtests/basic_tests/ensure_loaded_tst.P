@@ -1,0 +1,2 @@
+test :- ensure_loaded_aux:p(_),
+        ensure_loaded(ensure_loaded_aux).

@@ -1,0 +1,30 @@
+
+:- import write_term/2 from write_term.
+
+test:- test1,nl,fail ; true.
+
+test1:- 
+	write_term([1,2,3],[]).
+test1:- 
+	write_term([1,2,3],[ignore_ops(true)]).
+test1:- 
+	write_term('1<2',[]).
+test1:- 
+	 write_term('1<2',[quoted(true)]).
+test1:- 
+	write_term('$VAR'(0),[numbervars(true)]).
+test1:- 
+	write_term('$VAR'(26),[numbervars(true)]).
+test1:- 
+      write_term('$VAR'(seven('MyVar')),[numbervars(true)]).
+test1:- 
+	write_term('$VAR'(eight("MyVar")),[numbervars(true)]).
+test1:- 
+	write_term(nine([1,2,3,4,5]),[max_depth(3)]).
+test1:- 
+	write_term(ten((a,b)),[priority(300)]).
+test1:- 
+	write_term(eleven(123),[radix(hex)]).
+test1:- 
+	write_term(twelve(123),[radix(octal)]).
+     

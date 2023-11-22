@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# creates new studio/reasoner shortcuts on the Mac desktop
+
+# assume $1 is absolute file name
+file="$1"
+name="$2"
+
+echo "Creating a new desktop shortcut $name ..."
+osascript -e "tell application \"Finder\"" -e "make new alias to file (posix file \"$file\") at desktop with properties {name: \"$name\"}" -e "end tell" > /dev/null || echo "Creation of the new desktop shortcut $name failed; please investigate."
+

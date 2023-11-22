@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=XSB XSB_VERSION
+Terminal=true
+Comment=XSB Command Window
+Type=Application
+Exec="XSB_BASE_FOLDER/bin/xsb"
+Icon=XSB_BASE_FOLDER/etc/images/xsb-logo.png
+Categories=Application

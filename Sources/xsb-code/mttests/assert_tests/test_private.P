@@ -1,0 +1,31 @@
+
+:- dynamic p/1.
+
+
+test:- test_1,test_2,writeln(shared_private_dyntest_ok).
+
+/* Known dyn at compile time */
+test_1:- 
+	assert(p(1)),
+	thread_create(test_1_1,Id),
+	thread_join(Id).
+
+test_1_1:- 
+	p(X),writeln(p(X)).
+
+/* Not known dyn until run time */
+test_2:- 
+	Term =.. [r,1],
+	assert(Term),
+	thread_create(test_2_1,Id),
+	thread_join(Id).
+
+test_2_1:- 
+	r(X),writeln(r(X)).
+
+
+
+
+
+q(1).
+q(2).

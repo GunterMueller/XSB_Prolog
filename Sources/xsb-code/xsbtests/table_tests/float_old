@@ -1,0 +1,6 @@
+a:Testing Incomplete:ok
+b:Testing Complete:ok
+c:Testing get_calls:l1([1.2])ok
+d:Testing get_returns:l2([2.3])ok
+Test begins
+test ends

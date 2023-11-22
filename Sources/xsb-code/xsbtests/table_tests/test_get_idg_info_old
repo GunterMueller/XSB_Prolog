@@ -1,0 +1,21 @@
+        Affects positively s_1(A)
+        Affects positively t8_0()
+        Affects positively t8_0()
+        Affects positively t8_11(A)
+        Affects positively t8_11(A)
+        Affects positively t8_1(A)
+        Affects positively t8_1(A)
+IDG Leaf: d8_12(A)
+IDG Leaf: d8_13(A)
+IDG Leaf: d8_2(A)
+IDG Leaf: d8_3(A)
+        SCC: 2; Number of calls to this subgoal 1; Number of answers 1
+        SCC: 2; Number of calls to this subgoal 2; Number of answers 1
+        SCC: 3; Number of calls to this subgoal 2; Number of answers 1
+        SCC: 4; Number of calls to this subgoal 1; Number of answers 1
+        SCC: 5; Number of calls to this subgoal 1; Number of answers 1
+Tabled Subgoal: s_1(A)
+Tabled Subgoal: s_2(A)
+Tabled Subgoal: t8_0()
+Tabled Subgoal: t8_11(A)
+Tabled Subgoal: t8_1(A)

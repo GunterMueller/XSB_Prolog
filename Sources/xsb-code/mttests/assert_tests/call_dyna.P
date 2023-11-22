@@ -1,0 +1,16 @@
+
+:- import xsb_thread_self/1 from thread.
+:- import concat_atom/2 from string.
+
+test_call_dyna(N,Handle):- 
+	xsb_thread_self(Id),
+	make_dyn(N,Id,Handle).
+
+make_dyn(0,_Id,_Handle):- !.
+make_dyn(N,Id,Handle):- 
+	concat_atom([p,N],F),
+	dynamic(F/2),
+	N1 is N - 1,
+	writeln(Handle,F),
+	make_dyn(N1,Id,Handle).
+

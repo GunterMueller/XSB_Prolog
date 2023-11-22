@@ -1,0 +1,10 @@
+test(0,Str):-!, writeln(Str,'finished gc test').
+test(N,Str):- 
+       makelist(N,L),
+       N1 is N - 1,
+       test(N1,Str).
+
+makelist(0,[]):-!.
+makelist(N,[N|R]):- 
+   N1 is N - 1,
+   makelist(N1,R).

@@ -1,0 +1,4 @@
+go :- telling(X),
+      compile(war,[]), consult(war),
+      tell(X), writeln('Compiling finished'), fail.
+go :- writeln('Test results'), test.

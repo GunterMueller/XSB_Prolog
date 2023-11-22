@@ -1,0 +1,4 @@
+ Cyclic term in arg 1 of tabled answer p_answercycle(f('<cyclic>'))
+ Cyclic term in arg 1 of tabled answer p_answerlistcycle(['<cyclic>'])
+ Cyclic term in arg 1 of tabled subgoal p(p('<cyclic>'))
+ Cyclic term in term to be trie-interned f('<cyclic>')

@@ -1,0 +1,15 @@
+/* This file is used to compile all the test files for multifile directive */
+ 
+:- mc(mf_file1,[]).
+:- mc(mf_file2,[]).
+:- mc(mf_file5,[]).
+:- mc(mf_hilog1,[]).
+:- mc(mf_hilog2,[]).
+ 
+ 
+do :- writeln('mf_file1 compiled.'), fail.
+do :- writeln('mf_file2 compiled.'), fail.
+do :- writeln('mf_file5 compiled.'), fail.
+do :- writeln('mf_hilog1 compiled.'), fail.
+do :- writeln('mf_hilog2 compiled.'), fail.
+do.

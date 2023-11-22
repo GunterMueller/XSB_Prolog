@@ -1,0 +1,25 @@
+----
+----
+----
+----
+----
+----
+----
+----
+----
+caught((Cannot declare ,t1(A), as tabled with options subsumptive and subgoal_abstract))
+caught(permission_error(set_incremental_tabling,predicate_with_tables,t4(A)))
+t1_after(answer_abstract(7))
+t1_after(subgoal_abstract(7))
+t1_before(answer_abstract(0))
+t1_before(subgoal_abstract(0))
+t2_after(table_reuse(subsumptive))
+t2_before(table_reuse(variant))
+t3_after(table_reuse(variant))
+t3_before(table_reuse(subsumptive))
+t4_after(updating(none))
+t4_after(updating(opaque))
+t4_before(updating(incremental))
+t4_before(updating(opaque))
+t5_after(updating(incremental))
+t5_before(updating(none))

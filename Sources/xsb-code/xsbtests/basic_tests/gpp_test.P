@@ -1,0 +1,11 @@
+%% tests complex xpp option
+:- compiler_options([xpp_on(gpp,gpp)]).
+
+#define ppp uuu
+
+:- export p/1, test/0.
+
+p(X) :- q(X).
+q(1).
+
+test :- writeln(ppp).

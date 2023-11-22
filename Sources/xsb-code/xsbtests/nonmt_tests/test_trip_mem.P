@@ -1,0 +1,87 @@
+% Checks mem_calloc for structure manager expansion
+:- dynamic message_ball/1.
+:- import misc_error/1,xsb_error_get_message/2 from error_handler.
+
+test:- init,
+       test_mem_calloc_1,
+       test_mem_calloc_2,
+       test_heap,
+       test_tcp.
+
+init:- assert((max_memory_user_handler:- max_mem_message_abort)).
+
+max_mem_message_abort:-
+	message_ball(Message),
+	writeln('skipping max memory_suspend'(Message)),
+	misc_error('dummy memory_error'(Message)).
+
+second_test_1:- catch(test_4,error(resource_error(memory),E,_),writeln(E)),fail.
+second_test_1:- catch(test_3,error(_,E,_),writeln(E)),fail.
+second_test_1:- catch(test_2,error(resource_error(memory),E,_),writeln(E)),fail.
+second_test_1.
+
+test_mem_calloc_1:- 
+      retractall(message_ball(_)),
+      assert(message_ball(test_1)),
+      set_prolog_flag(max_memory,25000),
+      set_prolog_flag(max_memory_action,suspend),
+      catch(test_1(500000),E,(xsb_error_get_message(E,M),writeln(M))). 
+
+:- index(p/3,trie).
+
+test_1(0):- !.
+test_1(N):- 
+	  assert(p(N,N,N)),
+	  N1 is N - 1,
+%	  (N1 mod 1000 =:= 0 -> writeln(N) ; true),
+	  test_1(N1).
+
+%------------------------------------------------
+% checks mem_alloc (assert space)
+
+test_mem_calloc_2:- 
+      retractall(message_ball(_)),
+      assert(message_ball(test_2)),
+      set_prolog_flag(heap_garbage_collection,indirection),
+      set_prolog_flag(max_memory,25000),
+      set_prolog_flag(max_memory_action,suspend),
+      catch(test_2(250000),E,(xsb_error_get_message(E,M),writeln(M))). 
+
+test_2(0):- !.
+test_2(N):- 
+	  assert(q(N,N,N)),
+	  N1 is N - 1,
+	  test_2(N1).
+
+%------------
+% tests heap overflow
+
+test_heap:-
+      retractall(message_ball(_)),
+      assert(message_ball(test_heap)),
+      set_prolog_flag(max_memory,25000),
+      set_prolog_flag(heap_garbage_collection,none),
+      set_prolog_flag(max_memory_action,suspend),
+      catch(test_3(1000000),E,(xsb_error_get_message(E,M),writeln(M))). 
+
+test_3(0):- !.
+test_3(N):- 
+	    f(f(f(f(a))))  = _X,
+	    N1 is N -1,
+	    test_3(N1).
+
+%------------
+% tests tcpstack overflow
+
+test_tcp:-
+      retractall(message_ball(_)),
+      assert(message_ball(test_tcp)),
+      set_prolog_flag(max_memory,25000),
+      set_prolog_flag(max_memory_action,suspend),
+      catch(test_4(1000000),E,(xsb_error_get_message(E,M),writeln(M))). 
+
+test_4(0).
+test_4(N):- 
+	    N1 is N -1,
+	    test_4(N1).
+test_4(_):- fail.	

@@ -1,0 +1,2 @@
+get_call(p(A),0,ret(A))
+get_call(q(A),ret(A))

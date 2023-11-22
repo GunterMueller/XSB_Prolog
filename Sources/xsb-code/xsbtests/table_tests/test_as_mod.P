@@ -1,0 +1,7 @@
+
+% Test of compiling answer_subsumption transformation within a module.
+
+test:- compile(as_mod),fail.
+test:- [as_mod],fail.
+test:- mp(A,B,C),writeln(mp(A,B,C)),fail.
+test.

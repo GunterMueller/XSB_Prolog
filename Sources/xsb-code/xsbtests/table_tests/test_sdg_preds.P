@@ -1,0 +1,99 @@
+:- compiler_options([spec_off]).
+
+:- import get_sdg_info/1, morph_dep_graph/3, sdg_scc_info/2 from tables.
+:- import between/3 from basics.
+:- import break/0 from x_interp.
+:- import xsb_error_get_tag/2 from error_handler.
+:- import prepare/1 from gensym.
+%:- ensure_loaded(term_abstract).
+
+test:- prepare(400),fail.
+test:- catch(morph_dep_graph([],1,_),E,(xsb_error_get_tag(E,Tag),writeln(test_1(Tag)))),fail.
+test:- catch(morph_dep_graph([],morph_2,foo),E,(xsb_error_get_tag(E,Tag),writeln(test_2(Tag)))),fail.
+test:- catch(morph_dep_graph([foo],morph_2,_),E,(xsb_error_get_tag(E,Tag),writeln(test_3(Tag)))),fail.
+test:- q_1(3,3),fail.  % simplest, w. id morph
+test:- q_2(3,3),fail.  % non-id morph
+test:- q_3(3,3),fail.  % morph composition
+test:- q_5(3,3),fail.  % case of negative dependencies
+test:- q_6(3,3),fail.  % double dependencies 
+test:- q_7(3,3),fail.  % abstract_modes
+test:- q_8(3,3),fail.  % get_scc_info
+test.
+
+t4:- q_4(3,3),fail.
+t5:- q_5(3,3),fail.
+
+:- table p/1.
+p(0):- get_sdg_info(List),writeln(List).
+p(N):- get_sdg_info(List),writeln(List),N1 is N - 1 , p(N1).
+
+:- table q_1/2 as incremental.
+q_1(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(id_morph) ; true),q_1(X,N).
+
+:- table q_2/2 as incremental.
+q_2(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(morph_2_) ; true),q_2(X,N).
+
+:- table q_3/2 as incremental.
+q_3(M,N):- between(1,N,X),
+         (M = N,N = X -> double_morph ; true),q_3(X,N).
+
+:- table q_5/2.
+q_5(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(id_morph) ; true),tnot q_5(X,N).
+
+:- table q_6/2.
+q_6(_M,N):- between(1,N,X),q_6(X,N).
+q_6(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(id_morph) ; true),q_6(X,N).
+
+:- table q_7/2.
+q_7(M,N):- between(1,N,X),
+         (M = N,N = X -> write_it(tables:abstract_modes) ; true),q_7(X,N).
+
+:- table q_8/2.
+q_8(M,N):- between(1,N,X),
+         (M = N,N = X -> write_scc ; true),q_8(X,N).
+
+id_morph(T,T).
+
+morph_2_(Term,NewTerm):- 
+	Term =.. [F,A1,A2],
+	map_arg_1(A1,NewA1),
+	NewTerm =.. [F,NewA1,A2].
+
+map_arg_1(2,1):- !.
+map_arg_1(X,X).
+
+write_it(Morph):- 
+	writeln('---------------'),
+	get_sdg_info(List),
+%	writeln(List),
+	morph_dep_graph(List,Morph,Listout),
+	writeln(Listout).
+
+write_scc:- 
+	writeln('---------------'),
+	get_sdg_info(List),
+%	writeln(List),
+	sdg_scc_info(List,Listout),
+	writeln(Listout).
+
+double_morph:- 
+	writeln('---------------'),
+	get_sdg_info(List),
+%	writeln(List),
+	morph_dep_graph(List,id_morph,List_1),
+	morph_dep_graph(List_1,morph_2_,Listout),
+	writeln(Listout).
+
+:- table q/2 as incremental.
+q(M,N):- between(1,N,X),
+%	writeln(calling(q(M,N),q(X,N))),
+       (M = N,N = X -> break ; true),q(X,N).
+
+first_abstract(Term,NewTerm):- 
+	Term =.. [F,A1,_A2],
+	NewTerm =.. [F,A1,_].
+

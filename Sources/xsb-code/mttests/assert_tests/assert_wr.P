@@ -1,0 +1,19 @@
+
+% This tests only writing for assert.
+:- import for/3 from basics.
+
+%% we know this isn't safe.  Asserting and reading shared tries can
+%% have trouble with changing index structures.
+%% so we'll make it private.
+%%:- thread_shared p/2.
+
+:- index(p/2,trie).
+:- dynamic(p/2).
+
+test_assert_wr(N,Str):-
+	for(X,1,N),
+	assert(p(1,X)),
+	p(1,X),
+	writeln(Str,p(1,X)),
+	fail.
+test_assert_wr(_,_Str).

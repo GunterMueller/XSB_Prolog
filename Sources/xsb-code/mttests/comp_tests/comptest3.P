@@ -1,0 +1,31 @@
+
+/* These calls create a cycle of 100 calls.  The last call succeeds,
+and the answer is returned and propagated through the SCCs.  The test
+is then repeated 10,000 times. */
+
+:- import random_pause/1, for/3 from mttestutils.
+
+% two solutions are written.
+comptest(N,Str):-	
+	make_goals(N,succeed1(a),[Call|Rest]),
+	make_big_loop([Call|Rest]),
+	(table_loop_list(1000,Call,[Call|Rest]) ; true),   
+	nv_writeln(Str,Call),
+	fail.
+comptest(_,_).
+
+make_big_loop([Call1|Rest]):- 
+	make_big_loop_1(Rest,Call1,Call1).
+
+make_big_loop_1([],Call1,Call):- 
+	functor(Call,F,N),
+	table(F/N),
+	assert((Call :- call(Call1))),
+	assert((Call)).
+make_big_loop_1([H|R],Call1,Call):- 
+	functor(Call,F,N),
+	table(F/N),
+	assert((Call :- call(H))),
+	make_big_loop_1(R,Call1,H).
+
+	

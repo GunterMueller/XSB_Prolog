@@ -1,0 +1,37 @@
+
+:- import new_trie/1,trie_intern/4, trie_interned/4,delete_trie/1, trie_drop/1 from intern.
+
+test_intern(N,Str):- 
+	intern(N),
+%	writeln(intern(N)),
+	delete(N),
+%	writeln(delete(N)),
+	intern(N),
+%	writeln(intern(N)),
+	interned(N,Str),
+%	writeln(interned(N,Str)),
+	flush_output(Str).
+
+intern(0):- !.
+intern(N):- 
+	new_trie(Root),
+	trie_intern(p(1,a,f(b),[a]),Root,_Leaf,_Skel),
+%	writeln(Root),
+	N1 is N - 1,
+	intern(N1).
+
+interned(0,_):- !.
+interned(N,Str):- 
+	Root is N,
+	trie_interned(T1,Root,_Leaf,Skel),
+	writeln(Str,interned(T1,Root,Skel)),
+	N1 is N - 1,
+	interned(N1,Str).
+
+delete(0):- !.
+delete(N):- 
+	Root is N,
+	trie_drop(Root),
+	N1 is N - 1,
+	delete(N1).
+

@@ -1,0 +1,16 @@
+alias(main,1,0)
+caught_domain_error_3d(thread_option,foo)
+caught_domain_error_join1(listof(thread_or_alias),f(1))
+caught_instantiation_error_1i
+caught_instantiation_error_1ia
+caught_instantiation_error_3i
+caught_instantiation_error_3ia
+caught_instantiation_error_3ib
+caught_permission_existence_error
+caught_type_error_2t(variable,8)
+caught_type_error_3a(atom,3.2000)
+caught_type_error_3t(list,alias(foo))
+caught_type_error_it(callable,7)
+joined_on_alias
+sam_i_aint
+sam_i_am

@@ -1,0 +1,12 @@
+
+
+:- table q/2.
+:- thread_shared q/2.
+
+p(A,A,N).
+p(A,C,N) :- A < N, B is A + 1, p(B, C, N).
+
+q(X,N) :- p(1,X,N).
+
+sc(N,F) :- q(X,N), q(X,N), writeln(F,X), fail.
+

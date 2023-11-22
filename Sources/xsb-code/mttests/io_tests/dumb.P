@@ -1,0 +1,52 @@
+:- import xsb_thread_create/3,
+	  xsb_thread_detach/2, 
+	  xsb_thread_exit/2, 
+	  xsb_thread_join/3, 
+	  xsb_thread_self/2 from thread.
+
+write_int(0,_):-!.
+write_int(N,Handle):-
+	writeln(Handle,N),
+	N1 is N -1,
+	write_int(N1,Handle).
+
+exec(self,Goal):- call(Goal).
+exec(_,Goal):- xsb_thread_create(Goal,_,_).
+
+write_self(N):- 
+	xsb_thread_self(Id,_Err),
+	write_self(N,Id).
+
+write_self(0,_):- !.
+write_self(N,Id):- 
+	shell(' sleep 1'),
+	writeln(i_am(Id)),
+	N1 is N - 1,
+	write_self(N1,Id).
+
+write_other(N,Id):-
+	xsb_thread_create(write_other_1(N),Id,_).
+
+write_other_1(N):- 
+	xsb_thread_self(Id,_Err),
+%	xsb_thread_detach(Id,_),
+	write_other_2(N,Id).
+	
+write_other_2(0,_):- !,
+	writeln('exiting...'),
+	xsb_thread_exit(0,_Err).
+write_other_2(N,Id):- 
+	shell(' sleep 1'),
+	writeln(i_am(Id)),
+	N1 is N - 1,
+	write_other_2(N1,Id).
+
+test(N,M):- 
+	(write_other(N),fail ; true),
+	write_self(M).
+
+test_join(N,M):- 
+	xsb_thread_create(write_other_1(N),Thread,_Err),
+	xsb_thread_join(Thread,_Exit,_),
+	write_self(M).
+

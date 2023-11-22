@@ -1,0 +1,55 @@
+
+First ensure that libpython 3 so and the Python.h are installed.
+
+sudo apt-get install python3-dev  
+sudo apt-get install libpython3-dev  
+
+If m4/* macros were changed, run
+
+autoreconf -i --install
+otherwise, just
+autoconf
+
+Then run
+
+configure
+
+===============================================
+Sequence of building the py<->xsb connector by the XSB configurator:
+
+1.  build/configure invokes ./configure (in packages/xsbpy/).
+    Also builds
+        packages/xsbpy/configvars.in --> packages/xsbpy/configvars.sh 
+           Sets sh vars to XSB install dir, libdir, emudir, bindir
+           Called by ./configure (configure.ac)
+
+2.  ./configure builds many of the necessary connector files. Namely:
+
+        - xsb2py_connect_defs.in --> xsb2py_connect_defs.h 
+           #define variables for Python lib dirs/names/includes
+           plus #defines for XSB libdirs, emudir, etc.
+           #included by xsbpym.c
+        - make_px_pkg.sh from make_px_pkg.sh.in
+           o creates the setup file for
+             the py->xsb connector (called px/.tmp_pxsetup.py)
+           o uses px/.tmp_pxsetup.py to make the px package & install
+              it in Python
+           o ./px_mk_setup.P creates xsbpy/.px_activate
+             shell file that sets PYTHONPATH, LD_LIBRARY_PATH
+             WHO calls that???
+             PROBABLY NOT NEEDED
+             ***Introduced by Teri on 4/15/22.
+           o this is called in step 4 below:
+                  invoked by makexsb at the end.
+        - xsbpy_info.in --> xsbpy_info.P
+           tells XSB if the python interface is configured;
+           called by packages/xsbpy.P
+
+3. Then ./configure creates the python px package by calling
+      cd px
+      python .tmp_pxsetup.py   (created by ./configure in step 2).
+      python -m pip -v install --no-index --find-links=dist px --user
+
+4. xsbpy/make_px_pkg.sh,
+   which in turn gets called at the end of makexsb.
+      

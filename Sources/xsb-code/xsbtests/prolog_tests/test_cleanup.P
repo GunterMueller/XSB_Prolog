@@ -1,0 +1,158 @@
+
+:- import call_cleanup/2 from standard.
+
+test:- 
+	test_nocut,
+	test_cut.
+
+test_nocut:- 
+	test1,
+	writeln('---------------'),
+	test2,
+	writeln('---------------'),
+	test3,
+	writeln('---------------'),
+	test4.
+test_nocut:-	writeln('---------------'),
+	test3b,
+	writeln('---------------'),
+	test3a,
+	writeln('---------------'),
+	test5.
+
+test1:- writeln(test1_shdwrite_true),
+	call_cleanup(p(1),writeln(true)).
+test2:- writeln(test2_shdwrite_abort),
+	catch(call_cleanup(abort,writeln(abort)),_E,true).
+test3:- writeln(test3_shdwrite_afterline_p(2)),
+	call_cleanup(p(X),writeln(p(X))).
+test3a:- writeln(test3a_shdwrite_p(2)),
+	 call_cleanup((p(X),X = 2),writeln(p(X))).
+test3b:- writeln(test3b_shdwrite_2gots_1handled),
+	 (call_cleanup((p(X),writeln(got(p(X)))),writeln(handled(p(X)))),fail ; true).
+test4:- writeln(test4_shdwrite_fail_twice),
+	call_cleanup(fail,writeln(fail)).
+test5:- writeln(test5_shdwrite_allocate),
+	call_cleanup(allocate(X),writeln(true(allocate(X)))).
+
+p(1). %:- writeln(p(1)).
+p(2). %:- writeln(p(2)).
+
+allocate(X):- 
+	r(X,X),
+	p(X).
+
+r(1,1).
+
+/******************/
+
+:- import print_cp/0 from machine.
+
+test_cut:- 
+	tc_1(X),writeln(test1(X)),
+	tc_2(X2),writeln(test2(X2)).
+test_cut:-
+	tc_3(X),writeln(test3(X)).
+test_cut:- 
+	tc_4(X),writeln(test4(X)).
+test_cut:- 
+%	tc_5(X,Y),writeln(test5(X,Y)),
+	tc_6(X6),writeln(test6(X6)),
+	tc_7(X7),writeln(test7(X7)).
+
+
+tc_1(X):-
+	call_cleanup(p(X),writeln(handled_1)),
+	!.
+
+tc_2(X):-
+	call_cleanup(p(X),writeln(handled_3_1)),
+	!,
+	fail.
+
+tc_3(X):-
+	call_cleanup(p(X),writeln(handled_3_1)),
+	call_cleanup(p(X),writeln(handled_3_2)),
+	!,
+	fail.
+
+tc_4(X):-
+	call_cleanup(p(X),writeln(handled_4_1)),
+	call_cleanup(p(_Y),writeln(handled_4_2)),
+	call_cleanup(p(_Z),writeln(handled_4_3)),
+	!,
+	fail.
+
+f(g(h(handled))).
+
+tc_5(X,Y):-
+	Z = Y,
+	call_cleanup(p(X),writeln(handled_5_1(X,Z,Y))),
+	!,
+	f(g(h(Y))),
+	writeln(handled_5_2(Y,Z)).
+
+tc_6(X):-
+	call_cleanup(p(X),(writeln(handled_6_1),call_cleanup(p(3),writeln(handled_6_2)))).
+
+tc_7(X):-
+	call_cleanup(p(X),(tc_7_1(_Y))).
+
+tc_7_1(Y):-
+	writeln(handled_7_1),
+	call_cleanup(p(Y),writeln(handled_7_2)),
+	!.
+
+test_catch:- bt6,bt7,bt9,tt1,tt2.
+
+%    Succeeds, unifying F with e.
+bt6:-  catch(call_cleanup(throw(bt6_e), catch(true, E, throw(E))), F, writeln(F)).
+
+bt7:- catch(call_cleanup(throw(bt7_e), catch(writeln(bt7_middleman), E, throw(E))), F, writeln(F)).
+
+tt1:- catch(call_cleanup(throw(e),writeln(tt1_handler_catching)),E,writeln(tt1_catch_catching(E))).
+
+% foo is thrown.
+bt9:- catch(call_cleanup(throw(bt9_oops),throw(bt9_ok)),Ball,write(Ball)).
+
+bt10:- catch(call_cleanup(throw(my_error),writeln(invoking_handler)),Ball,write(Ball)).
+
+% Cleanup routine succeeds non-deterministically.
+tt2:- call_cleanup(true,(p(X),writeln(tt2(X)))),fail.
+
+a(a,1).
+a(7,2).
+
+b(1,a).
+b(2,b).
+
+% behaves like SWI/SICSTUS
+bt1(X):- call_cleanup(a(a,X),write(X)).
+bt2(X):- call_cleanup(b(X,1),write(X)).
+
+% SWI-like behavior
+bt3(X) :- call_cleanup(repeat,write(X)), !, X = 1.
+bt4(X) :- call_cleanup(true,write(X)), X = 1.
+
+t :- call_cleanup(r,write(1)), !.
+r :- call_cleanup(repeat,write(2)).
+
+bt5(X):- call_cleanup((X = 1; fail), write(X)).
+
+% Sicstus like behavior.
+bt8:- call_cleanup((X=foo,throw(7)),write(X)).
+
+tc_11(X):-
+	call_cleanup(p(X),(writeln(handled_6_1),call_cleanup(p(_Y),writeln(handled_6_2)),!)).
+
+end_of_file.
+
+:- import install_verify_attribute_handler/4 from machine.
+:- import cleanup_handler/2 from standard.
+:- install_verify_attribute_handler(call_cleanup_mod,AttrValue,Target,cleanup_handler(AttrValue,Target)).
+
+
+tt7:- catch(throw(e),E,catch(true,E,write(bla(E)))).
+tt8:- catch(throw(e),E,write(E)).
+
+add call_cleanup 3.

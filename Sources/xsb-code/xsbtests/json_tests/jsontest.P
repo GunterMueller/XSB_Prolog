@@ -1,0 +1,171 @@
+:- compiler_options([xpp_on]).
+#include "standard.h"
+
+:- import numbervars/1 from num_vars.
+:- machine:stat_set_flag(101,2).  % set CHARACTER_SET to UTF_8
+
+
+%% valid tests
+tst1 :- write('tst1 = '),
+         parse_json('data/test1.json',X),
+         numbervars(X),
+         writeln(X).
+tst2 :- write('tst2 = '),
+         parse_json('data/test2.json',X),
+         numbervars(X),
+         writeln(X).
+tst3 :- write('tst3 = '),
+         parse_json('data/test3.json',X),
+         numbervars(X),
+         writeln(X).
+tst4 :- parse_json('data/test4.json',X),
+         numbervars(X),
+         writeln(tst4=X).
+tst5 :- parse_json('data/test5.json',X),
+         numbervars(X),
+         writeln(tst5=X).
+tst6 :- parse_json('data/test6.json',X),
+         numbervars(X),
+         writeln(tst6=X).
+tst7 :- parse_json('data/test7.json',X),
+         writeln(tst7=X).
+
+%% invalid tests
+tst8 :- (parse_json('data/ext-invalid-0001.json',_) ->
+            writeln(tst8=no)
+         ; writeln(tst8=ok)
+         ).
+tst9 :- (parse_json('data/ext-invalid-0002.json',_) ->
+            writeln(tst9=no)
+         ; writeln(tst9=ok)
+         ).
+
+%% valid
+tst10 :- parse_json('data/ext-valid-0001.json',X),
+          writeln(tst10=X).
+tst11 :- parse_json('data/ext-valid-0002.json',X),
+          writeln(tst11=X).
+tst12 :- parse_json('data/ext-valid-0003.json',X),
+          writeln(tst12=X).
+
+%% invalid tests
+tst13 :- (parse_json('data/invalid-0000.json',_) ->
+            writeln(tst13=no)
+          ; writeln(tst13=ok)
+          ).
+tst14 :- (parse_json('data/invalid-0001.json',_) ->
+            writeln(tst14=no)
+          ; writeln(tst14=ok)
+          ).
+tst15 :- (parse_json('data/invalid-0002.json',_) ->
+            writeln(tst15=no)
+          ; writeln(tst15=ok)
+          ).
+tst16 :- (parse_json('data/invalid-0003.json',_) ->
+            writeln(tst16=no)
+          ; writeln(tst16=ok)
+          ).
+tst17 :- (parse_json('data/invalid-0004.json',_) ->
+            writeln(tst17=no)
+          ; writeln(tst17=ok)
+          ).
+tst18 :- (parse_json('data/invalid-0005.json',_) ->
+            writeln(tst18=no)
+          ; writeln(tst18=ok)
+          ).
+tst19 :- (parse_json('data/invalid-0006.json',_) ->
+            writeln(tst19=no)
+          ; writeln(tst19=ok)
+          ).
+tst20 :- (parse_json('data/invalid-0007.json',_) ->
+            writeln(tst20=no)
+          ; writeln(tst20=ok)
+          ).
+tst21 :- (parse_json('data/invalid-0008.json',_) ->
+            writeln(tst21=no)
+          ; writeln(tst21=ok)
+          ).
+tst22 :- (parse_json('data/invalid-0009.json',_) ->
+            writeln(tst22=no)
+          ; writeln(tst22=ok)
+          ).
+tst22 :- (parse_json('data/invalid-0010.json',_) ->
+            writeln(tst22=no)
+          ; writeln(tst22=ok)
+          ).
+tst23 :- (parse_json('data/simple_err1.json',_) ->
+            writeln(tst23=no)
+          ; writeln(tst23=ok)
+          ).
+tst24 :- (parse_json('data/simple_err2.json',_) ->
+            writeln(tst24=no)
+          ; writeln(tst24=ok)
+          ).
+tst25 :- (parse_json('data/simple_err3.json',_) ->
+            writeln(tst25=no)
+          ; writeln(tst25=ok)
+          ).
+
+%% valid tests
+tst26 :- parse_json('data/valid-0000.json',X),
+          writeln(tst26=X).
+tst27 :- parse_json('data/valid-0001.json',X),
+          writeln(tst27=X).
+tst28 :- parse_json('data/valid-0002.json',X),
+          writeln(tst28=X).
+tst29 :- parse_json('data/valid-0003.json',X),
+          writeln(tst29=X).
+tst30 :- parse_json('data/valid-0004.json',X),
+          writeln(tst30=X).
+tst31 :- parse_json('data/valid-0005.json',X),
+          writeln(tst31=X).
+tst32 :- parse_json('data/valid-0006.json',X),
+          writeln(tst32=X).
+tst33 :- parse_json('data/valid-0007.json',X),
+          writeln(tst33=X).
+tst34 :- parse_json('data/valid-0008.json',X),
+          writeln(tst34=X).
+tst35 :- parse_json('data/valid-0009.json',X),
+          writeln(tst35=X).
+tst36 :- parse_json('data/valid-0010.json',X),
+          writeln(tst36=X).
+tst37 :- parse_json('data/valid-0011.json',X),
+          numbervars(X),
+          writeln(tst37=X).
+tst38 :- parse_json('data/valid-0012.json',X),
+          numbervars(X),
+          writeln(tst38=X).
+
+tst39 :- parse_json(string('{ \"first\" : 1, \"second\" : {\"third\": [1,2], \"fourth\" : { \"fifth\":3}}}'),'second.fourth',X),
+          writeln(tst39=X).
+
+
+
+
+pretest :-
+        tst1, tst2, tst3, tst4, tst5, tst6, tst7, tst8, tst9,
+        tst10, tst11, tst12, tst13, tst14, tst15, tst16, tst17,
+        tst18, tst19, tst20, tst21, tst22, tst23, tst24, tst25,
+        tst26, tst27, tst28, tst29, tst30, tst31, tst32, tst33,
+        tst34, tst35, tst36, tst37, tst38, tst39.
+
+test :-
+        [json],
+	file_reopen(temp1,w,STDERR,_),
+	file_reopen(temp2,w,STDWARN,_),
+        tell(temp),
+        pretest,
+        told,
+	file_close(STDWARN),
+	file_close(STDERR),
+	open(file(temp1),read,Port1),
+	open(file(temp2),read,Port2),
+	open(file(temp),append,Port0),
+	file_io:copyIOport(Port1,Port0),
+	file_io:copyIOport(Port2,Port0),
+	close(Port1),
+	close(Port2),
+        close(Port0),
+	file_io:path_sysop(unlink,temp1),
+	file_io:path_sysop(unlink,temp2).
+

@@ -1,0 +1,52 @@
+conclude1
+conclude1
+conclude1
+conclude1
+conclude2
+conclude2
+conclude2
+conclude2
+conclude2
+conclude2
+conclude3
+conclude3
+conclude3
+done retracting
+done retracting
+done retracting
+post debug store
+post debug store
+post debug store
+pre debug store
+pre debug store
+pre debug store
+reason1
+reason1
+reason1
+reason1
+reason2
+reason2
+reason2
+reasonmerge1(findint(A,B))
+reasonmerge1(findint(A,B))
+reasonmerge1(findint(A,B))
+reasonmerge1(findint(A,B))
+reasonmerge2(C,Class)
+reasonmerge2(C,Class)
+reasonmerge2(C,Class)
+reasonmerge2(C,Class)
+reasonmerge2(C,Class)
+reasonmerge2(C,Class)
+reasonmerge3
+reasonmerge3
+reasonmerge3
+retracting(findint(4221040,4221040))
+retracting(findint(4221046,4221046))
+retracting(findint(4221052,4221052))
+try_assert_real(factClassHasNoBase(4221040))
+try_assert_real(findint(4221040,4221040))
+try_assert_real(findint(4221046,4221046))
+try_assert_real(findint(4221052,4221052))
+union
+union
+union

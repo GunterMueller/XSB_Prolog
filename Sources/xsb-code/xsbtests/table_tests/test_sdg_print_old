@@ -1,0 +1,32 @@
+        Affects positively p_1(1,3) ; p_1(2,3) ; p_1(3,3)
+        Affects positively p_1(1,3) ; p_1(2,3) ; p_1(3,3)
+        Affects positively p_1(1,3) ; p_1(2,3) ; p_1(3,3)
+        Affects positively p_2(g,g)
+        Affects positively p_3 / 2
+        Affects positively q_1(1,3) ; q_1(2,3)
+        Affects positively q_1(3,3) ; q_1(1,3) ; q_1(2,3)
+        Affects positively q_1(3,3) ; q_1(1,3) ; q_1(2,3)
+        Affects positively q_2(g,g)
+        Affects positively q_3 / 2
+        Number of calls to this subgoal 10; Number of answers 0
+        Number of calls to this subgoal 10; Number of answers 0
+        Number of calls to this subgoal 7; Number of answers 0
+        Number of calls to this subgoal 7; Number of answers 0
+        SCC: 1; Number of calls to this subgoal 2; Number of answers 0
+        SCC: 1; Number of calls to this subgoal 3; Number of answers 0
+        SCC: 1; Number of calls to this subgoal 3; Number of answers 0
+        SCC: 1; Number of calls to this subgoal 3; Number of answers 0
+        SCC: 1; Number of calls to this subgoal 3; Number of answers 0
+        SCC: 1; Number of calls to this subgoal 4; Number of answers 0
+------------------------------------------------------------
+------------------------------------------------------------
+Subgoal: p_1(1,3)
+Subgoal: p_1(2,3)
+Subgoal: p_1(3,3)
+Subgoal: p_2(g,g)
+Subgoal: p_3 / 2
+Subgoal: q_1(1,3)
+Subgoal: q_1(2,3)
+Subgoal: q_1(3,3)
+Subgoal: q_2(g,g)
+Subgoal: q_3 / 2

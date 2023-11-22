@@ -1,0 +1,77 @@
+:- compiler_options([xpp_on]).
+#include "socket_defs_xsb.h"
+#include "timer_defs_xsb.h"
+#include "char_defs.h"
+
+:- ['auxiliary/auxdefs'].
+:- import tryN/5 from auxdefs.
+
+:- import 
+     socket/2, socket_connect/4, socket_set_option/3,
+     socket_close/2, socket_get0/3, socket_put/3  from socket.
+
+
+%% machine where server is running
+machine(localhost).
+%% Try something else:
+%%machine(compserv1).
+
+%% Port on which the server is listening
+%% Server must bind to this port
+xsb_port(6025).
+
+client :-
+	writeln('started client...'),
+	socket(Sockfd0, ErrCode),
+	(ErrCode =\= SOCK_OK
+	-> writeln('Cannot open write socket to server.'), fail
+	; true),
+	socket_set_option(Sockfd0,linger,SOCK_NOLINGER),
+	machine(IPAddrOrHostname),
+	xsb_port(XSB_port),
+	tryN(4,
+	     (set_timer(3),
+		 socket_connect(Sockfd0 ,XSB_port, IPAddrOrHostname, Ecode2)),
+	     (writeln(sock_connect1(sockfd0,XSB_port,IPAddrOrHostname,Ecode2)),
+		 writeln('connected to server...')),
+	     (writeln('Cannot connect to server'), socket_close(Sockfd0,_)),
+	     Ecode2
+	    ),
+	%% Socket for reading replies
+	socket(Sockfd1, Error2),
+	(Error2 =\= SOCK_OK
+	-> writeln('Cannot read from the server'),
+	    socket_close(Sockfd0,_), fail
+	; true),
+	socket_set_option(Sockfd1,linger,SOCK_NOLINGER),
+	set_timer(3),
+	socket_connect(Sockfd1, XSB_port, IPAddrOrHostname, Ecode3),
+	(Ecode3 < 0
+	-> writeln('Cannot connect to server'),
+	    socket_close(Sockfd0,_), socket_close(Sockfd1,_), fail
+	; true),
+	writeln(socket_connect(sockfd1,XSB_port,IPAddrOrHostname,Ecode3)),
+	client_loop(Sockfd0, Sockfd1).
+client :- writeln('Client error: exiting...').
+
+
+client_loop(Sockfd0, Sockfd1) :-  
+  nl,
+  %%write('Please enter a character or an ASCII code. ^D terminates: '),
+  get0(Char),
+  %%writeln(Char),
+  ((Char == CH_EOF_P; Char == 4; Char == CH_EOF_C) ->
+      !,
+      socket_put(Sockfd0, CH_EOF_C,_),
+      socket_close(Sockfd0, _),
+      socket_close(Sockfd1, _),
+      writeln('Exiting.'), true
+  ;   integer(Char) ->
+      socket_put(Sockfd0, Char, _),
+      fail
+  ;   write('Illegal input: '), writeln(Char),
+      fail
+  ).
+ 
+
+client_loop(Sockfd0, Sockfd1) :- client_loop(Sockfd0, Sockfd1).

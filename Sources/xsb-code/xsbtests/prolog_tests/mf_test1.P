@@ -1,0 +1,21 @@
+:- import qqq/3 from mf_file1.
+:- import pp/2 from mf_file2.
+:- [mf_file1].
+:- [mf_file2].
+:- load_dync(mf_file3).		% test load_dync/1
+:- load_dyn(mf_file4).		% test load_dync/1
+
+:- [mf_file5].			% test table directive
+%:- load_dyn(mf_file6).		% mf_file5 = mf_file6 (transitive closure)
+
+:- [mf_hilog1].			% test hilog term
+:- [mf_hilog2].
+
+test :- p(X,Y), writeln(p(X,Y)), fail.
+test :- qqq(X,Y,Z), writeln(qqq(X,Y,Z)), fail.
+test :- pp(X,Y), writeln(pp(X,Y)), fail.
+test :- dyn_p(X,Y), writeln(dyn_p(X,Y)), fail.
+test :- tc(X,Y), writeln(tc(X,Y)), fail.
+test :- X(Y,Z), writeln(X(Y,Z)), fail.
+test :- g(X,Y), writeln(g(X,Y)), fail.
+test.

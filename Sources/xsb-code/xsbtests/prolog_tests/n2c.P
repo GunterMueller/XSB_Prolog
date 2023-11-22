@@ -1,0 +1,79 @@
+/*
+ * Checks whether the number_codes/2, number_chars/2, number_digits/2 
+ * implemented in C works. 
+ *	 - Kostis.
+ */
+:- import append/3 from basics.
+
+%% number codes
+test :- num(Num), number_codes(Num, List), fix_float_codes(Num,List,List1),writeln(List1), fail.
+test :- num(N), number_codes(N, L), number_codes(Num, L),
+	integer(Num), writeln(created_integer(Num)), fail.
+test :- num(N), number_codes(N, L), number_codes(Num, L),
+	float(Num), writeln(created_float(Num)), fail.
+test :- failing(List), catch(number_codes(_, List),_E,fail), writeln(bug(List)), fail.
+
+%% convert 3-digit exponents codes to 2 digits for windows
+fix_float_codes(Inp,Num0,Num) :-
+	float(Inp),
+	append(First,[0'e,Sign,0'0,Ex2,Ex3],Num0),
+	!,
+	append(First,[0'e,Sign,Ex2,Ex3],Num).
+fix_float_codes(_,Num,Num).
+
+
+%% number chars
+test :- num(Num), number_chars(Num, List), fix_float_chars(Num,List,List1), writeln(List1), fail.
+test :- num(N), number_chars(N, L), number_chars(Num, L),
+	integer(Num), writeln(created_integer(Num)), fail.
+test :- num(N), number_chars(N, L), number_chars(Num, L),
+	float(Num), writeln(created_float(Num)), fail.
+test :- failing2(List), catch(number_chars(_, List),_E,fail), writeln(bug(List)), fail.
+
+%% convert 3-digit exponents digits to 2 chars for windows.
+fix_float_chars(Inp,Num0,Num) :-
+	float(Inp),
+	append(First,[e,Sign,'0',Ex2,Ex3],Num0),
+	!,
+	append(First,[e,Sign,Ex2,Ex3],Num).
+fix_float_chars(_,Num,Num).
+
+%% number digits
+test :- num(Num), number_digits(Num, List), fix_float_digs(Num,List,List1), writeln(List1), fail.
+test :- num(N), number_digits(N, L), number_digits(Num, L),
+	integer(Num), writeln(created_integer(Num)), fail.
+test :- num(N), number_digits(N, L), number_digits(Num, L),
+	float(Num), writeln(created_float(Num)), fail.
+test :- failing3(List), catch( number_digits(_, List),_E,fail),writeln(bug(List)), fail.
+test:- number_codes(1.6,L),atom_codes(A,L),writeln(converted(A)),fail.
+test.
+
+%% convert 3-digit exponents digits to 2 digits for windows.
+fix_float_digs(Inp,Num0,Num) :-
+	float(Inp),
+	append(First,[e,Sign,0,Ex2,Ex3],Num0),
+	!,
+	append(First,[e,Sign,Ex2,Ex3],Num).
+fix_float_digs(_,Num,Num).
+
+
+test.
+
+num(0).
+num(23).
+num(-23).
+num(0.0).
+%num(23.233456).
+%num(23.234567).
+%num(-23.234567).
+
+failing([]).
+failing([69]).
+% failing([53,69]).
+failing([53,46,48,48,48,70]).
+
+failing2(['5',.,'0','0','F']).
+failing2([]).
+
+failing3([5,.,0,0,'F']).
+failing3([]).

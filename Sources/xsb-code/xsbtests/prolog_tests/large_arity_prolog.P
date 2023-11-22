@@ -1,0 +1,143 @@
+:- import numbervars/1 from num_vars.
+:- import length/2,member/2 from basics.
+:- import unifiable/3 from constraintLib.
+:- import subsumes/2,variant/2,subsumes_chk/2,subsumes_term/2 from subsumes.
+:- import intern_term/2 from machine.
+:- import term_to_atom/2,term_to_codes/2 from string.
+
+test:- test_unif,fail.
+test:- test_func_arg,fail.
+test:- test_func_func,fail.
+test:- test_univ_arg,fail.
+test:- test_univ_univ,fail.
+test:- test_copy_term,fail.
+test:- test_copy_term_nat,fail.
+test:- test_write_canon,fail.
+test:- test_unifiable,fail.
+test:- test_safe_compare,fail.
+test:- test_uwoc,fail.
+test:- test_ground,fail.
+test:- test_acyclic,fail.
+test:- test_variant,fail.
+test:- test_term_depth,fail.
+test:- test_term_size,fail.
+test:- test_term_to_atom,fail.
+test:- test_term_to_codes,fail.
+test:- test_findall,fail.
+test:- test_intern_term,fail.
+test.
+% The following do not yet
+%test:- test_subsumes_chk,fail.
+%test:- test_subsumes,fail.
+%test:- test_subsumes_term,fail.
+%test:- test_setof,fail.
+%test:- test_bagof,fail.
+
+test_unif:- functor(T1,f,50000),functor(T2,f,50000),T1 = T2,writeln(unification_tested).
+test_func_arg:- functor(T,f,50000),numbervars(T),arg(40000,T,Arg),writeln(func_arg(Arg)),fail.
+test_func_func:- functor(T,f,50000),functor(T,_,Arity),writeln(func_func(Arity)),fail.
+test_univ_arg:- makelist(50000,L),Term =.. [f|L],numbervars(Term),arg(40000,Term,Arg),writeln(univ_arg(Arg)),fail.
+test_univ_univ:- makelist(50000,L),Term =.. [f|L],Term =.. [_|L1],length(L1,N),writeln(univ_univ(N)),fail.
+test_copy_term:- functor(T,f,50000),copy_term(T,T1),numbervars(T1),arg(40000,T1,Arg),writeln(copy_term(Arg)),fail.
+test_copy_term_nat:- functor(T,f,50000),copy_term(T,T1),numbervars(T1),arg(40000,T1,Arg),writeln(copy_term_nat(Arg)),fail.
+test_write_canon:- functor(T1,test_write_canon,5000),numbervars(T1),write_canonical(T1).
+test_unifiable:- functor(T1,f1,5000),functor(T2,f1,5000),unifiable(T1,T2,L),length(L,Len),writeln(unifiable(Len)).
+test_safe_compare:- functor(T1,f,5000),numbervars(T1),functor(T2,f,5000),numbervars(T2),T1 ?= T2,
+                    writeln(safe_compare).
+test_uwoc:- functor(T1,f,5000),functor(T2,f,5000),unify_with_occurs_check(T1,T2),
+                    writeln(uwoc_tested).
+test_ground:- functor(T1,f,50000),numbervars(T1),ground(T1),writeln(ground_tested).
+test_acyclic:- functor(T1,f,50000),is_acyclic(T1),writeln(acyclic_tested).
+test_variant:- functor(T1,f,50000),functor(T2,f,50000),variant(T1,T2),writeln(variant_tested).
+test_imgt:- functor(T1,f,50000),is_most_general_term(T1),writeln(imgt_tested).
+test_term_variables:- functor(T1,f,50000),term_variables(T1,L),length(L,Len),writeln(term_variables_tested(Len)).
+test_term_depth:- functor(T1,f,50000),term_depth(T1,D),writeln(term_depth_tested(D)).
+test_term_size:- functor(T1,f,50000),term_size(T1,D),writeln(term_size_tested(D)).
+%tested below w. 50000
+test_term_to_atom:- functor(T,f,500),term_to_atom(T,A),writeln(term_to_atom(A)).
+test_term_to_codes:- functor(T,f,50000),term_to_codes(T,_L),writeln(term_to_codes_tested).
+test_findall:- make_term_list(10,50000,L),findall(X,(member(Elt,L),arg(1,Elt,X)),List),
+               length(List,Len),writeln(test_findall(Len)).
+
+test_subsumes_l:- makelist(50000,L1),makelist(50000,L2),subsumes(f(L1),f(L2)),writeln(subsumes).
+test_subsumes:- functor(T1,f,50000),functor(T2,f,50000),subsumes(T1,T2),writeln(subsumes).
+test_subsumes_chk:- functor(T1,f,50000),functor(T2,f,50000),subsumes_chk(T1,T2),writeln(subsumes_chk).
+test_subsumes_term:- functor(T1,f,50000),functor(T2,f,50000),subsumes_term(T1,T2),writeln(subsumes_term).
+test_intern_term:- functor(T,f,50000),numbervars(T),intern_term(T,F),structure(F).
+test_setof:- make_term_list(100,L),setof(X,Elt^L^(member(Elt,L),arg(1,Elt,X)),List),writeln(List).
+test_bagof:- make_term_list(100,L),bagof(X,Elt^L^(member(Elt,L),arg(1,Elt,X)),List),writeln(List).
+
+test61:- functor(T,big_assert,500),assert(T),writeln(asserted(T)),fail.
+test6:- functor(T,big_assert,500),call(T),numbervars(T),arg(400,T,Arg),writeln(test6(Arg)),fail.
+
+test62:- functor(T,big_assert,500),numbervars(T),assert(T),writeln(asserted(T)),fail.
+
+test6:- functor(T,big_assert,500),assert(T),fail.
+test6:- functor(T,big_assert,500),call(T),numbervars(T),arg(400,T,Arg),writeln(test6(Arg)),fail.
+
+test7:- makelist(500,L),assert(biglist(L)),fail.
+
+makelist(0,[]):- !.
+makelist(N,[_|T]):- 
+    N1 is N - 1,
+    makelist(N1,T).
+
+make_term_list(0,_,[]):- !.
+make_term_list(N,Arity,[Term|T]):- 
+    N1 is N - 1,
+    functor(Term,f,Arity),
+    make_term_list(N1,Arity,T).
+
+make_varlist_list(0,_,[]):- !.
+make_varlist_list(N,Arity,[List|T]):- 
+    N1 is N - 1, 
+    makelist(Arity,List),
+    make_varlist_list(N1,Arity,T).
+
+
+
+
+:- table subg_term/1.
+subg_term(_X).
+
+% panics w. PDL list at 50000.
+:- table ans_term/1.
+ans_term(X):- functor(X,f,5000),numbervars(X).
+
+:- table ans_term_v/1.
+ans_term_v(X):- functor(X,f,50000).
+
+
+
+test_tab_subg_term:- functor(T,f,5000),numbervars(T),subg_term(T),fail.
+test_tab_subg_termr:- get_residual(subg_term(X),_),functor(X,F,A),writeln(test_subg_term(F/A)).
+
+test_tab_ans_term:- ans_term(_T),write(tabling_done),fail.
+test_tab_ans_term:- get_residual(ans_term(X),_),functor(X,F,A),writeln(test_ans_term(F/A)).
+
+test_tab_ans_term_v:- ans_term_v(_T),fail.
+test_tab_ans_term_v:- get_residual(ans_term_v(X),_),functor(X,F,A),writeln(test_ans_term(F/A)).
+
+:- import new_trie/1 , trie_intern/2, trie_interned/4, trie_interned/2,  trie_unintern_nr/2,
+	  trie_unintern/2, delete_trie/1, trie_retractall/2  from intern.
+
+init:- 
+	new_trie(Trie),
+	assert(ptrie(Trie)).
+
+% works, but gives pdl panic for 50000.
+test_ti2:- init,ptrie(Trie),functor(F,f,5000),trie_intern(F,Trie),fail.
+test_ti2:- ptrie(Trie),trie_interned(Term,Trie,_Leaf,Skel),
+           functor(Term,Tf,Ta),functor(Skel,Sf,Sa),writeln(test_ti2(Tf/Ta,Sf/Sa)),fail.
+test_ti2:- ptrie(Trie),trie_interned(_Term,Trie,Leaf,_Skel),
+           trie_unintern(Trie,Leaf),writeln(test_ti2_uninterned),fail.
+test_ti2:- ptrie(Trie),delete_trie(Trie),writeln(test_ti2_deleted).
+
+test_ti3:- init,ptrie(Trie),functor(F2,f2,5000),trie_intern(F2,Trie),functor(F3,f3,5000),trie_intern(F3,Trie),fail.
+test_ti3:- ptrie(Trie),functor(F2,f2,5000),trie_retractall(F2,Trie),fail.
+test_ti3:- ptrie(Trie),trie_interned(Term,Trie),
+           functor(Term,Tf,Ta),writeln(test_ti3(Tf/Ta)),fail.
+
+%testti:- functor(T,f,50000),trie_intern(T,_,Arity),writeln(test2(Arity)),fail.
+
+

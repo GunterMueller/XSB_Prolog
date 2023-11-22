@@ -1,0 +1,6 @@
+
+:- import load_forest_log/1, analyze_an_scc/3 from tables.
+
+test:-
+       load_forest_log(test_forest_view_new),
+       analyze_an_scc(1,userout,tables:abstract_modes(_,_)).

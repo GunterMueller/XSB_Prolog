@@ -1,0 +1,10 @@
+test1_handled
+exited(p1)
+test2_handled
+exited(p2)
+test3_handled
+true
+test4_handled
+false
+test5_handled
+true

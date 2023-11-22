@@ -1,0 +1,11 @@
+hello world
+hello world
+mutex_property(alias(foo1))
+mutex_property(alias(foo2))
+mutex_property(foo1,alias(foo1))
+mutex_property(foo1,status(unlocked))
+mutex_property(status(locked(0,2)))
+mutex_property(status(unlocked))
+mutex_property(status(unlocked))
+return_code([true,true])
+safely_caught_error

@@ -1,0 +1,2 @@
+
+test:- assert(p(1)),assert(p(2)),assert(p(3)),listing(p/1).

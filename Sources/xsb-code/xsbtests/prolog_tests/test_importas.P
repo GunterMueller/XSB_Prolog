@@ -1,0 +1,12 @@
+
+:- export mymember/2,test/0.
+:- export my_min_ed_dis/3.
+
+:- import member/2 from basics as mymember/2.
+
+:- import min_ed_dis/3 from xeddis as my_min_ed_dis/3.
+
+test:- 
+	mymember(X,[a,b,c]),writeln(mymember(X)),fail.
+test:- my_min_ed_dis(cat,hat,X),writeln(my_med(X)),fail.
+test.

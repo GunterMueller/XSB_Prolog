@@ -1,0 +1,6 @@
+
+evl1(N) :- M is N, number(M), writeln(M).
+
+evl2 :- N=1+3, M is N, number(M), writeln(M).
+
+test :- evl1(1+2), evl2, writeln(done).

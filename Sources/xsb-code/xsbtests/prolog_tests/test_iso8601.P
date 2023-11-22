@@ -1,0 +1,87 @@
+:- compiler_options([spec_off]).
+
+:- import easter_day/3,date_string/3,calendar_month/4,
+    julian_date/7, valid_date/3 from iso8601.
+   
+test:-
+    ((easter_day(2020,M,D),M = 4,D = 12) ->
+         writeln(easter1_ok)
+      ;  writeln(easter1_failed)),
+    fail.
+test:-
+    ((easter_day(2021,M,D),M = 4,D = 4) ->
+         writeln(easter2_ok)
+      ;  writeln(easter2_failed)),
+    fail.
+test:- 
+    ((iso8601:date(JD,2021,5,23,DoW),DoW = 7,JD=2459358) -> 
+         writeln(date5_ok)
+      ;  writeln(date5_failed)),
+    fail.
+test:-
+     iso8601:calendar_month(2021,5,m(_Year,_Month,Weeks)),
+%     writeln(iso8601:calendar_month(2021,5,m(_Year,_Month,Weeks))),
+     (Weeks = [w(17,[0,0,0,0,0,1,2]),
+	       w(18,[3,4,5,6,7,8,9]),
+	       w(19,[10,11,12,13,14,15,16]),
+	       w(20,[17,18,19,20,21,22,23]),
+	       w(21,[24,25,26,27,28,29,30]),
+	       w(22,[31,0,0,0,0,0,0])] -> 
+        writeln(calendar_month_ok)
+     ;  writeln(calendar_month_failed)),
+     fail.
+test:-
+    ((date_string('YYYYMMDD',date(1944,6,4),Str),Str = '19440604') ->
+         writeln(date_string1_ok)
+      ;  writeln(date_string1_failed)),
+    fail.
+test:-
+    ((date_string('YYYYMMDD',Date,'19440604'),Date = date(1944,6,4)) ->
+         writeln(date_string2_ok)
+      ;  writeln(date_string2_failed)),
+    fail.
+test:-
+    ((date_string('YYYY-MM-DD',date(1944,6,4),Str),Str = '1944-06-04') ->
+         writeln(date_string3_ok)
+      ;  writeln(date_string3_failed)),
+    fail.
+test:-
+    ((date_string('YYYY-MM-DD',Date,'1944-06-04'),Date = date(1944,6,4)) ->
+         writeln(date_string4_ok)
+      ;  writeln(date_string4_failed)),
+    fail.
+test:-
+    ((date_string('DD-MMM-YYYY',date(1944,6,4),Str),Str = '04-JUN-1944') ->
+         writeln(date_string5_ok)
+      ;  writeln(date_string5_failed)),
+    fail.
+test:-
+    ((date_string('DD-MMM-YYYY',Date,'04-JUN-1944'),Date = date(1944,6,4)) ->
+         writeln(date_string6_ok)
+      ;  writeln(date_string6_failed)),
+    fail.
+test:-
+    ((julian_date(2459358,Y,M,D,DoW,W,DC),
+      Y = 2021,M = 5,D=23,DoW = 7,W = week(20,2021),DC = 143) ->
+         writeln(julian_date1_ok)
+      ;  writeln(julian_date1_failed)),
+    fail.
+test:-
+    ((julian_date(J,2020,2,29,DoW,W,DC),
+      J =  2458909, DoW = 6,W = week(9,2020),DC = 60) ->
+         writeln(julian_date2_ok)
+      ;  writeln(julian_date2_failed)),
+    fail.
+
+test:-
+    (valid_date(2020,2,29) ->
+         writeln(valid_date1_ok)
+      ;  writeln(valid_date1_failed)),
+    fail.
+test:-
+    (valid_date(2021,2,29) ->
+         writeln(valid_date2_failed)
+      ;  writeln(valid_date2_ok)),
+    fail.
+test.       
+

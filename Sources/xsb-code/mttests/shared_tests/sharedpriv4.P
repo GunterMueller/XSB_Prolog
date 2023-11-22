@@ -1,0 +1,25 @@
+:- table p/2, q/2.
+
+:- thread_shared p/2.
+
+:- thread_private q/2.
+
+:- thread_shared max/1.
+
+max(2000).
+
+p(X,Y) :- X > 0, X1 is X - 1, q(X1,Y).
+p(0,Y) :- max(N), q(N,Y).
+
+q(X,X) :- max(X), !.
+q(X,Y) :- X > 0, X1 is X - 1, p(X1,Y).
+q(0,Y) :- max(N), p(N,Y).
+
+r(Y) :- q(0,Y).
+
+spone(F) :- r(N), writeln(F,N), fail.
+spone(_).
+
+
+
+

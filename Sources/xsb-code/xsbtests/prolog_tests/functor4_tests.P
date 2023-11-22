@@ -1,0 +1,83 @@
+:- import functor/4 from standard.
+:- import numbervars/1 from num_vars.
+:- import term_new_mod/3 from machine.
+
+%%functor(T,_,F,A) :- functor(T,F,A).
+
+test :- T = functor(f(a,b),_,_,_), call(T), numbervars(T), writeln(t1(T)), fail.
+test :- T = functor(g(a,b),usermod,_,_), call(T), numbervars(T), writeln(t2(T)), fail.
+test :- T = functor(h(a,b),usermod,h,_), call(T), numbervars(T), writeln(t3(T)), fail.
+test :- T = functor(i(a,b),usermod,i,2), call(T), numbervars(T), writeln(t4(T)), fail.
+test :- T = functor(_,usermod,j,2), call(T), numbervars(T), writeln(t5(T)), fail.
+test :- T = functor(_,_,k,2), call(T), numbervars(T), writeln(t6(T)), fail.
+test :- T = functor([a,b],_,_,_), call(T), numbervars(T), writeln(t7(T)), fail.
+test :- T = functor([a,b],usermod,_,_), call(T), numbervars(T), writeln(t8(T)), fail.
+test :- T = functor([a,b],_,'.',_), call(T), numbervars(T), writeln(t9(T)), fail.
+test :- T = functor([a,b],usermod,'.',2), call(T), numbervars(T), writeln(t10(T)), fail.
+test :- T = functor([a,b],usermod,'.',2), call(T), numbervars(T), writeln(t11(T)), fail.
+test :- T = functor(_,usermod,'.',2), call(T), numbervars(T), writeln(t12(T)), fail.
+test :- T = functor(_,_,'.',2), call(T), numbervars(T), writeln(t13(T)), fail.
+test :- T = functor(17,_,_,_), call(T), numbervars(T), writeln(t14(T)), fail.
+test :- T = functor(17,usermod,_,_), call(T), numbervars(T), writeln(t15(T)), fail.
+test :- T = functor(17,usermod,17,_), call(T), numbervars(T), writeln(t16(T)), fail.
+test :- T = functor(17,usermod,17,0), call(T), numbervars(T), writeln(t17(T)), fail.
+test :- T = functor(_,_,17,_), call(T), numbervars(T), writeln(t18(T)), fail.
+test :- T = functor(_,usermod,17,_), call(T), numbervars(T), writeln(t19(T)), fail.
+test :- T = functor(_,usermod,17,0), call(T), numbervars(T), writeln(t20(T)), fail.
+test :- T = functor(_,usermod,17,0), call(T), numbervars(T), writeln(t21(T)), fail.
+test :- T = functor(17.3,_,_,_), call(T), numbervars(T), writeln(t22(T)), fail.
+test :- T = functor(17.3,usermod,_,_), call(T), numbervars(T), writeln(t23(T)), fail.
+test :- T = functor(17.3,usermod,17.3,_), call(T), numbervars(T), writeln(t24(T)), fail.
+test :- T = functor(17.3,usermod,17.3,0), call(T), numbervars(T), writeln(t25(T)), fail.
+/**/test :- T = functor(_,_,17.3,_), call(T), numbervars(T), writeln(t26(T)), fail.
+/**/test :- T = functor(_,usermod,17.3,_), call(T), numbervars(T), writeln(t27(T)), fail.
+test :- T = functor(_,usermod,17.3,0), call(T), numbervars(T), writeln(t28(T)), fail.
+test :- T = functor(aaaa,_,_,_), call(T), numbervars(T), writeln(t29(T)), fail.
+test :- T = functor(aaaa,usermod,_,_), call(T), numbervars(T), writeln(t30(T)), fail.
+test :- T = functor(aaaa,usermod,aaaa,_), call(T), numbervars(T), writeln(t31(T)), fail.
+test :- T = functor(aaaa,usermod,aaaa,0), call(T), numbervars(T), writeln(t32(T)), fail.
+test :- T = functor(_,_,aaaa,0), call(T), numbervars(T), writeln(t33(T)), fail.
+test :- T = functor(_,usermod,aaaa,0), call(T), numbervars(T), writeln(t34(T)), fail.
+%% non-usermod (atomic) modules
+test :- functor(T,newmod,f,3), term_new_mod(newmod,f(_,_,_),NT), T=NT,
+	numbervars(T), writeln(t35(T)), fail.
+test :- term_new_mod(newmod,g(_,_,_),NT), functor(NT,A,B,C),
+	numbervars(NT),writeln(t36(NT,A,B,C)), fail.
+test :- term_new_mod(newmod,h(_,_,_),NT), functor(NT,newmod,B,C),
+	numbervars(NT),writeln(t37(NT,newmod,B,C)), fail.
+test :- term_new_mod(newmod,i(_,_,_),NT), functor(NT,newmod,i,3),
+	numbervars(NT),writeln(t38(NT,newmod,i,3)), fail.
+test :- term_new_mod(usermod,m(_,_),NT), functor(NT,A,B,C),
+	numbervars(NT),writeln(t39(NT,A,B,C)), fail.
+test :- term_new_mod(usermod,m(_,_),NT), functor(NT,usermod,B,C),
+	numbervars(NT),writeln(t40(NT,usermod,B,C)), fail.
+%% throw errors
+test :- catch(functor(_,_,_,_),Ball,true),write_ball(t41,Ball),fail.
+test :- catch(functor(_,_,pp,_),Ball,true),write_ball(t42,Ball),fail.
+test :- catch(functor(_,_,_,3),Ball,true),write_ball(t43,Ball),fail.
+test :- catch(functor(_,_,pp,-5),Ball,true),write_ball(t44,Ball),fail.
+test :- catch(functor(_,_,qq,a),Ball,true),write_ball(t45,Ball),fail.
+test :- functor(T,f(a),pp,6),numbervars(T),writeln(t46(T)),fail.
+test :- catch(functor(h(1),_,pp,-5),Ball,true),write_ball(t47,Ball),fail.
+test :- catch(functor(i(1),_,qq,a),Ball,true),write_ball(t48,Ball),fail.
+%% quietly fail
+test :- (functor(j(1),f(a),pp,6) -> writeln(t50(failed)) ; writeln(t49(succeeded))), fail.
+test :- (functor(f(1),_,pp,_) -> writeln(t50(failed)) ; writeln(t50(succeeded))), fail.
+test :- (functor(g(1),_,_,3) -> writeln(t51(failed)) ; writeln(t51(succeeded))), fail.
+test :- (functor(h(1),_,17.0,_) -> writeln(t52(failed)) ; writeln(t52(succeeded))), fail.
+test :- (functor(h(1),_,15,_) -> writeln(t53(failed)) ; writeln(t53(succeeded))), fail.
+test :- (functor(17.5,_,15,_) -> writeln(t54(failed)) ; writeln(t54(succeeded))), fail.
+test :- (functor(17,_,17.0,_) -> writeln(t55(failed)) ; writeln(t55(succeeded))), fail.
+%% parameterized modules
+test :- functor(T,newmod(newmod2),f,3), term_new_mod(newmod(newmod2),f(_,_,_),NT), T=NT,
+	numbervars(T), writeln(t56(T)), fail.
+test :- term_new_mod(newmod(newmod2,newmod3),g(_,_,_),NT), functor(NT,A,B,C),
+	numbervars(NT),writeln(t57(NT,A,B,C)), fail.
+test :- Mod = newmod1(aa,bb(cc)), term_new_mod(Mod,h(_,_,_),NT), functor(NT,Mod,B,C),
+	numbervars(NT),writeln(t58(NT,Mod,B,C)), fail.
+test :- term_new_mod(newmod(aaa),i(_,_,_),NT), functor(NT,newmod(aaa),i,3),
+	numbervars(NT),writeln(t59(NT,newmod(aaa),i,3)), fail.
+test :- catch(functor(_NT,mod(_X),qq,1),Ball,true),write_ball(t60,Ball),fail.
+
+write_ball(ErrNo,error(Type,context(Msg,_))) :-
+    write(ErrNo),write(': '), write(Type), tab(1), writeln(Msg).

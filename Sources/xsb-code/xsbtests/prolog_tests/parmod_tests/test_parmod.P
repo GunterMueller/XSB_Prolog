@@ -1,0 +1,68 @@
+%:- ensure_loaded(persistent_tables_package).
+%:- import abolish_persistent_table_calls/1 from persistent_tables.
+
+% force all recompile
+test :- shell('rm -f *.xwam'),fail.
+test :- shell('rm -f pm_subdir/*.xwam'),fail.  % TES -- added -f to get rid of message for new downloads.
+
+test :- write('testing: '),my_writeln(join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in):out(_A,_B)),fail.
+test :- join(trans_close(union(union(mother_pap,mother_dsw),father)),born_in):out(A,B),my_writeln(out(A,B)),fail.
+
+test :- write('testing: '),my_writeln(parent(mother_us,father):out(_X,_Y)),fail.
+test :- parent(mother_us,father):out(X,Y),my_writeln(par(X,Y)),fail.
+
+test :- write('testing: '),my_writeln(parmodtst(basics):p(_A,_B,[a,b])),fail.
+test :- parmodtst(basics):p(A,B,[a,b]),my_writeln(p(A,B,[a,b])),fail.
+
+test :- write('testing: '),my_writeln('TESTQUOTE':p(_,_,_)),fail.
+test :- 'TESTQUOTE':p(A,B,C),my_writeln(p(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(call_testquote:q(_A,_B)),fail.
+test :- call_testquote:q(A,B),my_writeln(q(A,B)),fail.
+
+test :- write('testing: '),my_writeln(callQParMod:still_my_app(_A,_B,[a,b,c])),fail.
+test :- callQParMod:still_my_app(A,B,[a,b,c]),my_writeln(still_my_app(A,B)),fail.
+
+%%test :- ensure_loaded(usrmd),fail.
+test :- write('testing: '),my_writeln(usermod('TTSTUSRMD'):q(_A,_B,_C)),fail.
+test :- usermod>>'TTSTUSRMD':q(A,B,C),my_writeln(q(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(usermod('TTSTUSRMD2'):v(_A,_B,_C)),fail.
+test :- usermod('TTSTUSRMD2'):v(A,B,C),my_writeln(v(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(usermod('pm_subdir/ttstusrmduc'):s1(_A,_B,_C)),fail.  
+test :- usermod>>'pm_subdir/ttstusrmduc':s1(A,B,C),my_writeln(s(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(usermod('pm_subdir/ttstusrmduc'):w(_A,_B,_C)),fail.  
+test :- usermod('pm_subdir/ttstusrmduc'):w(A,B,C),my_writeln(w(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(docim:c(_A,_B,_C)),fail.  
+test :- docim:c(A,B,C),my_writeln(c(A,B,C)),fail.
+
+test :- write('testing: '),my_writeq('test-mod':tmt(_A)),nl,fail.  
+test :- 'test-mod':tmt(A),my_writeln(tmt(A)),fail.
+
+test :- write('testing: '),my_writeln(usermod(load_dyn(afile)):tp(_A,_B,_C)),fail.  
+test :- usermod>>load_dyn(afile):tp(A,B,C),my_writeln(tp(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(usermod(consult:load_dyn(bfile,0)):tp2(_A,_B,_C)),fail.  
+test :- usermod(consult:load_dyn(bfile,0)):tp2(A,B,C),my_writeln(tp2(A,B,C)),fail.
+
+test :- write('testing: '),my_writeln(usermod(proc_files:load_dsv('dsv.txt',pd/2,[])):pd(_X,_Y)),fail.
+test :- usermod>>(proc_files:load_dsv('dsv.txt',pd/2,[])):pd(X,Y),my_writeln(pd(X,Y)),fail.
+
+test :- my_writeln('Testing with explicit module modifier finished!').
+
+:- import numbervars/1 from num_vars.
+my_writeln(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeln(Term)
+	).
+
+my_writeq(Term) :-
+	(do_all
+	 numbervars(Term),
+	 writeq(Term)
+	).
+

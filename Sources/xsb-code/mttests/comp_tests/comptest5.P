@@ -1,0 +1,42 @@
+
+/* These calls create a chain of 100 calls.  The last call succeeds N
+(= 10) times, and the answers returned through various SCCs.  The test
+is then repeated 10,000 times. */
+
+:- import random_pause/1, for/3 from mttestutils.
+:- import ts_assert/1, ts_call/1 from thread.
+:- import copy_term/2 from basics.
+
+% two solutions are written.
+comptest(N,Str):-	
+	make_goals(N,succeedN(X),[Call|Rest]),
+	make_big_loop([Call|Rest]),
+	(  table_loop_list(1000,Call,[Call|Rest]),
+	   nv_writeln(Str,Call),fail
+%	   writeln(Call),fail
+	 ; true),   
+	fail.
+comptest(_,_).
+
+
+make_big_loop([Call1|Rest]):- 
+	make_big_loop_1(Rest,Call1,Call1).
+
+make_big_loop_1([],Call1,Call):- 
+	arg(1,Call,Arg),
+	arg(1,Call1,Arg),
+	ts_assert((Call :- ts_call(Call1))),
+	assert_n_solutions(0,10,Call).
+make_big_loop_1([H|R],Call1,Call):- 
+	arg(1,Call,Arg),
+	arg(1,H,Arg),
+	ts_assert((Call :- ts_call(H))),
+	make_big_loop_1(R,Call1,H).
+
+assert_n_solutions(N,N,_Call):- !.
+assert_n_solutions(M,N,Call):- 
+	M1 is M + 1,
+	copy_term(Call,CCall),
+	arg(1,CCall,M1),
+	ts_assert((CCall)),
+	assert_n_solutions(M1,N,Call).

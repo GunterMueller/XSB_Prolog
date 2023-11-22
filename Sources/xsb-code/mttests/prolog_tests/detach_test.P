@@ -1,0 +1,120 @@
+:- import thread_create/2,thread_create/3, thread_join/2, thread_detach/1, usleep/1 
+          from thread.
+:- import get_alias/3 from file_io.
+
+% tests on removing aliases for detached threads (test_thread_detach_1
+% and test_thread_detach_2) can be time-sensitive. 
+test:- 
+	set_xsb_flag(thread_detached,true),
+	test_create(200),
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     writeln(passed_detached_test)
+          ;  writeln(failed_detached_test)),
+
+	set_xsb_flag(thread_detached,false),
+	test_create_join(200),
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     writeln(passed_join_test)
+          ;  writeln(failed_join_test)),
+
+	test_create_alias_join(200),
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     writeln(passed_alias_join_test)
+          ;  writeln(failed_alias_join_test(L))),
+
+	test_thread_detach_1,
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     true
+          ;  writeln(failed_detach_1_test(L))),
+
+	test_thread_detach_2,
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     true
+          ;  writeln(failed_detach_2_test(L))),
+
+
+	test_thread_detach_3(200),
+	  usleep(1000),
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     writeln(passed_detach_test_3)
+          ;  writeln(failed_detach_3_test(L))),
+
+	test_thread_detach_4(200),
+	  usleep(1000),
+	((findall(X,thread_property(X,status(_)),L),L = [_]) -> 
+	     writeln(passed_detach_test_4)
+          ;  writeln(failed_detach_4_test(L))),
+
+	catch(test_create(200),error(E,_,_),writeln(E)).
+
+test_create(N):- 
+	N == 0 -> 
+	true
+    ;
+	thread_create(true,_),
+	N1 is N - 1,
+	test_create(N1).
+
+test_create_join(N):- 
+	N == 0 -> 
+	true
+    ;
+	thread_create(true,Tid),
+	thread_join(Tid,_),
+	N1 is N - 1,
+	test_create_join(N1).
+
+test_create_alias_join(N):- 
+	N == 0 -> 
+	true
+    ;
+	thread_create(true,Tid,[alias(foo)]),
+	thread_join(Tid,_),
+	N1 is N - 1,
+	test_create_alias_join(N1).
+
+% Need to test removal of aliases via thread detach both when thread
+% has exited and when thread exits after detaching
+test_thread_detach_1:- 
+	thread_create(true,_Tid,[alias(foo_d_1)]),
+	thread_detach(foo_d_1),
+	  usleep(1000),
+	(get_alias(foo_d_1,_,_) -> 
+	    writeln(failed_thread_detach_1)
+	  ; writeln(passed_thread_detach_1)).
+
+test_thread_detach_2:-
+	  thread_create(thread_detach(foo_d_2),_,[alias(foo_d_2)]),
+	  usleep(1000),
+	  (get_alias(foo_d_2,_,_) -> 
+	      writeln(failed_thread_detach_2)
+	  ;   writeln(passed_thread_detach_2)).
+	  
+test_thread_detach_3(N):- 
+	N == 0 -> 
+	true
+    ;
+	thread_create(true,_,[detached(true)]),
+	N1 is N - 1,
+	test_thread_detach_3(N1).
+
+test_thread_detach_4(N):- 
+	N == 0 -> 
+	true
+    ;
+	thread_create(true,Id),
+	thread_detach(Id),
+	N1 is N - 1,
+	test_thread_detach_4(N1).
+
+
+
+/*
+test_thread_detach_2(N):- 
+	(N == 0 -> 
+	  true
+        ; 
+	  N1 is N - 1,
+	  test_thread_detach_2(N1)).
+*/
+

@@ -1,0 +1,17 @@
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+---------------
+[scc(1,3,0,8,0)]
+[subgoal(q_1(1,3),none,id_morph402,6,0,[id_morph401,id_morph402,id_morph403],[]),subgoal(q_1(2,3),none,id_morph401,6,0,[id_morph401,id_morph402,id_morph403],[]),subgoal(q_1(3,3),none,id_morph403,6,0,[id_morph401,id_morph402],[])]
+[subgoal(q_2(1,3),none,morph_2_405,6,0,[morph_2_405,morph_2_406],[]),subgoal(q_2(3,3),none,morph_2_406,6,0,[morph_2_405],[])]
+[subgoal(q_3(1,3),none,morph_2_411,12,0,[morph_2_411,morph_2_412],[]),subgoal(q_3(3,3),none,morph_2_412,12,0,[morph_2_411],[])]
+[subgoal(q_5(1,3),none,id_morph414,2,0,[],[id_morph413,id_morph414,id_morph415]),subgoal(q_5(2,3),none,id_morph413,2,0,[],[id_morph413,id_morph414,id_morph415]),subgoal(q_5(3,3),none,id_morph415,2,0,[],[id_morph413,id_morph414])]
+[subgoal(q_6(1,3),none,id_morph417,12,0,[id_morph416,id_morph417,id_morph418],[]),subgoal(q_6(2,3),none,id_morph416,12,0,[id_morph416,id_morph417,id_morph418],[]),subgoal(q_6(3,3),none,id_morph418,12,0,[id_morph416,id_morph417,id_morph418],[])]
+[subgoal(q_7(g,g),none,abstract_modes421,9,0,[abstract_modes421],[])]
+test_1(type_error(atom,1))
+test_2(type_error(variable,foo))
+test_3(misc_error)

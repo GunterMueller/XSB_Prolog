@@ -1,0 +1,16 @@
+/* test that cant overload a regular module by an immutable module */
+:- import shell/1 from shell.
+
+test:- 
+    shell('rm -f immut.P immut.xwam'),
+    shell('cp nonimmut_b.P immut.P'),
+    [immut],
+    p(A),writeln(fifth(p(A))),  %fifth(b)
+    fail.
+test:- 
+    shell('rm -f immut.xwam'),
+    shell('cp immut_a.P immut.P'),
+    [immut], % should be ignored
+    p(A),writeln(sixth(p(A))),  %sixth(b)
+    fail.
+test.

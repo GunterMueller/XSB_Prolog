@@ -1,0 +1,22 @@
+:- compiler_options([xpp_on]).
+
+#include "io_defs_xsb.h"
+#include "flag_defs_xsb.h"
+
+:- import add_aliases/4 from file_io.
+:- import thread_create/3 from thread.
+:- import stat_flag/2 from machine.
+
+/* Testing to make sure that initial thread setup is reclaimed in the
+   case of a permission error for an alias.  The way to do this is to
+   fake out use of an alias to provoke the error */
+
+test:- 
+	add_aliases([foo],THREAD_ALIAS,7,test/0),
+	catch(thread_create(true,_,[alias(foo)]),
+	      error(permission_error(_,_,_),_,_),
+	      writeln(caught_permission_error)),
+	stat_flag(NUM_THREADS,X),
+	(X = 1 -> 
+	    writeln(decremented_threads)
+	 ;  writeln(failed_to_decrement_threads)).

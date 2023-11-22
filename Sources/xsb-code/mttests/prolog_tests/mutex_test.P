@@ -1,0 +1,37 @@
+
+test:- test_1,test_2,test_3,test_4.
+
+test_1:- 
+	mutex_create(_M,[alias(console_mutex)]),
+	thread_create(use_console,T1),
+	thread_create(use_console,T2),
+	thread_join([T1,T2],Error),
+	mutex_destroy(console_mutex),
+	writeln(return_code(Error)).
+
+use_console:- 
+	with_mutex(console_mutex,(write('hello world'),nl)).
+
+test_2:- 
+	mutex_create(_M1,[alias(foo1)]),
+	mutex_create(_M2,[alias(foo2)]),
+	mutex_property(_Mutex,Prop),
+	writeln(mutex_property(Prop)),
+	fail.
+test_2:-
+	mutex_property(foo1,Prop),
+	writeln(mutex_property(foo1,Prop)),
+	fail.
+test_2.
+
+test_3:- 
+	mutex_create(M2,[]),
+	mutex_lock(M2),
+	mutex_lock(M2),
+	mutex_property(M2,Prop),
+	writeln(mutex_property(Prop)),
+	fail.
+test_3.
+	
+test_4:- 
+	catch(mutex_lock(0),_E,writeln(safely_caught_error)).

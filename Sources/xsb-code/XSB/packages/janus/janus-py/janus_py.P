@@ -1,0 +1,197 @@
+:- compiler_options([xpp_on,optimize]).
+
+#include "table_status_defs.h"
+#include "../janus_defs.h"
+#include "io_defs_xsb.h"
+
+:- export jns_comp/3.
+:- export test_pred/2.
+
+:- import table_status/5 from tables.
+:- import memberchk/2 from basics.
+:- import call_c/1 from standard.
+:- import str_cat/3 from string.
+:- import file_open/3,file_close/2 from file_io.
+:- import file_read/3 from xsb_read.
+
+jns_comp(Goal,Set,Flag):-
+    (tables:is_tabled(Goal) ->
+        jns_comp_tabled(Goal,Set,Flag)
+       ; 
+     jns_comp_nontabled(Goal,Set,Flag)).
+
+jns_comp_nontabled(Goal,AnsList,Flag):- 
+%    writeln(jns_comp_nontabled(Goal,AnsList,Flag)),
+    abolish_table_pred(jns_table(_)),
+    (jns_table(Goal),fail ; true),
+    (NO_TRUTHVALS =:= NO_TRUTHVALS/\Flag -> 
+       findall(NewGoal1,jns_get_residual(jns_table(Goal),NewGoal1,_Resid,Flag),AnsList1)
+    ;  findall('-'(NewGoal,Resid),jns_get_residual(jns_table(Goal),NewGoal,Resid,Flag),AnsList1)),
+    (SET_COLLECTION =:= SET_COLLECTION/\Flag ->
+	 sort(AnsList1,AnsList2),
+	 AnsList = PYSET_PROLOG(AnsList2)
+    ;	 AnsList = AnsList1).
+ 
+jns_comp_tabled(Goal,AnsList,Flag):-
+%    writeln(jns_comp_tabled(Goal)),
+    table_status(Goal, _PredTypeCode, _CallTypeCode, AnsSetStatusCode,_SF),
+    (AnsSetStatusCode == COMPLETED_ANSWER_SET -> 
+	 true
+       ; (Goal,fail ; true) ),
+    (NO_TRUTHVALS =:= NO_TRUTHVALS/\Flag ->
+	 findall(NewGoal1,jns_get_residual(Goal,NewGoal1,_Resid,Flag),AnsList1)
+      ;  findall(-(NewGoal,Resid),jns_get_residual(Goal,NewGoal,Resid,Flag),AnsList1) ),
+    (SET_COLLECTION =:= SET_COLLECTION/\Flag ->
+	 sort(AnsList1,AnsList2),
+	 AnsList = PYSET_PROLOG(AnsList2)
+    ;    AnsList = AnsList1).
+
+jns_get_residual(Goal,NewGoal,Resid,Flag):-
+%    writeln(jns_get_residual(Goal,NewGoal,Resid,Flag)),
+    (Goal = jns_table(Goal1) -> TrueGoal = Goal1 ; TrueGoal = Goal),
+    StripNum is Flag >> 16,
+    (DELAY_LISTS =:= DELAY_LISTS/\Flag ->
+         variant_get_residual(Goal,R1),
+	 TrueGoal =.. [_|Args],
+	 strip_first_n(StripNum,Args,NewArgs),
+	 NewGoal =.. [-|NewArgs],Resid=R1
+%	 (R1 = [] -> Resid = 1 ; Resid = R1)
+    ;    variant_get_residual(Goal,R1),
+	 TrueGoal =.. [_|Args],
+	 strip_first_n(StripNum,Args,NewArgs),
+	 NewGoal =.. [-|NewArgs],
+         (R1 = [] -> Resid = 1 ; Resid = 2) ).
+
+strip_first_n(0,L,L):- !.
+strip_first_n(1,[_|L],L):-!.
+strip_first_n(2,[_,_|L],L):-!.
+strip_first_n(3,[_,_,_|L],L):-!.
+strip_first_n(N,[_|Lin],Lout):-
+    N1 is N - 1,
+    strip_first_n(N1,Lin,Lout).
+	
+
+:- table jns_table/1 as variant, opaque.
+jns_table(X) :- call(X).
+
+%-------------------------
+:- export eval_atom/4.
+eval_atom(Atom,InDict,DELAY_LISTS,RetVars):- !,
+    eval_nontabled_atom(Atom,InDict,RetVarsIn,DelayList),
+    RetVars = ['DelayList' = DelayList|RetVarsIn].
+eval_atom(Atom,InDict,_TV_TYPE,RetVars):-
+    eval_atom(Atom,InDict,RetVars).
+
+:- table parse_query_string/3.
+parse_query_string(Term,T,Bindings):- 
+    %    open(atom(Term),read,S),
+    file_open(Term, sr, S),
+%    writeln(file_open(Term, sr, S)),
+    jns_read_term(S,T,[variable_names(Bindings)]),
+%    read_term(S,T,[variable_names(Bindings)]),
+%    writeln(jns_read_term(S,T,Bindings)),
+%    close(S),
+    file_close(S,NOFORCE_FILE_CLOSE).
+
+:- import jns_read_term/3 from standard.
+eval_atom(Atom,InDict,RetVars):-
+    string:concat_atom([Atom,'.'],Term),
+    str_cat(Atom,'.',Term),
+%    writeq((Term,InDict)),nl,
+    parse_query_string(Term,T,Bindings),
+    dict_to_list(InDict,DictList),
+    partition_vars(Bindings,DictList,RetVars),
+%    writeln(partition_vars(Bindings,DictList,RetVars)),
+%        partially_instantiate_call(InDict,T,Bindings),
+%     writeln(abt_to_call(T)),
+    call_c(T).
+%    writeln(succeeded(T)).
+
+dict_to_list({}(),[]):- !.
+dict_to_list({},[]):- !.
+dict_to_list({D},List):-
+    dict_to_list_1(D,List).
+
+dict_to_list_1(','(A,B),[A|T]):- !,
+    dict_to_list_1(B,T).
+dict_to_list_1(B,[B]).
+
+partition_vars([],_DictList,[]).
+partition_vars([Varname = Var|RestVars],DictList,RetList):-
+    (memberchk(Varname:Bind,DictList) ->
+	 Var = Bind,RetList_Mid = RetList
+      ;  RetList = [Varname = Var | RetList_Mid]),
+    partition_vars(RestVars,DictList,RetList_Mid).
+
+eval_nontabled_atom(Atom,InputDict,RetVars,DelayList):- 
+%    writeln(eval_nontabled_atom(Atom,InputDict,RetVars,DelayList)),
+    abolish_table_pred(jns_table(_)),
+    process_vars(Atom,Goal1,InputDict,RetVars1),
+%    writeln(process_vars(Atom,Goal1,InputDict,RetVars1)),
+    copy_term((Goal1,RetVars1),(Goal,RetVars)),
+    (jns_table(Goal1),fail ; true),
+    variant_get_residual(jns_table(Goal),DelayList).
+
+process_vars(Atom,Goal,InDict,RetVars):- 
+    string:concat_atom([Atom,'.'],Term),
+    open(atom(Term),read,S),
+    read_term(S,Goal,[variable_names(Bindings)]),
+    close(S),
+%    writeln((Goal,Bindings)),
+    dict_to_list(InDict,DictList),
+    partition_vars(Bindings,DictList,RetVars).
+
+end_of_file.
+
+:- import stat_set_flag/2, stat_flag/2 from machine.
+:- import member/2 from basics.
+:- import check_open_stream_or_alias/5 from file_io.
+
+isoify([],[]) :- !.
+isoify([vv(A,V)|R],[A = V|R1]):- 
+	A \== '_', !,
+	isoify(R,R1).
+isoify([_|R],R1):- 
+	isoify(R,R1).
+
+end_of_file.
+
+% get_last_arg(Ans,LastArg):-
+%     functor(Ans,_,A),
+%     arg(A,Ans,LastArg).
+% 
+% pythonize_redidual_list([],[]).
+% pythonize_redidual_list([H1|R1],[H2|R2]):-
+%     pythonize_term(H1,H2),
+%     pythonize_redidual_list(R1,R2).
+% 
+% pythonize_term(H1,H1):- atomic(H1),!.
+% pythonize_term(H1,H2):- H1 = [_|_],!,pythonize_list(H1,H2).
+% pythonize_term(H1,H2):- H1 = ','(_,_),!,pythonize_comma_list(H1,H2).
+% % pythonize_term(H1,H2):- H1 = ':'(_,B),!,pythonize_term(B,H2).
+% pythonize_term(H1,H2):-
+%     H1 =.. [F|Args],      % need to handle HiLog
+%     pythonize_list(Args,Args1),
+% %    writeln(args1(Args1)),
+% %    writeq(f(F)),nl,
+%     (F == '' ->
+%       H2 =.. [''|Args1]
+%       ; H2 =.. ['',F|Args1]).
+% 
+% pythonize_list([],[]).
+% pythonize_list([H1|T1],[H2|T2]):- 
+%     pythonize_term(H1,H2),
+%     pythonize_list(T1,T2). 
+% 
+% pythonize_comma_list(In,Out):- !,
+%     comma_to_list(In,Inlist),
+%     pythonize_list(Inlist,Outlist),
+%     Out =.. ['' |Outlist].
+
+%eval_atom(-(Atom),Bindings):-
+%    string:concat_atom([Atom,'.'],Term),
+%    open(atom(Term),read,S),
+%    read_term(S,T,[variable_names(Bindings)]),
+%    close(S),
+%    call(T).
+

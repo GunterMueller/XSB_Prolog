@@ -1,0 +1,20 @@
+
+:- import format/3 from format.
+
+test(Str):- 
+	test1(Str),fail ; true.
+
+test1(Str):- 
+	format(Str,"~d Hello ~q!~c",[1,'World',10]).
+test1(Str):- 
+	format(Str,"~d Hello ~~world!~n",[2]).
+test1(Str):- 
+	format(Str,"~d Hello~4cworld!~n",[3,0'x]).
+test1(Str):- 
+	format(Str,"~d Hello~*cworld!~n",[4,4,0'x]).
+test1(Str):- 
+	format(Str,"~d Hello ~a!~n",[5,world]).
+test1(Str):- 
+	format(Str,"~d Hello ~4s ~4s!~n",[6,"new","world"]).
+test1(Str):- 
+	format(Str,"~d Hello ~k world!~n",[7,a+b+c]).

@@ -1,0 +1,7 @@
+existence_error(module,bar)
+existence_error(predicate,usermod : foo / 1)
+get_residual(table_foo(A),[wcs_undefined(foo(A))])
+get_residual(wcs_undefined(foo(A)),[tnot tabled_call(wcs_undefined(foo(B)))])
+misc_error
+table_foo(existence_error(predicate,usermod : foo / 1))
+this_is_my_undefined_warning_about(foo(A))

@@ -1,0 +1,14 @@
+call_foo_for_test5
+call_foo_for_test5
+caught_main_thread_cancel_permission_error
+queue_existence_error_caught
+queue_existence_error_caught
+test2pr_existence_error_caught
+test3_existence_error_ok
+test4_ok
+test5_ok
+test6_ok
+test_1_cancelled_thread_ok
+test_2_destroy_ok
+test_5_child_finito
+test_6_child_finito

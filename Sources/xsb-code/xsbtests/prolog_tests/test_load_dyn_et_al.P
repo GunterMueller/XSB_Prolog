@@ -1,0 +1,136 @@
+:- import length/2 from basics.
+:- import load_dyn_gen/2 from consult.
+
+% Test of load dyn/dync/dyn_opt.  The test of the read canonical error
+% gives several warning messages in the log, but they can be ignored.
+%
+% still a problem in current_index/2 with modules.
+% test_dyn checks error message for load_dyn
+% test_dync check non-canonical handling for load_dync.
+% test_dyn_mod_1 tests loading into an implicit module via export
+% test_dyn_mod_2 loading into a designated module via load_dync
+% test_trie tests loading trie_indexed data
+% test_trie_mod tests loading trie_indexed data into a module
+% test_xforms tests transforms (just dcgs right now)
+% test_tables tests tabling -- although reload_dyning tables gives a permission error.
+% test_mod_no_export tests loading into a module a file w.o. an export statement.
+
+:- import xsb_error_get_message/2,xsb_error_get_tag/2 from error_handler.
+
+test:- test_dyn,fail.
+test:- test_dync,fail.
+test:- writeln('--------------------'),fail.
+test:- test_dync_mod_1,fail.
+test:- writeln('--------------------'),fail.
+test:- test_dync_mod_2,fail.
+test:- writeln('--------------------'),fail.
+test:- test_trie,fail.
+test:- writeln('--------------------'),fail.
+test:- test_trie_mod,fail.
+test:- writeln('--------------------'),fail.
+test:- test_xforms,fail.
+test:- writeln('--------------------'),fail.
+test:- test_tables,fail.
+test:- writeln('--------------------'),fail.
+test:- test_mod_no_export,fail.
+test.
+       
+test_dyn:- catch(load_dyn(bad_syntax),E,
+		 (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
+		  functor(T,F,_),
+		  %% compute line number and position in line, which should
+		  %% be the same independent of windows/unix line endings.
+		  M = EM-pos(PofE,Line0,PofL),
+		  Line is Line0+1, PinL is PofE-PofL,
+		  writeln(dyn_caught(F,EM-lpos(Line,PinL))))),
+	   fail.
+test_dyn.
+
+
+test_dync:- catch(load_dync(non_canon),E,
+		  (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
+		   writeln(dync_caught(T,M)))),fail.
+test_dync.
+%test_dync:- catch(load_dync(bad_syntax),E,
+%		  (xsb_error_get_message(E,M),xsb_error_get_tag(E,T),
+%		   writeln(dync_caught(T,M)))),fail.
+
+:- import smt_dync_mod/3 from kb_dync_mod.
+
+test_dync_mod_1:-
+    load_dync(kb_dync_mod),fail.
+test_dync_mod_1:-
+    findall(1,kb_dync_mod:smt_dync_mod(_,_,_),_L),length(_L,Len),
+    writeln(kb_dync_mod_mod_count(Len)),fail.
+test_dync_mod_1:-
+    findall(1,smt_dync_mod(_,_,_),_L),length(_L,Len),
+    writeln(kb_dync_mod_usermod_count(Len)),fail.
+test_dync_mod_1:-
+    current_index(smt_dync_mod(_S,_P,_O),Index),writeln(kb_dync_mod_index_usermod(Index)),fail.
+test_dync_mod_1:-
+    current_index(kb_dync_mod:smt_dync_mod(_S,_P,_O),Index),
+    writeln(kb_dync_mod_index_mod(Index)),fail.
+
+test_dync_mod_2:-
+    load_dyn_gen(kb_dync1,[ordering(a),canonical(yes),module(common_mod)]),fail.
+test_dync_mod_2:-
+    findall(1,common_mod:smt(_,_,_),_L),length(_L,Len),writeln(kb_dync1_count(Len)),fail.
+test_dync_mod_2:-
+    current_index(common_mod:smt(_S,_P,_O),Index),writeln(kb_dync1_index(Index)),fail.
+test_dync_mod_2:-
+    load_dyn_gen(kb_dync2,[ordering(a),canonical(yes),module(common_mod)]),fail.
+test_dync_mod_2:-
+    findall(1,common_mod:smt(_,_,_),_L),length(_L,Len),writeln(kb_dync2_count(Len)),fail.
+test_dync_mod_2:-
+    current_index(common_mod:smt(_S,_P,_O),Index),writeln(kb_dync2_index(Index)),fail.
+
+test_trie:-
+    load_dyn_gen(kb_trie,[]),fail.
+test_trie:-
+    findall(1,smt_trie(_,_,_),_L),length(_L,Len),writeln(kb_trie_count(Len)),fail.
+test_trie:-
+    current_index(smt_trie(_S,_P,_O),Index),writeln(kb_trie_index(Index)),fail.
+    
+test_trie_mod:-
+    load_dyn_gen(kb_trie_mod,[]),fail.
+test_trie_mod:-
+    findall(1,smt_trie_mod(_,_,_),_L),length(_L,Len),
+    writeln(kb_trie_mod_usermod_count(Len)),fail.
+test_trie_mod:-
+    findall(1,kb_trie_mod:smt_trie_mod(_,_,_),_L),length(_L,Len),
+    writeln(kb_trie_mod_mod_count(Len)),fail.
+test_trie_mod:-
+    current_index(smt_trie_mod(_S,_P,_O),Index),writeln(kb_trie_mod_index_usermod(Index)),fail.
+test_trie_mod:-
+    current_index(kb_trie_mod:smt_trie_mod(_S,_P,_O),Index),
+    writeln(kb_trie_mod_index_mod(Index)),fail.
+
+test_xforms:-
+    load_dyn(load_dyn_xform),
+    phrase(a,Rest),
+    writeln(dcg(Rest)),
+    fail.
+
+test_tables:-
+    load_dyn(load_dyn_tables),
+    lanc(a,X),writeln(lanc_1(a,X)),
+    fail.
+%test_tables:-
+%    load_dyn(load_dyn_tables),
+%    lanc(a,X),writeln(lanc_2(a,X)),
+%    fail.
+
+test_mod_no_export:-
+    load_dyn_gen(kb_no_export,[module(mod_no_export)]),
+    fail.
+test_mod_no_export:-
+    findall(1,mod_no_export:smt_no_export(_,_,_),_L),length(_L,Len),
+    writeln(kb_mod_no_export_mod_count(Len)),fail.
+test_mod_no_export:-
+    catch(smt_no_export(_,_,_),E,(xsb_error_get_tag(E,M),writeln(caught(M)))),fail.
+test_mod_no_export:-
+    current_index(mod_no_export:smt_no_export(_S,_P,_O),Index),
+    writeln(kb_mod_no_export_index_mod(Index)),
+    fail.
+    
+end_of_file.

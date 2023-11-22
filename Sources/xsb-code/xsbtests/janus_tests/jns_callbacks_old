@@ -1,0 +1,3 @@
+xp_unicode:unicode_upper: {'truth': True, 'return': 'Η GOOGLE ΜΟΥ ΤΟ ΜΕΤΈΦΡΑΣΕ'}
+jns_callbacks:test_json: {'truth': True, 'return': {'name': 'Bob', 'languages': ['English', 'Fench', 'GERMAN']}}
+jns_callbacks test_class: joe

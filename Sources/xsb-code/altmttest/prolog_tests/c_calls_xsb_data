@@ -1,0 +1,4 @@
+
+p(300, aaa, bbb).
+p(300, ccc, ddd).
+p(300,atom1,atom2).

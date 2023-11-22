@@ -1,0 +1,7 @@
+anc_1(1,2)
+anc_1(1,3)
+anc_2(1,2)
+anc_2(1,3)
+anc_2(1,4)
+trans_depends(anc(1,A),anc(1,B))
+trans_depends(anc(1,A),d(B,C))

@@ -1,0 +1,12 @@
+
+%% why is this necessary?
+%:- xsb_configuration(compiler, CC), consult(xeddis, [cc(CC)]).
+
+:- import min_ed_dis/3 from xeddis.
+
+test :- get_distance(X,Y,Z), writeln(distance(X,Y,Z)), fail.
+test.
+
+get_distance(frog,dog,X) :- min_ed_dis(frog,dog,X).
+get_distance(frog,antidisestablishmentarianism,X) :- 
+	min_ed_dis(frog,antidisestablishmentarianism,X).

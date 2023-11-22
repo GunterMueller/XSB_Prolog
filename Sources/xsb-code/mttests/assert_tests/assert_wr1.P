@@ -1,0 +1,15 @@
+
+% This tests only writing for assert.
+:- import for/3 from basics.
+
+%:- thread_shared p/2.
+:- index(p/2,trie).
+:- dynamic(p/2).
+
+test_assert_wr1(N,Str):-
+	for(X,1,N),
+	assert(p(Str,X)),
+	p(Str,X),
+	writeln(Str,X),
+	fail.
+test_assert_wr1(_,_Str).

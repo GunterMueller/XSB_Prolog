@@ -1,0 +1,15 @@
+p(100,aa,bb).
+p(300,first,second).
+p(400,wrong,one).
+p(300,third,fourth).
+p(X,Y,Z) :- 
+	see(c_calls_xsb_data),
+	repeat, 
+	writeln('Enter a term of the form p(300,atm1,atm2). (or end_of_file.)'),
+%%	write(': '),
+	read(T), 
+	(T=end_of_file
+	-> !, seen, fail
+	;  true
+	),
+	T=p(X,Y,Z).

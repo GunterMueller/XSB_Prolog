@@ -1,0 +1,50 @@
+
+:- import term_to_atom/2,term_to_atom/3 from string.
+
+test:- 
+	term_to_atom(_X,F),writeln(F),fail.
+
+test:- 
+	term_to_atom('$VAR'(_N),F),writeln(F),fail.
+test:- 
+	term_to_atom('$VAR'(_N),F,[numbervars(true)]),writeln(F),fail.
+
+test:- 
+	term_to_atom('$VAR'('Foo'),F),writeln(F),fail.
+test:- 
+	term_to_atom('$VAR'('Foo'),F,[numbervars(true)]),writeln(F),fail.
+
+test:- 
+	term_to_atom('$VAR'("Foo"),F),writeln(F),fail.
+test:- 
+	term_to_atom('$VAR'("Foo"),F,[numbervars(true)]),writeln(F),fail.
+
+test:- 
+        term_to_atom(p7(_A),Atom,[numbervars(true)]),writeln(Atom),fail.
+
+test:- 
+	term_to_atom('3cpio',F),writeln(F),fail.
+test:- 
+	term_to_atom('3cpio',F,[quoted(true)]),writeln(F),fail.
+
+test:- 
+	term_to_atom(f(a,1,'3cpio'),F),writeln(F),fail.
+test:- 
+	term_to_atom(f(a,1,'3cpio'),F,[quoted(true)]),writeln(F),fail.
+
+test:- 
+	term_to_atom(['3cpio',d(3)],F),writeln(F),fail.
+test:- 
+	term_to_atom(['3cpio',d(3)],F,[quoted(true)]),writeln(F),fail.
+
+test:- 
+	term_to_atom(f(a,1,['3cpio',d(3)]),F),writeln(F),fail.
+test:- 
+	term_to_atom(f(a,1,['3cpio',d(3)]),F,[quoted(true)]),writeln(F),fail.
+test:- 
+	term_to_atom(f(a,1,['3cpio',d(3)]),F,[ignore_ops(true)]),writeln(F),fail.
+test:- 
+	term_to_atom(f(a,1,['3cpio',d(3)]),F,[ignore_ops(true),quoted(true)]),writeln(F),fail.
+test:-  
+	term_to_atom(foo(),F),writeln(F),fail.
+test.

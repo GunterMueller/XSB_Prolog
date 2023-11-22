@@ -1,0 +1,4 @@
+++Caught abort: misc_error/++Error[XSB/Runtime/P]: [Miscellaneous] test
+++Caught consulting cprtelst.P: existence_error/++Error[XSB/Runtime/P]: [Existence (No file/module cprtelst.P exists)]  in arg 1 of predicate /(consult,1)
+++Caught explicit throw: unknown_error_type/++Error[XSB/Runtime] Unhandled Exception: my_error(abcde,mycontext(1))
+cvsreturn 310.0|7.0|2.0

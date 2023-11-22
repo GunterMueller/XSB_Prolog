@@ -1,0 +1,145 @@
+:- import range_call/4, range_assert/3, print_rt/1, range_retractall/4
+	from range_trees.
+:- import for/3 from basics.
+:- import parsort/4 from machine.
+
+p(K,V1,V2) :- range_call(p_base(K,_,_),[1],[2,3],[V1,V2]).
+assert_p(K,V1,V2) :- range_assert(p_base(K,V1,V2),[1],[2,3]).
+retractall_p(K,V1,V2) :- range_retractall(p_base(K,_,_),[1],[2,3],[V1,V2]).
+
+add_vals :-
+	(do_all
+	 for(I,1,60),
+	 J is I+10,
+	 K is I+I,
+	 assert_p(I,J,K)
+	).
+
+test :- add_vals, fail.
+test :-
+	findall(p(K,X,Y),p(K,X:[15,28],Y),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),X@>=15,X@=<28),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_1) ; true),
+	(RAll == BAll
+	 ->	writeln('test1 succeeded')
+	 ;	writeln('test1 failed '(RAll,BAll))
+	),
+	fail.
+test :- 
+	findall(p(K,X,Y),p(K,X,Y:[15,28]),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),Y@>=15,Y@=<28),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_2) ; true),
+	(RAll == BAll
+	 ->	writeln('test2 succeeded')
+	 ;	writeln('test2 failed '(RAll,BAll))
+	),
+	fail.
+test :- retractall_p(_,_:[24,35],_),fail.
+test :- (p(K,X,Y),X@>=24,X@=<35
+	 ->	writeln('test3 failed '(K,X,Y))
+	 ;	writeln('test3 succeeded')
+	),
+	fail.
+test :- (p_base(K,X,Y),X@>=24,X@=<35
+	 ->	writeln('test4 failed '(K,X,Y))
+	 ;	writeln('test4 succeeded')
+	),
+	fail.
+test :- (p(K,X:[24,35],Y)
+	 ->	writeln('test5 failed '(K,X,Y))
+	 ;	writeln('test5 succeeded')
+	),
+	fail.
+test :-
+	findall(p(K,X,Y),p(K,X:[10,40],Y),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),X@>=10,X@=<40),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_6) ; true),
+	(RAll == BAll
+	 ->	writeln('test6 succeeded')
+	 ;	writeln('test6 failed '(RAll,BAll))
+	),
+	fail.
+test :- retractall_p(_,_,_:[60,80]),fail.
+test :- (p(K,X,Y),Y@>=60,Y@=<80
+	 ->	writeln('test7 failed '(K,X,Y))
+	 ;	writeln('test7 succeeded')
+	),
+	fail.
+test :- (p_base(K,X,Y),Y@>=60,Y@=<80
+	 ->	writeln('test8 failed '(K,X,Y))
+	 ;	writeln('test8 succeeded')
+	),
+	fail.
+test :- (p(K,X,Y:[60,80])
+	 ->	writeln('test9 failed '(K,X,Y))
+	 ;	writeln('test9 succeeded')
+	),
+	fail.
+test :-
+	findall(p(K,X,Y),p(K,X,Y:[20,85]),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),Y@>=20,Y@=<85),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_10) ; true),
+	(RAll == BAll
+	 ->	writeln('test10 succeeded')
+	 ;	writeln('test10 failed '(RAll,BAll))
+	),
+	fail.
+%%test :- nl,writeln('Range Index on Arg 2:'),print2,fail.
+%%test :- nl,writeln('Range Index on Arg 3:'),print3,fail.
+test :-
+	for(I,60,100),
+	J is I-41,
+	K is I div 3,
+	assert_p(I,J,K),
+	fail.
+test :-
+	findall(p(K,X,Y),p(K,X:[10,50],Y),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),X@>=10,X@=<50),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_11) ; true),
+	(RAll == BAll
+	 ->	writeln('test11 succeeded')
+	 ;	writeln('test11 failed '(RAll,BAll))
+	),
+	fail.
+test :- 
+	findall(p(K,X,Y),p(K,X,Y:[10,60]),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),Y@>=10,Y@=<60),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_12) ; true),
+	(RAll == BAll
+	 ->	writeln('test12 succeeded')
+	 ;	writeln('test12 failed '(RAll,BAll))
+	),
+	fail.
+test :- 
+	findall(p(K,X,Y),p(K,X:[15,31],Y:[20,45]),RAll0),
+	parsort(RAll0,asc,0,RAll),
+	findall(p(K,X,Y),(p_base(K,X,Y),X@>=15,X@=<31,Y@>=20,Y@=<45),BAll0),
+	parsort(BAll0,asc,0,BAll),
+	(RAll == [] -> writeln(bad_test_13) ; true),
+	(RAll == BAll
+	 ->	writeln('test13 succeeded')
+	 ;	writeln('test13 failed '(RAll,BAll))
+	),
+	fail.
+
+
+%%test :- nl,writeln('Range Index on Arg 2:'),print2,fail.
+%%test :- nl,writeln('Range Index on Arg 3:'),print3,fail.
+
+
+print1 :- print_rt('p_base#3#1').
+print2 :- print_rt('p_base#3#2').
+print3 :- print_rt('p_base#3#3').
+

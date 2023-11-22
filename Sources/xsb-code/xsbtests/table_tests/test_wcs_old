@@ -1,0 +1,43 @@
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+-----------------------
+answer(t1(A),t1(B),[l3_undef])
+answer(t1(A),t1(B),[t1(B)])
+answer(t1(A),t1(a),[l3_undef])
+answer(t1(A),t1(a),[t1(a)])
+answer(t1(a),t1(a),[l3_undef])
+answer(t1(a),t1(a),[t1(a)])
+answer(t2(A),t2(a),[l3_undef])
+answer(t2(A),t2(a),[t2(a)])
+answer(t3(A),t3(B),[l3_undef,l3_undef])
+answer(t3(A),t3(B),[l3_undef,t3(B)])
+answer(t3(A),t3(B),[t3(B),l3_undef])
+answer(t3(A),t3(B),[t3(B),t3(B)])
+answer(t3(A),t3(a),[l3_undef,l3_undef])
+answer(t3(A),t3(a),[l3_undef,t3(a)])
+answer(t3(A),t3(a),[t3(a),l3_undef])
+answer(t3(a),t3(a),[l3_undef,l3_undef])
+answer(t3(a),t3(a),[l3_undef,t3(a)])
+answer(t3(a),t3(a),[t3(a),l3_undef])
+answer(t4(A),t4(B),[l3_undef,tnot t4(C)])
+answer(t4(A),t4(B),[t4(B),tnot t4(C)])
+answer(t4(a),t4(a),[l3_undef,tnot t4(A)])
+answer(t4(a),t4(a),[l3_undef,tnot t4(a)])
+answer(t4(a),t4(a),[t4(a),tnot t4(A)])
+answer(t4(a),t4(a),[t4(a),tnot t4(a)])
+answer(t5(a),t5(a),[l3_undef,tnot t5(a),l3_undef])
+answer(t5(a),t5(a),[l3_undef,tnot t5(a),t5(a)])
+answer(t5(a),t5(a),[t5(a),tnot t5(a),l3_undef])
+answer(t6(A),t6(B),[l3_undef])
+answer(t6(A),t6(B),[t6(B)])
+answer(t6(A),t6(a),[])
+answer(t6(A),t6(a),[])
+answer(t6(A),t6(a),[l3_undef])
+answer(t6(A),t6(a),[t6(a)])

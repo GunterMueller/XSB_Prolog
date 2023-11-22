@@ -1,0 +1,43 @@
+/*
+Simple interface to pyspellchecker, a basic but sometimes useful spell
+checker and corrector based on dictionaries and a minimum edit
+distance search.
+
+At some point, I may extend this so that it works with a local
+dictionary instead of, or in addition to the english dictionary.  This
+can be useful for geo names.
+*/
+
+:- export sp_correct_list/3, sp_correct/2, sp_known/1.
+
+:- init.
+:- dynamic speller/1.
+:- ensure_loaded(xsbpy).
+:- import pyfunc/3,pydot/4 from xsbpy.
+
+init:-
+     retractall(speller(_)),
+     pyfunc(spellchecker,'SpellChecker'(),SCObj),
+     assert(speller(SCObj)).
+
+sp_correct_list([],[],[]).
+sp_correct_list([Word|R],[NewWord|NR],CorrIn):-
+    sp_correct(Word,NewWord),
+    (Word = NewWord -> CorrMid = CorrIn ; CorrIn = [Word|CorrMid]),
+    sp_correct_list(R,NR,CorrMid).
+
+sp_correct(Word,NewWord):- 
+    (sp_known(Word) ->
+	 NewWord = Word
+     ;   pydot_alt(spellchecker,speller(_),correction(Word),NewWord)).
+
+sp_known(Word):-     
+    pydot_alt(spellchecker,speller(_),known([Word]),Known),
+    Known = pySet([Word]).
+
+% fiddling around  with a different pydot.
+pydot_alt(Module,GetObj,Goal,Return):-
+    call(GetObj),
+    arg(1,GetObj,Obj),
+    pydot(Module,Obj,Goal,Return).
+    

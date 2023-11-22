@@ -1,0 +1,34 @@
+
+:- import storage_insert_keypair/4, storage_find_keypair/3, storage_delete_all/1 
+   from storage.
+
+test_storage(N,Str):- 
+	storage(N),
+%	writeln(storage(N)),
+	storage_delete_all(foo),
+%	writeln(delete(N)),
+	storage(N),
+%	writeln(storage(N)),
+	find(N,Str),
+%	writeln(interned(N,Str)),
+	flush_output(Str).
+%	flush_output.
+
+storage(0):- !.
+storage(N):- 
+	storage_insert_keypair(foo,a(N), b(N), _Inserted),
+%	writeln(b(N)),
+	N1 is N - 1,
+	storage(N1).
+
+find(0,_):- !.
+find(N,Str):- 
+	storage_find_keypair(foo,a(N),Value),
+	writeln(Str,found(a(N),Value)),
+%	writeln(found(a(N),Value)),
+	N1 is N - 1,
+	find(N1,Str).
+
+test:- 
+	thread_create(test_storage(10000,Str)),	thread_create(test_storage(10000,Str)),
+	thread_create(test_storage(10000,Str)),	thread_create(test_storage(10000,Str)).

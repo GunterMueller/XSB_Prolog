@@ -1,0 +1,8 @@
+dummy memory_error(test_1)
+dummy memory_error(test_2)
+dummy memory_error(test_heap)
+dummy memory_error(test_tcp)
+skipping max memory_suspend(test_1)
+skipping max memory_suspend(test_2)
+skipping max memory_suspend(test_heap)
+skipping max memory_suspend(test_tcp)

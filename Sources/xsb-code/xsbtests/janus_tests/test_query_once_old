@@ -1,0 +1,15 @@
+am: {'X': 1, 'truth': True}
+bind_test: {'A': 'foo', 'B': 1, 'C': 3.14, 'D': ['foo', 1, 3.14], 'E': ('t1', 't2'), 'F': {'foo': 'bar', 'bar': 'baz'}, 'G': {1, 2, 3}, 'truth': True}
+one_ary_fail: {'truth': False}
+am input input dict: {'Y': 1, 'truth': True}
+am input empty dict: {'Y': 1, 'truth': True}
+one_ary_undef: {'X': 'b', 'truth': Undefined}
+am-ntv: {'X': 1}
+bind_test-ntv: {'A': 'foo', 'B': 1, 'C': 3.14, 'D': ['foo', 1, 3.14], 'E': ('t1', 't2'), 'F': {'foo': 'bar', 'bar': 'baz'}, 'G': {1, 2, 3}}
+one_ary_fail-ntv: None
+am input input dict-ntv: {'Y': 1}
+am input empty dict-ntv: {'Y': 1}
+one_ary_undef-ntv: {'X': 'b'}
+one_ary_undef-dl: {'DelayList': ['zero_ary_undef'], 'X': 'b'}
+am input empty dict-dl: {'DelayList': [], 'Y': 3}
+am input empty dict-dl: {'DelayList': [('plgTerm', 'win', ('plgTerm', ',', 'a', ('plgTerm', ',', 'b', 'c')))]}

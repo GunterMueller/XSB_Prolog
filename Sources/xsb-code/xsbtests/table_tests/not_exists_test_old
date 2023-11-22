@@ -1,0 +1,7 @@
+caught(mne(testvar),type_error(callable_term,7))
+caught(mne(testvar),type_error(callable_term,A))
+passed(not_exists_test_mod : mod_i(foo))
+passed(not_exists_test_mod : mod_ni(foo))
+passed((p(A),q(A)))
+passed(tabi(foo))
+passed(tni(foo))

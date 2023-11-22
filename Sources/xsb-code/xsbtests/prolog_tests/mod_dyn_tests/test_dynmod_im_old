@@ -1,0 +1,8 @@
+Testing dynamic mod imp: modp >> modp_file : p2(A,B)
+Testing dynamic mod imp: modp_file : p1(A,B)
+Testing dynamic mod imp: modp_filec : p3(A,B)
+Testing dynamic mod imp: modpc >> modp_filec : p4(A,B)
+modp >> modp_file : [p2(a,b),p2(b,c),p2(1,2),p2(2,3)]
+modp_file : [p1(a,b),p1(b,c),p1(1,2),p1(2,3)]
+modp_filec : [p3(7,8),p3(5,6),p3(b,e),p3(a,d)]
+modpc >> modp_filec : [p4(7,8),p4(5,6),p4(b,e),p4(a,d)]

@@ -1,0 +1,37 @@
+\section{Scheduling Fixpoint in Completion (D.S.Warren 9 July 2019)} \label{sec:fixpoint}
+
+During completion of a nontrivial component, XSB calls find\_fixpoint,
+defined in emu/schedrev\_xsb\_i.h, to schedule all pending answers to
+all goals in the component, i.e., those from completion stack frames
+between the leader and the top of the stack.  The previous algorithm
+simply scanned all the completion frames in the component to find
+pending answers to schedule.  However, if the component is large (and
+the number of pending answers is small) this is costly.  For some
+propositional programs, it can make evaluation quadratic in the size
+of the program.
+
+I have modified this code to make the cost proportional to the number
+of answers to be scheduled.  The idea is simply to keep a list of all
+completion frames which have answers.  This list is anchored in a
+global variable, fp\_sched\_list.  Every link is tagged (with
+in\_fp\_sched\_tag) so that, when an answer is returned at a frame, it
+is known whether that frame has already been added to the
+fp\_sched\_list.  Completion frames are added to this list when a new
+answer is found in new\_answer\_dealloc (defined in
+slginsts\_xsb\_i.h).  This list is scanned in find\_fixpoint to find
+answers to schedule.  Because of local scheduling, answers for the top
+component are at the beginning of the list, so when a frame is
+encountered that is not in the top component, scheduling can stop
+since it is known that all frames in the top component have already
+been encountered and processed.
+
+This algorithm works for local scheduling since it depends on the order
+of answers generated in that answers from the component must be
+generated before answers outside of the component.  Without this
+assumption the list of completion frames that must be scanned includes
+those outside the component and this may re-introduce redundant
+scanning and (I believe) the possibility of nonlinear behavior on
+propositional programs.  To handle that situation, one might want to
+order the items on the scheduling list using a priority queue or
+something similar.
+

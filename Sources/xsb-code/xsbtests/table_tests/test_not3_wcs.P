@@ -1,0 +1,40 @@
+%:- import start_forest_view/1 from tables.
+%?- start_forest_view(userout).
+
+:- set_prolog_flag(alt_semantics,weak_cs).
+:- import not3/1,truth_value/2 from tables.
+
+test:- truth_value(pu,V),writeln(tv(pu,V)),fail.
+test:- truth_value(pf1,V),writeln(tv(pf1,V)),fail.
+test:- truth_value(pf2,V),writeln(tv(pf2,V)),fail.
+test:- truth_value(pt,V),writeln(tv(pt,V)),fail.
+test:- truth_value(tu,V),writeln(tv(tu,V)),fail.
+test:- truth_value(tf,V),writeln(tv(tf,V)),fail.
+test:- truth_value(tt,V),writeln(tv(tt,V)),fail.
+test.
+
+pu:- qu,not3(ru).
+pf1:- qf.
+pf2:- not3(rt).
+pt:- not3(qf).
+
+r1:- write(first).
+r1:- write(second).
+
+rt:- u.
+rt.
+
+qf:- fail.
+
+:- table tu/0,tt/0,tf/0.
+
+test_tu:- not3(tu).
+test_tt:- not3(tf).
+test_tf:- not3(tt).
+
+tu:- undefined.
+tt.
+tf:- fail.
+
+
+

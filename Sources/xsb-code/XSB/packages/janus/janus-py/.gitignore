@@ -1,0 +1,12 @@
+*.xwam
+\#*
+*~
+*dylib*
+*sav
+*.log
+*.so
+*.dll
+build
+attic
+dist
+janus.egg-info

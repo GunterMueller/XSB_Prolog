@@ -1,0 +1,98 @@
+| ?- | ?- 
+py_func(test_janus_plg,sumlist3(5,[1,2,3]),[6,7,8]) succeeded.
+py_func(builtins,float(+1E6),1000000.0) succeeded.
+(should error) py_func set:  In Prolog to Python translation of dictionary/1
+py_func(test_janus_plg,return_empty_dict(),{}()) succeeded.
+py_func(test_janus_plg,return_empty_set(),py_set([])) succeeded.
+py_func(test_janus_plg,my_generation(5),pyObj,[py_object(true)]) succeeded.
+py_func(test_janus_plg,my_generation(5),[1,2,3,4],[iter(true)]) succeeded.
+py_func(builtins,range(1,5),[1,2,3,4],[iter(true)]) succeeded.
+(should error) py_func check_var top level: [All arguments of the Python goal ,returnVal($VAR(0)), in ,/(py_func,2), must be nonvar.]
+(should error) py_func check_var in term:  ++Error[janus]: argument 1 of returnVal/1 could not be translated to python(arg 2 of py_func/[3,4,5])
+py_func(builtins,float(+1E6),1000000.0,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal(1234),1234,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal(foobar),foobar,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal(@(true)),@(true),[py_object(true)]) succeeded.
+py_func(builtins,float(+1E6),1000000.0,[py_object(true)]) succeeded.
+py_func(builtins,set([a,b,c,d]),pyObj,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal([1,2,3,4]),pyObj,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal(-(1,2,3,4)),pyObj,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal({}(,(:(1,2),:(3,4)))),pyObj,[py_object(true)]) succeeded.
+py_func(test_janus_plg,returnVal([1,2,3,4]),pyObj,[py_object(true)]) succeeded.
+succeeded(py_func(test_janus_plg,returnVal(pyobj),[1,2,3,4]))
+py_dot(pyObj,returnVal([1,2,3,4]),pyObj,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal(py_set([1,2,3,4])),pyObj,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal(-(1,2,3,4)),pyObj,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal({}(,(:(1,2),:(3,4)))),pyObj,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal(42),42,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal(3.14),3.14,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal(mystring),mystring,[py_object(true)]) succeeded.
+py_dot(pyObj,returnVal_kwargs([1,2,3,4],=(bar,1),=(baz,2)),[[1,2,3,4],-(baz,2),-(bar,1)]) succeeded.
+py_dot(pyObj,returnVal_kwargs7(a,b,c,d,e,f,g,=(bar,1),=(baz,2)),[[a,b,c,d,e,f,g],-(baz,2),-(bar,1)]) succeeded.
+int conversion tests successful
+float conversion tests successful
+string conversion tests successful
+list conversion tests successful
+py_func(test_janus_plg,returnSet(),[1,hello,-(a,b,7)]) succeeded.
+set conversion tests successful
+tuple conversion tests successful
+dict conversion tests successful
+py_func(test_janus_plg,return_None(),@(none)) succeeded.
+py_func(test_janus_plg,return_True(),@(true)) succeeded.
+py_func(test_janus_plg,return_False(),@(false)) succeeded.
+int conversion_sizecheck tests successful
+float conversion_sizecheck tests successful
+string conversion_sizecheck tests successful
+list conversion_sizecheck tests successful
+set conversion_sizecheck tests successful
+tuple conversion_sizecheck tests successful
+dict conversion_sizecheck tests successful
+json_loads_test successful
+json_2({glossary : {(title : example glossary,GlossDiv : {(title : S,GlossList : {GlossEntry : {(ID : SGML,SortAs : SGML,GlossTerm : Standard Generalized Markup Language,Acronym : SGML,Abbrev : ISO 8879:1986,GlossDef : {(para : A meta-markup language, used to create markup languages such as DocBook.,GlossSeeAlso : [GML,XML])},GlossSee : markup)}})})}})
+py_func(test_janus_plg,kwargs_append(foo,=(bar,1),=(baz,2)),[foo,-(baz,2),-(bar,1)]) succeeded.
+error_test_succeeded((no_module,foo(1)))
+existence_error(Python module function,foo(1))
+error_test_succeeded((test_err,raise_err_1()))
+Should error: (unhashable set elt) type_error(hashable term,{}(:(a,b)))
+Should error: (unhashable dict key) type_error(hashable term,[1,2,3])
+Should error: (unhashable dict key) type_error(hashable term,:([1,2,3],q))
+py_func(Person,Person(john,35),pyObj) succeeded.
+py_dot(pyObj,func0(),Hello my name is john) succeeded.
+py_dot(pyObj,func1(doofus),Hello my name is john and I'm a doofus) succeeded.
+py_dot(pyObj,favorite_ice_cream,chocolate) succeeded.
+py_dot(pyObj,func2(real,doofus),Hello my name is john and I'm a real doofus) succeeded.
+py_dot(pyObj,func3(real,big,doofus),Hello my name is john and I'm a real big doofus) succeeded.
+py_call(pyObj,func3(eager,janus,programmer),Hello my name is john and I'm a eager janus programmer) succeeded.
+py_dot(sys,flags,-(0,0,0,0,0,0,0,0,0,0,0,1,0,@(false),0,0,@(false),-1)) succeeded.
+py_dot(sys,exc_info(),-(@(none),@(none),@(none))) succeeded.
+dict({(name : mary,age : 34,favorite_ice_cream : chocolate)})
+dir([name,age,favorite_ice_cream,__module__,__init__,func0,func1,func2,func3,func4,__dict__,__weakref__,__doc__,__new__,__repr__,__hash__,__str__,__getattribute__,__setattr__,__delattr__,__lt__,__le__,__eq__,__ne__,__gt__,__ge__,__reduce_ex__,__reduce__,__getstate__,__subclasshook__,__init_subclass__,__format__,__sizeof__,__dir__,__class__])
+personErr1 (should err)(type_error(Python module or object,1))
+personErr2 (should err)(type_error(callable_term,1))
+caught error for path.append(Dir)
+caught error for path.append(Dir,Dor)
+caught error for path.append(Dir,Dor,Dur)
+variadic tests succeeded
+pyc_tests successful
+py_iter(test_janus_plg,makelist(),[1,2,3,4]) succeeded.
+py_iter(test_janus_plg,squares(1,5),[1,4,9,16]) succeeded.
+py_iter(builtins,range(1,6),[1,2,3,4,5]) succeeded.
+py_iter(test_janus_plg,kwargs_append(foo,=(bar,1),=(baz,2)),[foo,-(bar,1),-(baz,2)]) succeeded.
+py_iter(test_janus_plg,my_generation(5),[1,2,3,4]) succeeded.
+py_func(range,demo_yield(),[0,1,2,3,4,5,6,7,8,9],[iter(true)]) succeeded.
+py_func(range,demo_comp(),[0,1,2,3,4,5,6,7,8,9],[iter(true)]) succeeded.
+py_func(range,demo_set(),py_set([0,1,2,3,4,5,6,7,8,9]),[iter(true)]) succeeded.
+py_iter(range,demo_yield(),[0,1,2,3,4,5,6,7,8,9]) succeeded.
+py_iter(range,demo_comp(),[0,1,2,3,4,5,6,7,8,9]) succeeded.
+py_iter(range,demo_set(),[0,1,2,3,4,5,6,7,8,9]) succeeded.
+setof(var,,(py_func(range,demo_yield(),pyObj),py_iter(pyObj,var)),[0,1,2,3,4,5,6,7,8,9]) succeeded
+py_iter(range,demo_num(),ret) succeeded
+demo set existence_error(predicate,:(usermod,/(py_obj_py_iter,2))) (should error)
+existence_error(predicate,:(usermod,/(py_obj_py_iter,2))) (should error)
+py_func(retVal([1,2,3,4]),F,[py_object(true)]),py_iter(F,H) succeeded
+py_func(retVal(-(1,2,3,4)),F,[py_object(true)]),py_iter(F,H) succeeded
+py_func(retVal(py_set(1,2,3,4)),F,[py_object(true)]),py_iter(F,H) succeeded
+py_func(range(1,4)),F,[py_object(true)]),py_iter(F,H) succeeded
+py_func(range(1,4)),F),py_iter(F,H) succeeded
+py_func(builtins,range(1,4),[1,2,3],[iter(true)]) succeeded.
+collect(0)

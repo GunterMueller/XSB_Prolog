@@ -1,0 +1,7 @@
+:- encoding(latin_1).
+:- set_prolog_flag(character_set,latin_1).
+
+test:- 
+       compile(test_ascii_readwrite_1),
+       ensure_loaded(test_ascii_readwrite_1),
+       test_sub.

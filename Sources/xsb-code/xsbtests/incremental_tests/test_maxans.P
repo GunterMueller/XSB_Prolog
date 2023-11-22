@@ -1,0 +1,59 @@
+% restraint works for incr
+% updates work for incr *under* the barrier
+:- import start_forest_view/1 from tables.
+
+:- import numbervars/1 from num_vars.
+:- import incr_assert/1,incr_retract/1 from increval.
+
+?- set_prolog_flag(max_answers_for_subgoal,2).
+?- set_prolog_flag(max_answers_for_subgoal_action,complete_soundly).
+%?- start_forest_view(userout).
+
+test:- test(t_1(_X)),fail.
+test:- test(i_0(_X)),fail.
+test:- test_upd1,fail.
+test:- test_upd2,fail.
+test.
+
+:- table t_1/1, t_2/2.
+t_1(X):- p(X).
+t_2(X,_Y):- p(X).
+
+p(1).
+p(2).
+p(3).
+%p(4).
+
+:- table i_0/1 as incremental.
+i_0(X):- p_1(X).
+
+:- table i_1/1 as incremental.
+i_1(X):- p_1(X).
+
+:- dynamic p_1/1 as incremental.
+p_1(1).    p_1(2).  p_1(3). p_1(a).
+
+:- table i_2/1 as incremental.
+i_2(X):- p_2(X).
+
+:- dynamic p_2/1 as incremental.
+p_2(1).    p_2(2).  
+
+% regenerates empty answer
+test_upd1:- test(i_1(_X)),fail.
+test_upd1:-  incr_assert(p_1(4)),writeln('-------------- asserting p_1(4)'),fail.
+test_upd1:- test(i_1(_X)),fail.
+test_upd1:-  incr_retract(p_1(1)),writeln('-------------- retracting p_1(1)'),fail.
+test_upd1:- test(i_1(_X)),fail.
+
+% generates empty answer on update
+test_upd2:- test(i_2(_X)),fail.
+test_upd2:-  incr_assert(p_2(3)),writeln('-------------- asserting p_2(3)'),fail.
+test_upd2:- test(i_2(_X)),fail.
+test_upd2:-  incr_retract(p_2(3)),writeln('-------------- retracing p_2(3)'),fail.
+test_upd2:- test(i_2(_X)),fail.
+
+
+test(Call):- call(Call),fail.
+test(Call):- get_residual(Call,R),numbervars((Call,R)),writeln((Call,R)),fail.
+test(_).

@@ -1,0 +1,24 @@
+:- import shell/1 from shell.
+:- import numbervars/1 from num_vars.
+
+
+test(Str):- 
+	writeln(compiling(Str)),
+	compile(unsafe1_program),
+	writeln(compiled(Str)),
+	consult(unsafe1_program),fail.
+test(Str) :-
+	p(X,Y), numbervars([X,Y]), writeln(Str,p(X,Y)),fail.
+test(_).
+
+/********
+p(X1, X2) :-
+        p1(Y1, Y2), s(X1, X2, Y1, Y2).
+
+p1(X, X).
+
+s(X, X, [], X).
+s([X], X, [], X).
+s([X], X, [_], X).
+
+*/

@@ -1,0 +1,71 @@
+
+:- import thread_create/3, thread_join/2, thread_join/1 from thread.
+:- import thread_create/2, thread_self/1, thread_join/2 from thread.
+
+
+test:- test_errors.
+
+test_errors:- test1i, test1ia, test1t, test2t, test3i, 
+	      test3ia, test3ib, test3t, test3d, test3ta,
+	      ts_alias(sam),ts_alias(pam),test_multi_alias,teste,
+	      test_alias_join,test_join_error_1.
+
+test1i:- catch(thread_create(_X,_Y),
+	       error(instantiation_error,_,_),
+	       writeln(caught_instantiation_error_1i)).
+test1ia:- catch(thread_create(_X,_Y),
+	       error(instantiation_error,_,_),
+	       writeln(caught_instantiation_error_1ia)).
+test1t:- catch(thread_create(7,_Y),
+	       error(type_error(Type,Culprit),_,_),
+	       writeln(caught_type_error_it(Type,Culprit))).
+test2t:- catch(thread_create(foo,8),
+	       error(type_error(Type,Culprit),_,_),
+	       writeln(caught_type_error_2t(Type,Culprit))).
+test3i:- catch(thread_create(writeln(hello),_Y,[_D]),
+	       error(instantiation_error,_,_),
+	       writeln(caught_instantiation_error_3i)).
+test3ia:- catch(thread_create(writeln(hello),_Y,[glsize(40),_D]),
+	       error(instantiation_error,_,_),
+	       writeln(caught_instantiation_error_3ia)).
+test3ib:- catch(thread_create(writeln(hello),_Y,_Z),
+	       error(instantiation_error,_,_),
+	       writeln(caught_instantiation_error_3ib)).
+test3t:- catch(thread_create(writeln(hello),_D,alias(foo)),
+	       error(type_error(Type,Culprit),_,_),
+	       writeln(caught_type_error_3t(Type,Culprit))).
+test3d:- catch(thread_create(writeln(hello),_D,[foo]),
+	       error(domain_error(Type,Culprit),_,_),
+	       writeln(caught_domain_error_3d(Type,Culprit))).
+test3ta:- catch(thread_create(writeln(hello),_D,[alias(3.2)]),
+	       error(type_error(Type,Culprit),_,_),
+	       writeln(caught_type_error_3a(Type,Culprit))).
+
+ts_alias(A):- 
+	thread_create(ts_alias_1,F,[alias(A)]),thread_join(F).
+
+ts_alias_1:- 
+	thread_self(sam) -> 
+	    writeln(sam_i_am)
+	  ; writeln(sam_i_aint).
+
+:- import get_alias/3 from file_io.
+
+test_multi_alias:- 
+	thread_create(true,Tid,[alias(foo3),alias(foo4)]),
+	(get_alias(F,G,H),writeln(alias(F,G,H)),fail ; true),
+	thread_join(Tid,_).
+
+test_alias_join:- 
+	thread_create(true,_Tid,[alias(foo)]),
+	thread_join(foo,_),
+	writeln(joined_on_alias).
+
+teste:- catch((thread_create(true,D,[detached(true)]),
+	       thread_join(D,_)),
+	       error(_E,_,_),
+	       writeln(caught_permission_existence_error)).
+
+test_join_error_1:- catch(thread_join(f(1),_G),
+	                error(domain_error(Type,Culprit),_,_),
+	                writeln(caught_domain_error_join1(Type,Culprit))).

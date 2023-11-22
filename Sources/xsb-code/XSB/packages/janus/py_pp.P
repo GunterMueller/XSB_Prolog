@@ -1,0 +1,94 @@
+
+:- export py_pp/1,py_pp/2,py_pp/3.
+:- import py_func/3 from janus.
+:- compiler_options([spec_off,xpp_on]).
+#include "janus_defs.h"
+
+:- import syntax_error/1 from error_handler.
+
+% Switching arguments to support stream in first arg.
+py_pp(Str,Term,[]):- !,
+    py_func( pprint,pformat(Term) ,String ),writeln(Str,String).
+py_pp(Str,Term,[prolog_pp(true)]):- !,
+    py_pp_inner(Term,Str,0).
+py_pp(_Str,_Term,Options):- !,
+    abort(['improper options in third argument of py_pp/3: ',Options]).
+
+py_pp(Str,Term):- py_pp_inner(Str,Term,[]).
+
+py_pp(Term):- py_pp(userout,Term,[]),!.
+
+%--------------------
+
+py_pp_inner({Dict},Str,N):- !,
+    pp_dict(Dict,Str,N).
+py_pp_inner([H|T],Str,N):- !,
+    pp_list([H|T],Str,N).
+py_pp_inner(PYSET_PROLOG(List),Str,N):- !,
+    pp_set(List,Str,N).
+py_pp_inner(Term,Str,N):-
+    functor(Term,PYTUP_PROLOG,_),!,
+    pp_tuple(Term,Str,N).
+py_pp_inner(Term,Str,N):-
+    pp_elt(Term,Str,N),!.
+
+pp_dict(List,Str,N):-
+    %    tab(Str,N),write(PYDICT_PROLOG('),nl(Str),
+    tab(Str,N),write(Str,'{'),nl(Str),
+    N1 is N + 2,
+    pp_dict1(List,Str,N1),
+    tab(Str,N),writeln(Str,'}').
+
+pp_dict1( K:V,_Str,N):- 
+    tab(Str,N),write(Str,K),write(Str,': '),
+    atom_length(K,Kl),                % need to handle tuples as keys.
+    % writeln(atom_length(K,Kl)),
+    ((compound(V),V \= @(_)) ->
+	 N1 is N + Kl + 1,nl(Str),py_pp_inner(V,Str,N1)
+     ; N1 is Kl + 1, pp_elt(V,Str,0) ).
+pp_dict1(','( :(K,V),T),Str,N):- !,
+    tab(Str,N),write(Str,K),write(Str,': '),
+    atom_length(K,Kl), % need to handle tuples as keys.
+    % writeln(atom_length(K,Kl)),
+    ((compound(V),V \= @(_)) ->
+	 N1 is N + Kl + 1,nl(Str),py_pp_inner(V,Str,N1)
+       ; N1 is Kl + 1, pp_elt(V,Str,0) ),
+    pp_dict1(T,Str,N).
+%pp_dict1([(K,V)|_T],_Str,_N):- !,
+%    syntax_error(['Comma-list (\',\'/2) (',K,',',V,
+%		  ') encountered as a dictionary value instead of \'\'/2.']).
+pp_dict1([H|_T],_Str,_N):- 
+    syntax_error(['Encountered non-dictionary value: ',H]).
+    
+pp_list([],_Str,_).
+pp_list([H|T],Str,N):-
+    tab(Str,N),writeln(Str,'['),
+    N1 is N + 1,
+    pp_seq([H|T],Str,N1),
+    tab(Str,N),write(Str,']'),nl(Str).
+
+pp_tuple(Term,Str,N):-
+    Term =.. [PYTUP_PROLOG|L],
+    tab(Str,N),writeln(Str,'('),
+    N1 is N + 1,
+    pp_seq(L,Str,N1),
+    tab(Str,N),write(Str,')'),nl(Str).
+
+pp_set(List,Str,N):-
+    write(Str,'py_set('),nl(Str),
+%    N1 is N + 11,
+    N1 is N + 1,
+    pp_seq(List,Str,N1),
+    tab(Str,N),write(Str,')'),nl(Str).
+
+pp_seq([],_Str,_).
+pp_seq([H|T],Str,N):-
+    py_pp_inner(H,Str,N),
+    pp_seq(T,Str,N).
+
+pp_elt(@(Atom),_Str,N):- !,tab(Str,N),writeln(Str,@(Atom)).
+pp_elt(Term,_Str,_N):-
+    compound(Term),!,
+    syntax_error(['The term ',Term,' cannot occur in a term form of a Python data structure.']).
+pp_elt(Term,Str,N):- tab(Str,N),writeln(Str,Term).
+

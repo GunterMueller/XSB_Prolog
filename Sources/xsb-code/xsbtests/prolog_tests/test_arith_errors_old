@@ -1,0 +1,43 @@
+==========================================================================================
+==========================================================================================
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+------------
+atan_instantiation_error
+atom_error(type_error(evaluable,aaa))
+bitneg_error(instantiation_error)
+bitneg_error(type_error(evaluable,foo),context( In evaluable function (Goal: '\'(foo)),NULL))
+bitneg_error(type_error(integer,1.618),context( In evaluable function (Goal: '\'(1.618)),NULL))
+error(type_error(evaluable,a),context( Wrong type in evaluable function '><'/2: (Goal: '><'(1,a)),NULL))
+error(type_error(evaluable,a),context( Wrong type in evaluable function '><'/2: (Goal: '><'(a,1)),NULL))
+error(type_error(evaluable,foo(1)),context( In evaluable function (Goal: atan),atan(foo(1))))
+error(type_error(evaluable,foo),context( In evaluable function (Goal: atan),atan(foo)))
+error(type_error(evaluable,foo),context( Wrong type in evaluable function /\/2 (Goal: '/\'(2,foo)),'/\'(2,foo)))
+error(type_error(evaluable,foo),context( Wrong type in evaluable function /\/2 (Goal: '/\'(foo,2)),'/\'(foo,2)))
+error(type_error(integer,1.0),context( Wrong type in evaluable function '><'/2  (Goal: '><'(1.0,1)),NULL))
+error(type_error(integer,1.0),context( Wrong type in evaluable function /\/2 (Goal: '/\'(1.0,2)),'/\'(1.0,2)))
+error(type_error(integer,1.0),context( Wrong type in evaluable function '><'/2 (Goal: '><'(1,1.0),NULL))
+error(type_error(integer,1.0),context( Wrong type in evaluable function /\/2 (Goal: '/\'(2,1.0)),'/\'(2,1.0)))
+/\ instantiation error 1
+/\ instantiation error 1
+log_error(evaluation_error(undefined))
+sqrt_error(evaluation_error(undefined))
+tatan_error(instantiation_error)
+tatan_error(type_error(evaluable,a),context( In evaluable function (Goal: atan(a)),NULL))
+tatan_error(type_error(evaluable,foo(1)),context( In evaluable function (Goal: atan(foo(1))),NULL))
+txor instantiation error 1
+txor instantiation error 2

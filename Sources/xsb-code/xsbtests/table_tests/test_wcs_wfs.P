@@ -1,0 +1,28 @@
+:- import numbervars/1 from num_vars.
+
+:- set_prolog_flag(alt_semantics,weak_cs).
+
+test:- test1.
+test:- test2.
+test.
+
+:- table p_cs/1 as compl_semantics.
+p_cs(X):- p_wfs(X).
+
+:- table p_wfs/1.
+p_wfs(X):- p_cs(X).
+
+:- table a_wfs/1,b_wfs/1.
+a_wfs(X):- b_wfs(X).
+b_wfs(X):- a_wfs(X).
+
+
+test1:- p_cs(_X),fail.
+test1:- get_residual(p_cs(X),F),numbervars(ans(p_cs(X),F)),writeln(ans(p_cs(X),F)),fail.
+
+test2:- a_wfs(_X),fail.
+test2:- get_residual(a_wfs(X),F),numbervars(ans(p_cs(X),F)),writeln(ans(a_wfs(X),F)),fail.
+
+
+test_p:- predicate_property(p(_X),F),writeln((p,F)),fail.
+test_p:- predicate_property(r(_X),F),writeln((r,F)),fail.

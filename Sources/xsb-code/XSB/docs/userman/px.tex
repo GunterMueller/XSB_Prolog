@@ -1,0 +1,1175 @@
+
+\newcommand{\pxversion}{Version 1.0 (beta)}
+\newcommand{\px}{{\tt px}}
+
+\begin{center}
+%\chapter[Python Calling XSB]{\px{}: The Python 3-XSB Interface} \label{chap:px}
+\chapter{\px{}: The Python 3 - XSB Interface} \label{chap:px}
+\end{center}
+
+\vspace*{-.30in} 
+\begin{center}
+{\Large {\bf  \pxversion}}
+\end{center}
+
+\begin{center}
+  {\Large {\bf By Theresa Swift}}
+\end{center}
+
+\noindent
+    {\large {\bf {\em px has been tested on macOS and various versions of
+        Linux. It is not currently working on Windows.}} See
+      Section~\ref{sec:px-limits} for a list of currently unsupported
+      features and known bugs.}
+
+The \px{} module allows XSB to be used as an embedded subprocess
+within a Python process.  \px{} currently works independently of {\tt
+  xsbpy}, although they both use much of the same code and in
+particular bi-translate Prolog terms and Python data structures in the
+same manner.\footnote{Fully combining the two systems is a high
+  priority for development.}
+
+\px{} is only slightly slower than {\tt xsbpy}.  Nearly a million
+calls to, and returns from a simple XSB predicate can be made per
+second.  Data is transferred very quickly: for instance list elements
+can be transferred at a few tens of nanoseconds per list element.
+
+\section{Configuration, Loading and Start-up} \label{px:config}
+
+%{\sc Working draft -- not complete.
+%  \bi
+%  \item Not mentioning LD\_LIBRARY or XSB\_ROOT issues.
+%  \item  only describing Linux.
+%  \item Once the above kinks are out, I need to integrate this
+%    documentation it with the xsbpy configuration.
+%    \ei
+%    }
+
+%Also, because \px{} is installed as a site
+%package for a given version of Python, we strongly recommend using a
+%Python virtual envonment, just as a virtual Python environment is
+%usually necessary for installation via {\tt pip}.  Fortunately, once
+%the appropriate Python packages are present and a user has set up a
+%virtual Python environment, \px{} is easy to set up.
+
+\subsection{Installation on Linux and macOS}
+
+\subsubsection{System Prerequisites}
+
+\begin{itemize}
+\item {\bf Linux}
+
+%To properly execute these steps the proper Python system packages must
+%have been installed.
+
+Beyond Linux packages like {\tt build-essential} that are needed to
+build and make XSB itself, \px{} requires Python development packages
+to have been installed for the Python version of interest.  (See
+Section~\ref{sec:xsbpy-linux} for an overview of installing such
+dependencies.) On Ubuntu, and other Debian-derived Linuxes
+installation also requires installing {\tt \$\{PYTHON\}-distutils},
+though this is not required for other Linuxes. For a given version of
+Python {\tt \$PYTHON} on Ubuntu, the command to install these Python
+packages would be:
+
+{\tt sudo apt-get install \$\{PYTHON\}-dev \$\{PYTHON\}-distutils}
+
+On Fedora-based Linuxes, the {\tt dnf} command must be
+used.\footnote{\px{} has been tested on Ubuntu v. 18 and v. 20, and on
+  Fedora 35; and Python versions 3.7, 3.8, 3.9 and 3.10 were tested.
+  We belive that \px{} will work on other recent Unix distributions
+  and Python versions as well.}
+
+%Since \px{} requires {\tt distutils}, the {\tt python-distutils}
+%package also needs to have been installed.
+
+%On Linux, setting up a Python virtual environment requires the {\tt
+%  python-dev} and {\tt python-venv} packages to be installed,
+
+\item {\bf macOS}
+
+  Future versions of PX will likely support automatic installation,
+  but for now you'll have to make sure the following prerequisites are
+  installed, using Xcode, brew or some other installer.  A version of
+  Python 3.6-3.10 is recommended, but for whatever Python version you
+  use you'll need the development package that includes {\tt
+    libpython.dylib} and {\tt python.h}.  You'll also need a C
+  compiler either clang or gcc, wither of whcih can easily be
+  installed via xcode.  
+  
+\end{itemize}
+
+\subsubsection{Configuring \px{} on Linux and macOS}
+
+\paragraph{Quick Start}
+\begin{enumerate}
+\item cd to {\tt \$XSB\_ROOT/XSB/packages/xsbpy} and execute {\tt
+  bash px\_configure.sh} or {\tt
+  zsh px\_configure.sh}
+\item {\tt source \$XSB\_HOME/packages/xsbpy/px\_activate} from anywhere
+\item start using px!
+\end{enumerate}
+
+\paragraph{Discussion}
+If the correct Python libraries have been installed, configuration of
+{\tt px} should be simple, and nearly the same on Linux and
+macOS.  When XSB is first configured, via
+\begin{verbatim}
+$XSB_ROOT/XSB/build/configure
+\end{verbatim}
+the {\tt xsbpy} package, which allows XSB to call Python, is also
+configured and compiled.  Using files created during the {\tt xsbpy}
+build, \px{} is configured and build by cd-ing to
+\begin{verbatim}
+$XSB_ROOT/XSB/packages/xsbpy
+\end{verbatim}
+\noindent
+and executing
+\begin{verbatim}
+  bash px_configure.sh
+\end{verbatim}
+This second configuration step uses XSB to generate a {\tt setup.py}
+file for the Python {\tt distutils} package, and then builds and
+installs {\tt px}.  \footnote{At some point, this confuration will be
+  changed to use Python's {\tt setuptools}.}  The compiled C
+extensions for Python are build and put in the user's {\tt
+  site-packages} directory, i.e.,
+\begin{verbatim}
+~/.local/lib/python3.10/site-packages/
+\end{verbatim}
+In addition the second configuration creates a file, {\tt
+  px\_activate}, somewhat analogous to activation code in {\tt venv}
+or other virtual environments.\footnote{This activation file updates
+  the {\tt LD\_LIBRARY\_PATH} used by the {\tt ld} command, and adds
+  the {\tt px} directory to {\tt PYTHONPATH}.  On macOS {\tt
+    LD\_LIBRARY\_PATH} is also updated.} In {\tt bash} or {\tt zsh},
+simply type
+\begin{verbatim}
+source $XSB_HOME/packages/xsbpy/px_activate
+\end{verbatim}
+and you're ready to go.
+
+%\begin{itemize}
+%\item As a default, if the command
+%
+%  {\tt \$XSB\_ROOT/XSB/packages/xsbpy/configure}
+%
+%  is issued, \px{} is installed in the directory corresponding to {\tt
+%    sys.USER\_SITE} in the version of Python {\tt \$Python} with which
+%  {\tt xsbpy} was configured. In Linux this is under the users home
+%  directory (\verb|~|):
+%\begin{verbatim}
+%~/.local/lib/$PYTHON/site-packages
+%\end{verbatim}
+%If this default directory is used, {\tt px} will only be available to
+%the user who installed it, and {\tt px} will be available for all
+%Python projects for that user.
+%
+%\item If \px{} is to be installed in a Python virtual environment
+%  that uses {\tt venv}, the virtual environment will first need to be
+%  activated in a given shell.  In {\tt bash} this is done as:
+%
+%\begin{verbatim}
+%source $VENV_DIR/bin/activate
+%\end{verbatim}
+%
+%Where {\tt \$VENV\_DIR} is the root directory for the virtual
+%environment.  Once this is done, the command
+%
+%\begin{verbatim}  
+%$XSB_ROOT/XSB/packages/xsbpy/configure ???
+%\end{verbatim}
+%
+%is issued, \px{} will be installed in 
+%
+%\begin{verbatim}
+%$VENV_DIR/lib/$PYTHON/site-packages
+%\end{verbatim}
+%
+%\item For system administrators, if the command
+%
+%\begin{verbatim}  
+%sudo $XSB_ROOT/XSB/packages/xsbpy/configure ???
+%\end{verbatim}
+%
+%  is issued, \px{} will be installed in
+%
+%\begin{verbatim}  
+%/usr/local/lib/$PYTHON/dist-packages
+%\end{verbatim}  
+%
+%  If this option is used, \px{} will be avaiable to anyone who uses
+%  the version {\tt \$PYTHON}.
+%
+%\item As a final alternative, the command 
+%
+%\begin{verbatim}  
+%  $XSB_ROOT/XSB/packages/xsbpy/configure ???
+%\end{verbatim}
+%
+%will install \px{} directly in the specified directory.
+%\end{itemize}
+%
+%{\sc TES: If possible, I need to redo setup.py to include px.py in the
+%  egg so that px.py does not need to be in the library path.}
+
+Once \px{} has been built and activated, \px{} can be used just as any other package
+installed in {\tt \$\{PYTHON\}}.
+
+\begin{verbatim}
+$PYTHON
+>>> from px import *
+[xsb_configuration loaded]
+[sysinitrc loaded]
+[xsbbrat loaded]
+[xsbpy loaded, cpu time used: 0.001 seconds]
+xsbpy_initted_with_python(auto(python3.9))
+[px loaded]
+[px_test loaded]
+\end{verbatim}
+
+\noindent
+Note that XSB is initialized in the Python process when the \px{}
+module is loaded.
+
+As a final point, you can test {\tt px} by running the script {\tt
+  \$XSB\_ROOT/xsbtests/python\_tests/test.sh} via the command {\tt
+  test.sh <python>} using whatever version of Python was used to
+configure {\tt px}.  This directory also contains a number of examples
+you can try.
+
+%------------------------------------------------------------
+
+%\noindent
+%Once the appropriate packages are present, a virtual environment can
+%be set up, usually in a user's home directory via a command like:
+
+%{\tt \$\{PYTHON\} -m venv {\tt \$VENV\_DIR}}
+
+%Next, the virtual environment needs to be activated in a command
+%shell,  In {\tt bash} this is done as:
+
+%{\tt source \$VENV\_DIR/bin/activate  }
+
+%In the same shell the \px{} configuration will be run.  If XSB has
+%not already been configured and made, you'll need to do so as
+%discussed in Volume 1 of this manual, which will configure \px{}
+%(and {\tt xsbpy}).  Otherwise, {\tt cd} to the {\tt xsbpy}
+%subdirectory and run the command
+%
+%{\tt ./configure}
+%%
+
+%\subsection{Configuring on Linux Systems}
+
+%Currently {\tt setup.py} requires include and
+%library directories as shown below.  The paths to these directories
+%must be changed to include the proper {\tt \$XSB\_ROOT} and, in the
+%case of the library directory the path of the XSB binary appropriate
+%to your system.  An example is:
+
+%\begin{footnotesize}
+%  \begin{verbatim}
+%module1 = Extension('xsbext',
+%                    include_dirs = ['/usr/include/python3.8',
+%                                    '/home/tswift/xsb-code/XSB/emu',
+%                                    '/home/tswift/xsb-code/XSB/packages/xsbpy',
+%                                    '/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu'],
+%                    libraries = ['xsb'],
+%                    library_dirs = ['/home/tswift/xsb-code/XSB/config/x86_64-unknown-linux-gnu/bin'],
+%                    sources = ['xsbext.c','xsbpy_common.c'])
+%  \end{verbatim}
+%\end{footnotesize}
+%
+%Once {\tt setup.py} is properly configured, the user need only enter a
+%python comaand to build and install the module ({\tt sudo} privilege
+%may be needed for this).  For the above file the command is:
+%
+%\begin{verbatim}
+%%python3.8 setup.py install
+%end{verbatim}
+%\noindent
+%This command compiles the px sources, builds a Python egg, and
+%installs the egg in the Python libary for distributed packages
+%(e.g. {\tt dist-packages})
+
+\subsection{Configuring PX on Windows}
+
+The {\tt px} configuration is not yet working for Windows.  If you
+have experience in Windows configuration and would like to help,
+please let us know.
+
+\section{Using \px}
+
+The intention of \px{} is to make essentially all of XSB's
+functionality directly callable by Python.  As noted, many of these
+features are still under development.
+
+Although Python and Prolog have similarities at the data structure
+level (Section~\ref{sec:bi-translation}) they differ substantially in
+their execution.  The design of \px{} is to restrict the form of
+Prolog goals so that they fit well with Python's function execution.
+Fortunately, this can be done without sacrificing XSB's expressivity.
+\px{} functions are variadic and pass to XSB a module, a predicate
+name, zero or more input arguments and zero or more keyword arguments.
+At a general level, XSB then constructs a call from these pieces,
+executes the call and passes the answer substitutions back to Python
+as a function return. Exactly how this is done differs for the various
+\px{} functions, which we now introduce by a series of examples.  
+
+\subsection{Deterministic Queries and Commands} \label{sec:pxdet}
+
+In these examples, many features of \px{} are presented via its
+support for commands and non-deterministic queries before turning to
+general support of deterministic queries.
+
+\begin{example} \rm
+{\em Calling a deterministic query}
+  
+  As described in Section~\ref{px:config} \px{} is loaded like any
+  other module.  Once loaded, a simple way to use \px{} is to
+  execute a deterministic query to XSB.  The Python statement:
+
+\begin{verbatim}  
+>>> Answer,TV = px_qdet('basics','reverse',[1,2,3,('mytuple'),{'a':{'b':'c'}}])
+\end{verbatim}
+
+\noindent
+  asks XSB to reverse a list using {\tt basics:reverse(+,-)} -- i.e.,
+  with the first argument ground and the second argument free.  To
+  execute this query the input list along with the tuple and
+  dictionary it contains are translated to an XSB term as described in
+  Section~\ref{sec:bi-translation}, the query is executed, and the
+  answer translated back to Python.  The return of {\tt px\_qdet()} is
+  in fact a {\em return tuple} containing an {\em answer} ({\tt
+    Answer} above) and its {\em truth value} ({\tt TV} above).  In this
+    case {\tt Answer} is
+
+  {\tt [{'a':{'b':'c'}},('mytuple'),3,2,1]}
+
+\noindent    
+and the truth value {\tt TV} is {\tt 1} indicating that the answer is
+true.  For deterministic queries and commands the truth value returned
+can have the value:
+
+\bi
+\item {\tt 1} representing the truth value {\em true}.  This means the
+  XSB query succeeded and that the answer is true in the Well-Founded
+  Model of the program.\footnote{See Volume 1 Chapter 5 of this manual
+    for an explanation of the well-founded model and XSB's
+    three-valued logic.}
+\item {\tt 0} representing the truth value {\em false}.  This means
+  the XSB query failed and has no answers in the Well-Founded Model of
+  the program.  If the return tuple has truth value {\em false}, the answer
+  will always be the Python {\tt None} keyword.
+\item {\tt 2} representing the truth value {\em undefined}. This means
+  that the XSB query succeeded, but the answer is neither {\em true} nor
+  {\em false} in the Well-Funded Model of the program.  \ei
+\noindent
+Although XSB's three-valued logic can be highly useful for many
+purposes, it can be safely ignored in many applications, and most
+queries will either succeed with true answers or will
+fail.\footnote{As shown in Example~\ref{ex:px-comp-undef}, truth
+  values can also be represented by delay lists in list and set
+  comprehensions.}
+
+For learning \px{} or for tutorials, a family of pretty printing calls
+can be useful.  The {\tt pp\_px\_qdet()} function calls {\tt
+  px\_qdet()} and upon return pretty prints both the call and return
+in a style like that used in XSB''s command line interface.  For
+example if the following call is made on the Python command line
+interface:
+
+\begin{verbatim}
+>>> pp_px_qdet('basics','reverse',[1,2,3,('mytuple'),{'a':{'b':'c'}}])
+\end{verbatim}
+\noindent
+the function will print out both the query and answer in Prolog syntax
+as if it were executed in XSB.\footnote{Note that {\tt
+    pp\_px\_query()} does not change the Python command line interface
+  -- it simply prints out the query and the answer both in Prolog
+  syntax.}
+
+\begin{verbatim}
+?- basics:reverse(([1,2,3,''('mytuple'), pyDict([('a',pyDict([('b','c')]))]),Answer).
+
+   Answer  = [pyDict([('a', pyDict([('b', 'c')]))]), 'mytuple', 3, 2, 1]
+   TV = True
+\end{verbatim}
+\end{example}
+
+Note that the Python calls in the above example each had a module name
+as its first position, a function name in its second position, and the
+Prolog query argument in its third position.  Translation to XSB adds
+an extra unbound variable as the last argument in the query so that
+the query had two arguments.  The following example illustrates the
+flexibility of {\tt px} in constructing Prolog queries.
+
+\begin{example} \rm {\it Detour: Varying the number of arguments in queries and commands}
+
+%  {\sc The {\tt vars} keyword is not yet implemented.}
+
+  Suppose you wanted to make a ground XSB query, say {\tt ?- p(a)}:
+  the information answered by this query would simply indicate whether
+  the atom {\tt p(a)} was {\tt true}, {\tt false},,or {\tt undefined}
+  in the well-founded model.In {\tt px} such a query could simply be
+  made as
+
+\begin{verbatim}  
+>>> px_cmd('px_test','p','a')  
+\end{verbatim}  
+
+%Note that unlike (the default behavior of) {\tt px\_qdet()}, {\tt
+%  px\_cmd()} does not add an extra return argument to the Prolog
+%call.
+Since {\tt px\_cmd} does not return any answer bindings, it returns
+the truth value directly to Python, rather than as part of a tuple.
+Note that unlike (the default behavior of) {\tt px\_qdet()}, {\tt
+  px\_cmd()} does not add an extra return argument to the Prolog call.
+However, {\tt px\_qdet()} and {\tt px\_cmd()} are both variadic
+functions so that the number of input arguments can also vary as shown
+in the table below.
+
+In \pxversion{} of {\tt px}, {\tt px\_cmd} adds no return variables,
+while {\tt px\_qdet()} adds a single return variable.  More generality
+is allowed in {\tt px\_comp()} discussed more fully below.  In {\tt
+  px\_comp()} the optional keyword argument {\tt vars} can be used to
+  indicate the number of return arguments desired.  So, if {\tt
+    vars=2} were added as a keyword argument, two arguments arguments
+  would be added to the call, with each a free variable.  Combining
+  both approaches, a variety of different Prolog queries can be made
+  as shown in the following table.~\footnote{Support for the {\tt
+      vars} keyword option in {\tt px\_qdet()} requires a partial
+    reimplementation of XSB's C embeeding interface, but may be made
+    available in future versions.  Of course in the meantime {\tt
+      px\_qdet()} can always pass back multiple argument values via
+    Python tuples or other means.}
+
+\begin{tabular}{lll}
+  {\tt px\_cmd('mod','cmd')}                & calls the goal & {\tt mod:cmd()}\\
+  {\tt px\_cmd('mod','cmd','a')}            & calls the goal & {\tt mod:cmd(a)}\\
+  {\tt px\_cmd('mod','cmd','a','b')}        & calls the goal & {\tt mod:cmd(a,b)}\\
+   \\ 
+  {\tt px\_qdet('mod','pred')}              & calls the goal & {\tt mod:pred(X1)} \\
+  {\tt px\_qdet('mod','pred','a')}          & calls the goal & {\tt mod:pred(a,X1)} \\
+  \\
+  {\tt px\_comp('mod','pred'),vars=2}       & calls the goal & {\tt mod:pred(X1,X2)} \\
+  {\tt px\_comp('mod','pred','a',vars=0)}   & calls the goal & {\tt mod:pred(a)}. \\
+  {\tt px\_comp('mod','pred','a',vars=1)}   & calls the goal & {\tt mod:pred(a,X1)} \\
+  {\tt px\_comp('mod','pred','a',vars=2)}   & calls the goal & {\tt mod:pred(a,X1,X2)} \\
+  {\tt px\_comp('mod','pred','a','b',vars=2)} & calls the goal & {\tt mod:pred(a,b,X1,X2)} \\
+\end{tabular}
+
+Several points are worth noting here.  If the keyword argument {\tt
+  vars=N} is included in a {\tt px\_comp()} call and $N$ is not {\tt
+  1} the answer substitutions to the arguments (the answer part of the
+return tuple) will itself be a tuple.  Next, although the number of
+ground and free arguments can vary, when the XSB goal is constructed,
+all ground arguments will precede all non-ground arguments.  In
+addition \px{} does not provide a way to represent logical variables
+in Python so that XSB will see any argument as fully ground.
+(However, as shown in Example~\ref{ex:connstraints} it is possible to
+pass logical variables to XSB via strings.)\footnote{Because {\tt
+    px\_cmd()} is slightly simpler than {\tt px\_qdet()} it may be
+  very slightly faster.}
+% Finally, a call to {\tt
+%  px\_qdet()} with {\tt vars=0} acts in much the same way as a call to
+%{\tt px\_cmd}.
+\end{example}
+
+Using {\tt px\_qdet()} and {\tt px\_cmd()} the XSB session can be
+controlled from Python.  Furthermore, any errors that arise in XSB can
+also be handled in Python.
+
+\begin{example} \rm {\it Session management and error handling in \px}
+
+  Once {\tt px} has been imported (initializing XSB), any user XSB
+  code can be loaded easily.  One can execute
+  
+\begin{verbatim}
+>>>  px_cmd('consult','consult','xsb_file')
+\end{verbatim}
+
+\noindent
+which loads the XSB file {\tt xsb\_file.\{P,pl\}}, compiling it if
+necessary.  For convenience, {\tt px} also defines a shortcut for
+consulting since it is a common operation:
+
+\begin{verbatim}
+>>>  px.consult('xsb_file')
+\end{verbatim}
+
+\noindent
+{\tt px} also provides shortcuts for some other frequent Prolog calls
+-- other desired shortcuts are easily implemented via Python
+functions.
+
+If a Prolog file {\tt xsb\_file.P}, is modified it can be reconsulted
+in the same session just as if the XSB interpreter were being used.
+Indeed, using {\tt px}, the Python interpreter can be used as a
+command-line interface for writing and debugging XSB code (although
+the XSB interpreter is recommended for most XSB development tasks).
+
+If an exception occurs when XSB is executing a goal, the error can be
+caught in XSB by {\tt catch/3} in the usual manner.  If the error is
+not caught by user code, it will be caught by {\tt px}, translated to
+a Python exception of the vanilla {\tt Exception} class,\footnote{A
+  future implementation will use more precise mapping of XSB error
+  types to Python error types.}  and can be caught as any other Python
+exception of that type.  Precise information on the XSB exception is
+available to Python through the \px{} function {\tt
+  px\_get\_error\_message()},
+
+Consider what happens when trying to consult a file that doesn't exist
+in any of XSB library paths.  In this case, XSB's {\tt consult/1}
+throws an exception, the {\tt px} sub-system catches it and raises a
+Python error as mentioned above.  Returning to the pretty-printing {\tt
+  pp\_px\_qdet()} the call
+
+\begin{verbatim}
+>>> pp_px_qdet('usermod','open','missing_file','read')
+\end{verbatim}
+
+\noindent
+catches the exception and prints out
+
+\begin{verbatim} 
+Exception Caught from XSB: 
+      ++Error[XSB/Runtime/P]: [Permission (Operation) open[mode=r,errno= ENOENT: 
+No such file or directory] on file: missing_file]  in /(open,3)
+\end{verbatim}
+
+To obtain similar behavior in any other {\tt px} function, simply call
+the function in the following block:
+
+\begin{verbatim}
+    try
+      <some px_function>
+    except Exception as err:
+      display_xsb_error(err)
+\end{verbatim}
+\noindent
+where {\tt display\_xsb\_error()} is a call to the function:
+
+\begin{verbatim}
+def display_xsb_error(err):    
+        print('Exception Caught from XSB: ')
+        print('      ' + px_get_error_message())
+\end{verbatim}
+
+\noindent
+Here, {\tt px\_get\_error\_message()} is calls C to return the last
+\px{} error text as a string.
+
+As a final point if an exception arises during execution of a {\tt px}
+function the function returns the value {\tt None} in addition to
+setting a Python Error.
+\end{example}
+
+\subsection{Comprehension of Non-Deterministic Queries}
+
+A declarative aspect of Python is its support for comprehension of
+lists, sets and aggregates.  \px{} fits into non-deterministic queries
+into this paradigm with {\em query comprehension}: calls to XSB that
+return all solutions to an XSB query as a Python list or set.
+
+\begin{example} \rm {\it List and Set Comprehension in \px{}} \label{ex:list-comp-1}
+
+  Consider the XSB predicate, {\tt test\_comp/2} defined as
+
+{\small  
+\begin{verbatim}  
+test_comp(a,1).
+test_comp(b,2).
+test_comp(c,3).
+test_comp(d,4).
+test_comp(e,5):- unk(something),p.
+test_comp(e,5):- q,unk(something_else).
+test_comp(e,5):- failing_goal,unk(something_else).
+
+p.
+q.
+\end{verbatim}
+}
+
+\noindent
+An XSB query to this predicate may be determinisitic (e.g., {\tt ?-
+  test\_comp(a,X1)}) or non-deterministic (e.g., {\tt ?-
+  test\_comp(X1,X2)}).  This second query will have multiple answers,
+some of whose truth values are {\em undefined}.  The \px{} query
+
+\begin{verbatim}
+>>>  px_comp('px_test','test_comp',vars=2)
+\end{verbatim}
+
+\noindent
+calls the XSB goal {\tt ?- px\_test:test\_comp(X1,X2)} in a manner
+similar to that shown above for {\tt px\_qdet()}.  The difference is
+that {\tt px\_comp()} returns multiple solutions as a list
+
+{\small  
+\begin{verbatim}
+     [
+      ((e,5),2),
+      ((e,5),2),
+      ((d,4),1),
+      ((c,3),1),
+      ((b,2),1),
+      ((a,1),1) 
+     ]
+\end{verbatim}
+}
+
+\noindent
+In the above list, two answers for {\tt test\_comp(e,5)} have truth
+values of {\em undefined}: that there are two answers is expected
+since there are two different ways in which {\tt test\_comp(e,5)} is
+undefined, as will be discussed in Example~\ref{ex:px-comp-undef}.  To
+remove this redundancy, the function call:
+
+\begin{verbatim}
+>>>  px_comp('px_test','test_comp',vars=2,set_collect=True)
+\end{verbatim}
+
+\noindent
+returns a set rather than a list:\footnote{Due to how sets are
+  implemented in Python, the order in which the set elements are
+  returned is non-deterministic.}
+
+{\small  
+\begin{verbatim}
+     {
+      ((d),1),
+      ((a),1),
+      ((e),2),
+      ((b),1),
+      ((c),1) 
+     }
+\end{verbatim}
+}
+
+Whether it is a list or a set, the return of {\tt px\_comp()} will be
+iterable and can be used as any other object of its type, for
+example:
+
+{\small
+  \begin{verbatim}
+>>> for answer,tv in px_comp('px_test','test_comp',vars=2):
+...     print('answer = '+str(answer)+' ; tv = '+str(tv))
+... 
+answer = ('e', 5) ; tv = 2
+answer = ('e', 5) ; tv = 2
+answer = ('d', 4) ; tv = 1
+answer = ('c', 3) ; tv = 1
+answer = ('b', 2) ; tv = 1
+answer = ('a', 1) ; tv = 1
+\end{verbatim}
+  }
+\end{example}
+
+With {\tt px\_comp()} the truth values can optionally be removed.  The
+reason {\tt px\_comp()} can support this is that {\tt px\_comp()}
+returns a list or set of {\em true} or {\em undefined} answers.  If
+there are no answers that satisfy the query {\tt px\_comp()} returns
+the empty list or set.  This behavior is different than {\tt
+  px\_qdet()} and {\tt px\_cmd()} that may also fail in their
+execution and require a {\em false} truth value for this.
+
+\begin{example} \rm {\it Simplifying Comprehensions} \label{ex:simple-comp}
+
+  Suppose you have a predicate {\tt simple\_comp/2} defined as:
+
+{\small  
+\begin{verbatim}  
+simple_comp(a,1).
+simple_comp(b,2).
+simple_comp(c,3).
+simple_comp(d,4).
+\end{verbatim}
+}
+
+  The clauses in {\tt simple\_comp/2} are the same as the first four
+  clauses in {\tt test\_comp/2}, and due to this restriction, a query
+  to this predicate will produce only answers whose truth value is
+  {\em true}.  In this case, the function call
+
+\begin{verbatim}  
+>>>  px_comp('px_test','test_comp',truth_vals=NO_TRUTHVALS)}
+\end{verbatim}
+
+will return only the answer substitution for each element of the list.
+
+{\small  
+\begin{verbatim}
+     [
+      (e,5),
+      (e,5),
+      (d,4),
+      (c,3),
+     ]
+\end{verbatim}
+}
+
+The keyword argument value {\tt NO\_TRUTHVALS} is a (constant)
+variable in the Python module {\tt px}.
+\end{example}
+
+\subsection{Callbacks from XSB to Python} \label{sec:callbacks}
+
+When XSB is called from Python, {\tt xsbpy} can easily be used to make
+callbacks to Python.  For instance, the query:
+
+\begin{verbatim}
+px_qdet('px_callbacks','test_json')
+\end{verbatim}
+
+\noindent
+calls the XSB goal {\tt px\_callbacks:test\_json(X)} as usual.  The
+file {\tt px\_callbacks.P} can be found in the directory
+
+\verb|$XSB_ROOT/xsbtests/python_tests|
+
+\noindent
+This directory contains many other examples including those discussed
+in this chapter.  In particular, {\tt px\_callbacks.P} contains the
+predicate:
+
+\begin{verbatim}
+test_json(Ret):- 
+   pyfunc(xp_json,
+          prolog_loads('{"name":"Bob","languages": ["English","Fench","GERMAN"]}'),
+          Ret).
+\end{verbatim}
+
+\noindent
+that calls the Python Json loader as in Example~\ref{ex:xsbpy-json}, returning the tuple
+\begin{verbatim}
+({'name': 'Bob', 'languages': ['English', 'Fench', 'GERMAN']}, 1)
+\end{verbatim}
+to Python.  This example shows how easy it can be for XSB and Python
+to work together: the Python call
+\verb|px_qdet('px_callbacks','test_json')| causes the Json structure
+to be read from a string into a Python dictionary, translated to a
+Prolog dictionary term, and then back to a Python dictionary
+associated with its truth value.
+
+As another example of callbacks consider the goal:
+
+\begin{verbatim}
+NewClass,TV = px_qdet('px_callbacks','test_class','joe')
+\end{verbatim}
+\noindent
+that calls the XSB rule:
+\begin{verbatim}
+test_class(Name,Obj):-
+   px_qdet('px_callbacks','test_class','joe')
+\end{verbatim}
+that in turn creates an instance of the class {\tt Person} via:
+\begin{verbatim}
+class Person:
+  def __init__(self, name, age, favorite_ice_cream=None):
+    self.name = name
+    self.age = age
+    if favorite_ice_cream is None:
+      favorite_ice_cream = 'chocolate'
+    self.favorite_ice_cream = favorite_ice_cream
+\end{verbatim}
+The reference to the new {\tt Person} instance is returned to Prolog,
+then back to Python and assigned to the variable {\tt NewClass}.
+Afterwards, accessing {\tt NewClass} properties from the original
+Python command line:
+\begin{verbatim}
+>>> NewClass.name
+\end{verbatim}
+is evaluated to {\tt 'joe'} as expected.  In other words, the Python
+environment calling XSB and that called by XSB are one and the same.
+The coupling between Python and XSB is both implementationally tight
+and semantically transparent; micro-computations can be shifted between
+XSB and Python depending on which language is more useful for a given
+purpose.
+
+\subsection{Constraints and Residual Programs} 
+
+The material in this section is not necessary to understand for a
+basic use of \px{}, but shows how \px{} can be used for
+constraint-based reasoning, and how it can interface to the results of
+non-monotonic reasoning.
+
+\begin{example} \rm {\it Evaluating queries with constraints} \label{ex:connstraints}
+
+  XSB provides support for constraint-based reasoning via
+  CLPR~\cite{Holz95} and other packages, both for Prolog-style and for
+  tabled resolution.  However, using constraint-based reasoners like
+  CLPR requires explicit use of logical variables
+  (cf. Chapter~\ref{chap:constraints}), and as mentioned in
+  Section~\ref{sec:pxdet}, \px{} does not provide a direct way to
+  represent logical variables since logical variables do not naturally
+  correspond to a Python type.  Fortunately, it is not difficult to
+  pass constraint expressions containing logical variables to XSB
+  within Python strings.
+
+  Consider a query to find whether 
+
+  \[X  > 3*Y + 2,Y>0 \models X > Y\]
+
+\noindent  
+  In CLPR this is done by writing a clause to assert the two
+  constraints -- in Prolog syntax as calls to the literals {\tt \{X
+    $>$ 3*Y + 2\}} and {\tt \{Y$>$0\}} -- and then calling the CLPR
+  goal {\tt entailed(Y$>$0)}.  Within XSB, one way to generalize the
+  entailment relation into a predicate would be to see if one set of
+  constraints, represented as a list, implies a given constraint:
+
+{\small  
+\begin{verbatim}  
+:- import {}/1,entailed/1 from clpr.
+
+  check_entailed(Constraints,Entailed):- 
+     set_up_constraints(Constraints),
+     entailed(Entailed).
+
+  set_up_constraints([]).
+  set_up_constraints([Constr,Rest]):- 
+     {Constr},
+     set_up_constraints(Rest).
+\end{verbatim}
+}
+\noindent
+Using our example, a query to this predicate would have the form
+
+\begin{verbatim}
+ ?- check_entailed([X  > 3*Y + 2,Y>0],X > Y).
+\end{verbatim}
+\noindent
+This formulation requires the logical variables {\tt X} and {\tt Y} to
+be passed into the call.  Checking constraint entailment via \px{}
+only requires writing the constraints as a string in Python and later
+having XSB read the string.  A predicate to do this from Python is
+similar to {\tt check\_entailed/2} above, but unpacks the constraints
+from the input atom (i.e., the XSB translation of the Python string).
+
+{\small
+\begin{verbatim}
+:- import read_atom_to_term/3 from string.
+
+px_check_entailed(Atom):-
+    read_atom_to_term(Atom,Cterm,_Cvars),
+    Cterm = [Constraints,Entailed],
+    set_up_constraints(Constraints),
+    entailed(Entailed).
+\end{verbatim}
+}
+
+The function call from Python is simply:
+
+\begin{verbatim}
+>>>  px_cmd('px_constraints','check_entailed','[[X  > 3*Y + 2,Y>0],[X > Y]]')
+\end{verbatim}
+\noindent
+Note that the only difference when calling from Python is to put the
+two arguments together into a single Python string, so that XSB's
+reader treats the {\tt Y} variable in the input constraints and the
+entailment constraint as the same~\footnote{Code for this is contained
+  in the file {\tt px\_clpr.P}.}
+\end{example}
+
+\begin{example} \rm {\it Accessing the XSB's Residual Program} \label{ex:px-comp-undef}
+
+As discussed, XSB can evaluate queries to programs whose well-founded
+model is 3-valued.  In fact, XSB's evaluation can be seen as a program
+transformation that forms the three-valued reduct of each clause used
+in an evaluation~\cite{ChWa96}.  This reduct is called the {\em
+  residual program} for a given query to a given program, and
+non-empty bodies in the resudual program are called {\tt delay lists}.
+Recall from Example~\ref{ex:list-comp-1} that {\tt test\_comp(e,5)} is
+{\em undefined} in the well-founded model.  The residual program after
+evaluating the query {\tt test\_comp(e,X)} is (in rule form):
+
+\begin{verbatim}
+test_comp(e,5):- unk(something).
+test_comp(e,5):- unk(something_else).
+\end{verbatim}
+
+Note that compared to the source program in
+Example~\ref{ex:list-comp-1}, the true literals {\tt p} and {\tt q}
+have been removed from the rule bodies in which they occurred, while
+the rule body containing {\tt failing\_goal} has been removed.
+
+Residual programs have many uses.  They can be sent to an ASP engine
+to evaluate partial stable models, or the residual program can be
+examined to determine why a given literal is undefined. The reason
+could be a negative loop somewhere in the program, due to floundering
+negation, or due to a type of bounded rationality supported in XSB
+called {\tt restraint} (cf. e.g. \cite{GroS13}).
+
+In our running example, the function call
+
+\begin{verbatim}  
+>>>  px_comp('px_test','test_comp',truth_vals=DELAY_LISTS)}
+\end{verbatim}
+
+\noindent
+returns the delay lists of answers.  
+
+\begin{verbatim}
+     [
+      ((e,5),[unk(something_else)]),
+      ((e,5),[unk(something)]),
+      ((d,4),[]),
+      ((c,3),[]),
+      ((b,2),[]),
+      ((a,1),[]) 
+     ]
+\end{verbatim}
+
+Any answer whose delay list is empty ({\tt []}) is {\em true}, and any
+other delay list indicates that an answer is {\em undefined}.  The two
+delay lists for {\tt test\_comp(e,5)} show two instances of this
+answer were returned in previous queries where {\tt sec\_collection}
+was not used.
+  \end{example}
+
+\subsection{Other \px{} Resources and Examples}
+
+Many of the examples from this chapter have been saved into Jupyter
+notebooks in {\tt \$XSB\_ROOT/XSB/examples}, with associated PDF files in
+{\tt \$XSB\_ROOT/docs/JupyterNotebooks}.
+
+In addition, the directory {\tt \$XSB\_ROOT/xsbtests/python\_tests}
+contains a series of tests for the examples in this chapter and many
+others.  It is invoked by {\tt test.sh} and makes use of several
+different Python and XSB files.
+
+%----------------------------------------------------------------------
+\section{The \px{} API}
+
+\begin{description}
+
+  \pymoditem{px\_cmd(module,pred,*args)}{px\_cmd()}{px}
+%
+  Allows Python to execute a Prolog goal {\tt Goal} containing no
+  variables.  Each argument in {\tt Goal} corresponds to an element
+  in {\tt args}, i.e., the input is translated to
+  $module.pred(\vec{args})$, where $\vec{args}$ is an argument vector.
+  For instance the Python call
+
+  {\tt px\_cmd('consult','ensure\_loaded','px\_test')}
+
+  calls {\tt consult:ensure\_loaded(px\_test)}.  Calls to XSB
+  predicates that are not in a module may be made with {\tt module}
+  set to {\tt usermod}.
+
+  {\tt px\_cmd()} returns the truth value of the goal as explained
+  above, or {\tt None} if an error occurred.
+  
+  \pymoditem{px\_qdet(module,pred,*args)}{px\_qdet()}{px}
+%
+  Allows Python to execute a Prolog query, the last argument of which
+  is a variable.  If the number of {\tt args} is {\tt n}, a call will
+  be made to {\tt pred/(n+1)} in which the first {\tt n} arguments
+  correspond to the arguments in {\tt args} and the binding of the 
+  final argument is returned to Python as a Python object along with
+  its truth value, i.e. a call $module.pred(\vec{args},Ret)$ is
+  created, where the binding of $Ret$ forms part of the return.  For
+  example: the call
+
+  {\tt px\_qdet('basics','reverse',[1,2,3,{'a':{'b':'c'}}]))}
+
+  \noindent
+  executes the prolog goal {\tt
+    basics.reverse([1,2,3,{'a':{'b':'c'}}],Ret} and passes back the tuple
+
+  {\tt ( [{'a':{'b':'c'}},3,2,1], 1)}
+
+  \noindent
+  to Python, where the first argument of the {\em return tuple} is the
+  {\em answer} and the second is the truth value of that answer.  See
+  Section~\ref{sec:pxdet} for precise information on truth values.
+
+%  \bi
+%  \item If {\tt truthValue} is {\tt 1} (true) or {\tt 2} (undefined),
+%    {\tt Goal} succeeded.  The return of {\tt px\_qdet()} is a tuple
+%    {\tt (dataStructure,truthValue)} in which {\tt dataStructure}
+%    corresponds to the binding of the last argument of {\tt Goal}, and
+%    {\tt truthValue} is the truth value of the answer;
+%   \item If {\tt truthValue} is {\tt 0} (false), {\tt Goal} failed,
+%     and the return of {\tt px\_qdet()} is a tuple {\tt (None,0)};
+%   \item If the execution of {\tt Goal} caused a Prolog error the
+%     Python {\tt None} object is returned.
+%     \ei
+%
+%     If {\tt Goal} is non-deterministic, only the first answer will be
+%     produced; multiple answers for a goal can be returned by {\tt
+%       px\_list} and {\tt px\_set}.
+%
+%     Note that {\tt px\_cmd()} and {\tt px\_query()} will always call
+%     different Prolog goals.  For instance {\tt
+%       px\_cmd(mod,pred,arg1,arg2)} will call the Prolog goal {\tt
+%       mod:pred(arg1,arg2)} while {\tt px\_query(mod,pred,arg1,arg2)}
+%     will call {\tt mod:pred(arg1,arg2,Ret)}.
+%     
+%     Calls to XSB predicates that are not in a module may be made with
+%     {\tt module} set to {\tt usermod}.
+
+  \pymoditem{px\_comp(module,pred,*args,**kwargs)}{px\_com()}{px}
+%
+  Allows Python to call XSB to perform the equivalent of list or set
+  comprehension.  {\tt px\_comp()} allows zero or more input arguments
+  each containing a Python term ($\overrightarrow{input}$) and zero or
+  more output arguments ($\overrightarrow{output}$) to call an XSB goal
+
+\[module:pred(\overrightarrow{inputs},\overrightarrow{outputs}) \]
+
+It then returns to Python a list or set of tuples representing all
+bindings (or all unique bindings) to $\overrightarrow{outputs}$ for
+which the above goal is true.  See Examples \ref{ex:list-comp-1},
+\ref{ex:simple-comp} and \ref{ex:px-comp-undef} for elaboration on
+this.
+
+The actual behavior of {\tt px\_comp()} depends on the keyword
+arguments passed to it.
+
+{\tt kwargs} can take the following values:
+\begin{itemize}
+  \item {\tt vars=N} where {\tt N} is a non-negative integer,
+    determines the number {\tt N} of output variables for the call.
+    For instance
+    
+\begin{tabular}{lll}
+    {\tt px\_comp(mod,pred)}            & calls the goal & {\tt mod:pred(X1)} \\
+    {\tt px\_comp(mod,pred),vars=2}     & calls the goal & {\tt mod:pred(X1,X2)} \\
+    {\tt px\_comp(mod,pred,a,vars=0)}   & calls the goal & {\tt mod:pred(a)}. \\
+    {\tt px\_comp(mod,pred,a)}          & calls the goal & {\tt mod:pred(a,X1)} \\
+    {\tt px\_comp(mod,pred,a,vars=1)}   & calls the goal & {\tt mod:pred(a,X1)} \\
+    {\tt px\_comp(mod,pred,a,vars=2)}   & calls the goal & {\tt mod:pred(a,X1,X2)} \\
+    {\tt px\_comp(mod,pred,a,b,vars=2)} & calls the goal & {\tt mod:pred(a,b,X1,X2)} \\
+\end{tabular}    
+    
+    \noindent
+    The default is {\tt 1}.
+    
+    \item {\tt set\_collect=True/False} determines the type of
+      collection in which the bindings are returned: if the keyword
+      argument is {\tt True}, the answers are collected as a set, and
+      if {\tt False} the answers are collected as a list.  Default is
+      {\tt False}. \footnote{The reason for making lists the default
+        collection type is that Python sets can only contain
+        non-mutable objects, and so cannot contain lists or
+        dictionaries.}
+      
+    \item {\tt truth\_vals} determines whether how each answer in the
+      collection is associated with its truth value.  Values can be:
+      
+      \bi
+
+      \item {\tt PLAIN\_TRUTHVALS} which associates each answer with
+        its truth value true (represented as {\tt 1} or {\em
+          undefined} represented as {\tt 2}. (Unlike {\tt px\_cmd()}
+        or {\tt px\_qdet()}, {\em false} answers are never included in
+        the collection returned by {\tt px\_comp()}.)  Using {\tt
+          PLAIN\_TRUTHVALS}, each element of the collection is a 2-ary
+        tuple consisting of an answer and its truth value.  This is
+        the default behavior for {\tt px\_comp()}.
+      
+      \item {\tt DELAY\_LISTS} which associates each answer with its
+        SLG delay list (cf. Example~\ref{ex:px-comp-undef} or for more
+        information, \cite{ChWa96} or the chapter {\em Using Tabling
+          in XSB: A Tutorial Introduction} in Volume 1 of this
+        manual).  {\tt DELAY\_LISTS} is specified, each element of the
+        collection is a 2-ary tuple consisting of an answer and its
+        delay list.
+
+      \item {\tt NO\_TRUTHVALS} does not associate an answer with any
+        truth value.  This option should only be used in situations
+        where it is know that no answers will be {\em undefined}.
+        \ei
+  \end{itemize}
+
+  \pymoditem{px\_get\_error\_message()}{px\_get\_error\_message()}{px}
+  If an XSB exception was raised by the previous call to XSB, {\tt
+    px\_get\_error\_message()} returns the XSB exception message as a
+  Python Unicode string.
+  
+\repeatpymoditem{pp\_px\_cmd(Module,Pred,*args)}{pp\_px\_cmd()}{px}
+  \repeatpymoditem{pp\_px\_qdet(Module,Pred,*args)}{pp\_px\_qdet()}{px}
+  \pymoditem{pp\_px\_comp(Module,Pred,*args,**kwargs)}{pp\_px\_comp()}{px}
+  
+\end{description}
+
+\subsection{\px{} API Convenience Predicates}
+
+These predicates for managing the XSB session are defined in terms of
+other predicates in the \px{} API, and are included only for
+convenience.
+
+\begin{description}
+
+  \repeatpymoditem{consult(File)}{consult()}{px}
+  \pymoditem{ensure\_loaded(File)}{ensure\_loaded()}{px}
+%
+  Convenience functions for loading and/or compiling Prolog files.
+  They are defined as {\tt px\_cmd('consult','consult',File)} and {\tt
+    px\_cmd('consult','ensure\_loaded',File)}.\footnote{On-demand
+    loading, available in XSB, is not yet available within \px{}.}
+
+  Note that a given XSB file can be compiled and/or loaded into the
+  running Python-XSB session (via {\tt consult()} or {\tt
+    ensure\_loaded()}), edited and then repeatedly recompiled and
+    reloaded without problems.
+
+  \pymoditem{prolog\_paths()}{prolog\_paths()}{px}
+%  
+  Convenience function to return a list of all current XSB library
+  paths (XSB's equivalent of Python's {\tt sys.path}).
+
+  \pymoditem{add\_prolog\_path(Paths)}{add\_prolog\_path()}{px}
+%  
+    Convenience function to add one or more XSB library paths
+    designated as a list of strings.  This function calls XSB's
+    equivalent of Python's {\tt sys.path.append()}) and is defined as:
+    {\tt px\_cmd('consult','add\_lib\_dir',Paths)}.
+  
+\end{description}
+
+\section{Performance} \label{sec:px-perf}
+
+{\tt px} performance is similar to that of {\tt xsbpy} as described in
+Section \ref{sec:xsbpy-perf}.  Simple calls to {\tt px\_cmd()} and
+{\tt px\_qdet()} take roughly a microsecond on a reasonably fast
+processor, while {\tt px}/{\tt xsbpy} data transfer is exactly the
+same.  (The latter fact is unsurprising since both libraries use the
+same data transfer code.)  A simple call to {\tt px\_comp} take
+roughly 5-6 times that of a similar call to {\tt px\_qdet}.
+
+The directory {\tt \$XSB\_ROOT/xsbtests/python\_tests/px\_bench.py}
+contains the script {\tt memtest.py} that can be run to provide
+benchmark times for on a given platform.  The script includes a
+variety of benchmarks, including those summarized above.  Importantly,
+{\tt px\_bench.py} also uses the Python {\tt guppy.heapy} module to
+examine whether executing millions of {\tt px} calls creates any
+memory leaks in Python.  Running the script on recent version of
+Python show that {\tt px} calling and {\tt px}/{\tt xsbpy} data
+transfer creates virtually no memory leaks for Python.
+
+\section{Current Issues and Limitations} \label{sec:px-limits}
+
+\px{} is under active development and its issues and limitations
+change on a weekly or even daily basis.
+
+\bi
+\item \px{} has not yet been tested on any platform other than Ubuntu
+  Linux.
+\item XSB's heap garbage collection is currently disabled when XSB is
+  called from Python, although expansion is allowed for all stacks.
+\item \pxversion{} of \px{} the Python session that calls \px{} must
+  not be itself embedded in another process.
+\ei  
+  
+%\item Python sometimes core dumps on exit (via {\tt quit()} or {\tt
+%  ctrl-D} after using \px.
+ 
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "manual2"
+%%% End: 

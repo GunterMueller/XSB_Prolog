@@ -1,0 +1,258 @@
+
+/* Failing tests */
+
+test:- 
+	(unify_with_occurs_check(X,f(X)) -> 
+	    writeln('X = f(X) succeeds')
+	; writeln('X = f(X) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(f(X),f(f(X))) -> 
+	    writeln('f(X) = f(f(X)) succeeds')
+	; writeln('f(X) = f(f(X)) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(f(X),f(f(f(X)))) -> 
+	    writeln('f(X) = f(f(f(X))) succeeds')
+	; writeln('f(X) = f(f(f(X))) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(X,f(f(f(X)))) -> 
+	    writeln('X = f(f(f(X))) succeeds')
+	; writeln('X = f(f(f(X))) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(f(X)),f(X)) -> 
+	    writeln('f(f(X)) = f(X) succeeds')
+	; writeln('f(f(X)) = f(X) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(f(f(X))),f(X)) -> 
+	    writeln('f(f(f(X))) = f(X) succeeds')
+	; writeln('f(f(f(X))) = f(X) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(f(f(f(X))),X) -> 
+	    writeln('f(f(f(X))) = X succeeds')
+	; writeln('f(f(f(X))) = X fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(X),X) -> 
+	    writeln('f(X) = X succeeds')
+	; writeln('f(X) = X fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,X),f(1,a(X))) -> 
+	    writeln('f(1,X) = f(1,a(X)) succeeds')
+	; writeln('f(1,X) = f(1,a(X)) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,a(X)),f(1,a(a(X)))) -> 
+	    writeln('f(1,a(X)) = f(1,a(a(X))) succeeds')
+	; writeln('f(1,a(X)) = f(1,a(a(X))) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(N,[_A|N]) -> 
+	    writeln('N = [A|N] succeeds')
+        ;   writeln('N = [A|N] fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check([_A|N],N) -> 
+	    writeln('[A|N] = N succeeds')
+        ;   writeln('[A|N] = N fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check([_A,N],N) -> 
+	    writeln('[A,N] = N succeeds')
+        ;   writeln('[A,N] = N fails') ),
+	fail.
+
+test:-
+	(unify_with_occurs_check(N,[_A,N]) -> 
+	    writeln('N = [A,N] succeeds')
+        ;   writeln('N = [A,N] fails') ),
+	fail.
+
+
+test:- 
+	(unify_with_occurs_check(f(N),f([_A|N])) -> 
+	    writeln('f(N) = f([A|N]) succeeds')
+        ;   writeln('f(N) = f([A|N]) fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f([_A|N]),f(N)) -> 
+	    writeln('f([A|N]) = f(N) succeeds')
+        ;   writeln('f([A|N]) = f(N) fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f([_A,N]),f(N)) -> 
+	    writeln('f([A,N]) = f(N) succeeds')
+        ;   writeln('f([A,N]) = f(N) fails') ),
+	fail.
+
+test:-
+	(unify_with_occurs_check(f(N),f([_A,N])) -> 
+	    writeln('f(N) = f([A,N]) succeeds')
+        ;   writeln('f(N) = f([A,N]) fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(a),b) -> 
+	    writeln('f(a) = b succeeds')
+        ;   writeln('f(a) = b fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check([a],b) -> 
+	    writeln('[a] = b succeeds')
+        ;   writeln('[a] = b fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(b,f(a)) -> 
+	    writeln('b = f(a) succeeds')
+        ;   writeln('b = f(a) fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(b,[a]) -> 
+	    writeln('b = [a] succeeds')
+        ;   writeln('b = [a] fails') ),
+	fail.
+
+/* Succeeding tests */
+
+test:- 
+	(unify_with_occurs_check(_X,f(_Y)) -> 
+	    writeln('X = f(Y) succeeds')
+	; writeln('X = f(Y) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(_X),f(f(_Y))) -> 
+	    writeln('f(X) = f(f(Y)) succeeds')
+	; writeln('f(X) = f(f(Y)) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(f(_X),f(f(f(_Y)))) -> 
+	    writeln('f(X) = f(f(f(Y))) succeeds')
+	; writeln('f(X) = f(f(f(Y))) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(_X,f(f(f(_Y)))) -> 
+	    writeln('X = f(f(f(Y))) succeeds')
+	; writeln('X = f(f(f(Y))) fails')),
+	fail.
+
+test:-
+	(unify_with_occurs_check(f(_Y),_X) -> 
+	    writeln('f(Y) = X  succeeds')
+	; writeln('f(Y) = X fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(f(_Y)),f(_X)) -> 
+	    writeln('f(f(Y)) = f(X) succeeds')
+	; writeln('f(f(Y)) = f(X) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(f(f(_Y))),f(_X)) -> 
+	    writeln('f(f(f(Y))) = f(X)  succeeds')
+	; writeln('f(f(f(Y))) = f(X) fails')),
+	fail.
+test:- 
+	(unify_with_occurs_check(f(f(f(_Y))),_X) -> 
+	    writeln('f(f(f(Y))) = X succeeds')
+	; writeln('f(f(f(Y))) = X fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,_X),f(1,a(_Y))) -> 
+	    writeln('f(1,X) = f(1,a(Y)) succeeds')
+	; writeln('f(1,X) = f(1,a(Y)) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,a(_X)),f(1,a(a(_Y)))) -> 
+	    writeln('f(1,a(X)) = f(1,a(a(Y))) succeeds')
+	; writeln('f(1,a(X)) = f(1,a(a(Y))) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,_X),f(1,_Y)) -> 
+	    writeln('f(1,X) = f(1,Y) succeeds')
+	; writeln('f(1,X) = f(1,Y) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,a(_X)),f(1,a(_Y))) -> 
+	    writeln('f(1,a(X)) = f(1,a(Y)) succeeds')
+	; writeln('f(1,a(X)) = f(1,a(Y)) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(1,a(X)),f(1,a(X))) -> 
+	    writeln('f(1,a(X)) = f(1,a(X)) succeeds')
+	; writeln('f(1,a(X)) = f(1,a(X)) fails')),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(_N,[_A|_B]) -> 
+	    writeln('N = [A|B] succeeds')
+        ;   writeln('N = [A|B] fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check([_A|_B],_N) -> 
+	    writeln('[A|B] = N succeeds')
+        ;   writeln('[A|B] = N fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check([_A,_B],_N) -> 
+	    writeln('[A|B] = N succeeds')
+        ;   writeln('[A|B] = N fails') ),
+	fail.
+
+test:-
+	(unify_with_occurs_check(_N,[_A,_B]) ->
+	    writeln('N = [A,B] succeeds')
+        ;   writeln('N = [A,B] fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f(_N),f([_A|_B])) -> 
+	    writeln('f(N) = f([A|B]) succeeds')
+        ;   writeln('f(N) = f([A|B]) fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f([_A|_B]),f(_N)) -> 
+	    writeln('f([A|B]) = f(N) succeeds')
+        ;   writeln('f([A|B]) = f(N) fails') ),
+	fail.
+
+test:- 
+	(unify_with_occurs_check(f([_A,_B]),f(_N)) -> 
+	    writeln('f([A|B]) = f(N) succeeds')
+        ;   writeln('f([A|B]) = f(N) fails') ),
+	fail.
+
+test:-
+	(unify_with_occurs_check(f(_N),f([_A,_B])) ->
+	    writeln('f(N) = f([A,B]) succeeds')
+        ;   writeln('f(N) = f([A,B]) fails') ),
+	fail.
+
+end_of_file.

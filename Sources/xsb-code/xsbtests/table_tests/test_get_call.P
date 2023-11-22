@@ -1,0 +1,19 @@
+
+:- import get_call/3 from tables.
+:- import numbervars/1 from num_vars.
+
+:- dynamic p/1 as incremental.
+p(a).
+
+:- table q/1 as incremental.
+q(a).
+
+
+test:- q(_X),fail.
+test:- get_call(q(X),_Y,Z),
+       numbervars(get_call(q(X),Z)),
+       writeln(get_call(q(X),Z)),fail.
+test:- p(_X),fail.
+test:- get_call(p(X),Y,Z),
+       numbervars(get_call(p(X),Y,Z)),
+       writeln(get_call(p(X),Y,Z)).

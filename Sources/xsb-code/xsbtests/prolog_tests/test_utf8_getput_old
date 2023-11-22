@@ -1,0 +1,95 @@
+
+
+peek_vs_get(こ,こ)
+peek_vs_get(ん,ん)
+peek_vs_get(に,に)
+peek_vs_get(ち,ち)
+peek_vs_get(は,は)
+peek_vs_get(10,10)
+peek_vs_get(1,1)
+peek_vs_get(122,122)
+peek_vs_get(12371,12371)
+peek_vs_get(12385,12385)
+peek_vs_get(12395,12395)
+peek_vs_get(12399,12399)
+peek_vs_get(12435,12435)
+peek_vs_get(13,13)
+peek_vs_get(20170,20170)
+peek_vs_get(20170,20170)
+peek_vs_get(30340,30340)
+peek_vs_get(49,49)
+peek_vs_get(97,97)
+peek_vs_get(a,a)
+peek_vs_get_for_atom(こ,こ)
+peek_vs_get_for_atom(ん,ん)
+peek_vs_get_for_atom(に,に)
+peek_vs_get_for_atom(ち,ち)
+peek_vs_get_for_atom(は,は)
+peek_vs_get_for_atom(1,1)
+peek_vs_get_for_atom(122,122)
+peek_vs_get_for_atom(12371,12371)
+peek_vs_get_for_atom(12385,12385)
+peek_vs_get_for_atom(12395,12395)
+peek_vs_get_for_atom(12399,12399)
+peek_vs_get_for_atom(12435,12435)
+peek_vs_get_for_atom(20170,20170)
+peek_vs_get_for_atom(20170,20170)
+peek_vs_get_for_atom(30340,30340)
+peek_vs_get_for_atom(49,49)
+peek_vs_get_for_atom(97,97)
+peek_vs_get_for_atom(a,a)
+peek_vs_get_for_atom(z,z)
+peek_vs_get_for_atom(今,今)
+peek_vs_get_for_atom(今,今)
+peek_vs_get_for_atom(的,的)
+peek_vs_get(今,今)
+peek_vs_get(今,今)
+peek_vs_get(的,的)
+put_char: 
+put_char: こ
+put_char: ん
+put_char: に
+put_char: ち
+put_char: は
+put_char: 
+put_char: 1
+put_char: a
+put_char_for_atom: こ
+put_char_for_atom: ん
+put_char_for_atom: に
+put_char_for_atom: ち
+put_char_for_atom: は
+put_char_for_atom: 1
+put_char_for_atom: a
+put_char_for_atom: z
+put_char_for_atom: 今
+put_char_for_atom: 今
+put_char_for_atom: 的
+put_char: z
+put_char: 今
+put_char: 今
+put_char: 的
+put_code: 
+put_code: こ
+put_code: ん
+put_code: に
+put_code: ち
+put_code: は
+put_code: 
+put_code: 1
+put_code: a
+put_code_for_atom: こ
+put_code_for_atom: ん
+put_code_for_atom: に
+put_code_for_atom: ち
+put_code_for_atom: は
+put_code_for_atom: 1
+put_code_for_atom: a
+put_code_for_atom: z
+put_code_for_atom: 今
+put_code_for_atom: 今
+put_code_for_atom: 的
+put_code: z
+put_code: 今
+put_code: 今
+put_code: 的

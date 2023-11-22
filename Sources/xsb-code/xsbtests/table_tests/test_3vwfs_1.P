@@ -1,0 +1,167 @@
+:- compiler_options([spec_off]).
+:- import xwam_state/2 from machine.
+:- import get_call/3, get_returns_and_tvs/3 from tables.
+:- import numbervars/1 from num_vars.
+:- import member/2, for/3 from basics.
+
+test:- check_answers(p(a,_),[ans(ret(4),t)]),fail.
+test:- check_answers(p(b,_),[ans(ret(2),t),ans(ret(3),u)]),fail.
+test:- check_answers(p(c,_),[ans(ret(4),t),ans(ret(5),u)]),fail.
+test:- check_answers(p(d,_),[ans(ret(4),t)]),fail.
+test:- check_answers(p(e,_),[ans(ret(3),u),ans(ret(4),u)]),fail.
+test:- check_answers(p(f,_),[ans(ret(3),u),ans(ret(4),u)]),fail.
+test:- test_cwin(7,5,5), fail.
+test:- writeln('3vwfs_test_succeeded').
+
+:- table p(_,lattice(gt(X,Y,Z))).
+
+p(a,3).
+p(a,4).
+
+p(b,1).
+p(b,2).
+p(b,3):- undefined.
+
+p(c,1).
+p(c,2).
+%p(c,3):- undefined.
+p(c,5):- undefined.
+p(c,4).
+
+p(d,4).
+p(d,3):- undefined.
+
+p(e,3):- undefined.
+p(e,4):- undefined.
+
+p(f,4):- undefined.
+p(f,3):- undefined.
+
+
+
+check_answers(Call,List):- 
+	(Call,fail; true),
+	setof(ans(Return,TV),Call^get_cr_tv(Call,Return,TV),L),
+	(L = List -> numbervars(Call),writeln(passed(Call)) ; writeln('!!!failure'(Call,List,L))).
+
+get_cr_tv(Call,Return,TV):- 
+	get_call(Call,SF,Return),get_returns_and_tvs(SF,Return,TV).
+
+gt(X,Y,Z):- X > Y -> Z = X ; Z = Y.
+sum(X,Y,Z):- Z is X + Y.
+
+/*********** testing 3-valued aggregation on count-win-not-win *********/
+
+%% test harness
+:- dynamic move/2.
+move(0,0).
+
+%% uses random to generate instances: so particular tests will differ on different systems.
+test_cwin(K,N,M) :-
+    for(_,1,M),
+    retractall(move(_,_)),
+    generate_move(K,N),
+
+    abolish_all_tables,
+    findall(P-T,
+	    (win(P),xwam_state(2,DR),
+	     (DR =:= 0 -> T=true; T=undef)),
+	    WinAns),
+    sort(WinAns,SWinAns),
+    findall(P-T,
+	    (rwin(P),xwam_state(2,DR),
+	     (DR =:= 0 -> T=true; T=undef)),
+	    RWinAns),
+    sort(RWinAns,SRWinAns),
+%%    writeln(p1(SWinAns,SRWinAns)),
+    (SWinAns \== SRWinAns
+    -> writeln('win rwin differ:'),
+       findall(m(A,B),move(A,B),Moves),
+       write('Moves: '),writeln(Moves),
+       writeln(WinAns),
+       writeln(RWinAns),
+       nl
+    ;  true %%writeln('win rwin agree')
+    ), 
+
+    abolish_all_tables,
+    findall(P-T,
+	    (win2(P),xwam_state(2,DR),
+	     (DR =:= 0 -> T=true; T=undef)),
+	    Win2Ans),
+    sort(Win2Ans,SWin2Ans),
+    
+    abolish_all_tables,
+    findall(P-T,
+	    (rwin2(P),xwam_state(2,DR),
+	     (DR =:= 0 -> T=true; T=undef)),
+	    RWin2Ans),
+    sort(RWin2Ans,SRWin2Ans),
+%%    writeln(p2(SWin2Ans,SRWin2Ans)),
+
+    (SWin2Ans \== SRWin2Ans
+    -> writeln('win2 rwin2 differ:'),
+       (do_all move(AA,BB),writeln(move(AA,BB))),
+       writeln(Win2Ans),
+       writeln(RWin2Ans)
+    ;  writeln('win2 rwin2 agree')
+       ),
+    fail.
+
+%% generate K move transitions among N places
+:- import random/3 from random.
+generate_move(K,N) :-
+    (K > 0
+    -> random(0,N,X),
+       random(0,N,Y),
+       (move(X,Y)
+       -> generate_move(K,N)
+       ;  assert(move(X,Y)),
+	  K1 is K-1,
+	  generate_move(K1,N)
+       )
+    ;  true
+    ).
+
+%% Predicates to test:
+
+:- table rwin/1. % classic win-notwin
+rwin(X) :- move(X,Y), tnot rwin(Y).
+
+:- table win/1. % classic win-notwin implemented with count
+win(X) :- countwin(X,Cnt), Cnt >= 1.
+
+:- table countwin(_,lattice(sum/3)).
+countwin(X,1) :- move(X,Y), tnot win(Y).
+
+:- table rwin2/1. % double win-notwin, implemented classically
+rwin2(X) :-
+    move(X,Y), move(X,Z), Z \== Y,
+    tnot rwin2(Y), tnot rwin2(Z).
+
+:- table win2/1. % double win-notwin, implemented with count.
+win2(X) :- countwin2(X,Cnt), Cnt >= 2.
+
+:- table countwin2(_,lattice(sum/3)).
+countwin2(X,1) :- move(X,Y), tnot win2(Y).
+
+end_of_file.
+
+xwam_state(2,Before),get_call(p(c,F),G,H),'_$$get_returns'(G,H,_),xwam_state(2,After).
+
+t1:- xwam_state(2,D1),writeln(first(D1)),
+     chosen(blue),
+     xwam_state(2,D2),writeln(second(D2)),
+     chosen(yellow),
+     xwam_state(2,D3),writeln(third(D3)).
+     
+:- table choose_from_urn(_,sum(Y,Y,Z)-0).
+
+choose_from_urn(red,0.3).
+choose_from_urn(blue,0.7):- chosen(blue).
+choose_from_urn(yellow,0.7):- chosen(yellow).
+
+:- table chosen/1.
+chosen(blue):- tnot(chosen(yellow)).
+chosen(yellow):- tnot(chosen(blue)).
+

@@ -1,0 +1,19 @@
+
+:- import xsb_thread_self/2 from thread.
+:- import asserti/2 from assert.
+
+:- index(p/2,tries).
+:- dynamic p/2.
+
+test_assert_wo(N,Str):- 
+	xsb_thread_self(Id,_),
+	test_assert_wo_1(N,Id,Str).
+
+test_assert_wo_1(0,_Id,_Str):- !.
+test_assert_wo_1(N,Id,Str):- 
+	assert(p(Id,N)),
+	writeln(Str,N),
+	N1 is N - 1,
+	test_assert_wo_1(N1,Id,Str).
+
+

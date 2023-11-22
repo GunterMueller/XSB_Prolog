@@ -1,0 +1,28 @@
+:- table p/2, q/2.
+
+:- thread_shared q/2.
+
+:- thread_private p/2.
+
+:- thread_shared max/1.
+
+max(500).
+
+prod(X,X).
+prod(X,Y) :- X > 0, X1 is X - 1, prod(X1,Y).
+
+p(X,Y) :- X > 0, X1 is X - 1, q(X1,Y).
+p(0,Y) :- max(N), q(N,Y).
+
+q(X,Y) :- max(X), !, prod(X,Y).
+q(X,Y) :- X > 0, X1 is X - 1, p(X1,Y).
+q(0,Y) :- max(N), p(N,Y).
+
+r(Y) :- q(0,Y).
+
+spmany(F) :- r(N), writeln(F,N), fail.
+spmany(_).
+
+
+
+

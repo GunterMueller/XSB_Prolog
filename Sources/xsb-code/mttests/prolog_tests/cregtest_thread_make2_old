@@ -1,0 +1,43 @@
+r([a,1,[1,2]])
+p([c,3,[5,6]])
+r([a,1,[1,2]])
+p([c,3,[5,6]])
+Answer: rregs(1,2,3)
+Answer: rregs(4,5,6)
+Answer: pregs(a,b,c)
+Answer: rregs(7,8,9)
+Answer: pregs(d,e,f)
+Answer: rregs(10,11,12)
+Answer: pregs(g,h,i)
+Answer: pregs(j,k,l)
+Answer: rregs(1,2,3)
+Answer: rregs(4,5,6)
+Answer: pregs(a,b,c)
+Answer: rregs(7,8,9)
+Answer: pregs(d,e,f)
+Answer: rregs(10,11,12)
+Answer: pregs(g,h,i)
+Answer: pregs(j,k,l)
+/******************************************/
+r_fail failed properly
+p_fail failed properly
+r_fail failed properly
+p_fail failed properly
+Closed return r(1,2,3)
+Closed return p(a,b,c)
+Closed return r(1,2,3)
+Closed return p(a,b,c)
+/******************************************/
+Planned command error p: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Planned command error r: type_error/++Error[XSB/Runtime/P]: [Type (a in place of integer)] in arg 3 of predicate functor/3
+Planned command error p: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Planned command error r: type_error/++Error[XSB/Runtime/P]: [Type (a in place of integer)] in arg 3 of predicate functor/3
+Pre-err return r(1,2,3)
+Pre-err return p(a,b,c)
+Planned query Error r: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Planned query Error p: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Pre-err return r(1,2,3)
+Pre-err return p(a,b,c)
+Planned query Error r: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+Planned query Error p: instantiation_error/++Error[XSB/Runtime/P]: [Instantiation]  in arg 3 of predicate functor/3
+r([a,1,[1,2]])

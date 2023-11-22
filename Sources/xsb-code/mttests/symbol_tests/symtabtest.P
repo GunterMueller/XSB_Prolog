@@ -1,0 +1,21 @@
+
+:-import concat_atom/2 from string.
+
+f_arg(a, 200).  f_arg(b, 200).  f_arg(c, 200).  f_arg(d, 200).
+f_arg(a, 200).  f_arg(b, 200).  f_arg(c, 200).  f_arg(d, 200).
+f_arg(e, 200).  f_arg(f, 200).  f_arg(g, 200).  f_arg(h, 200).
+
+test(H) :-
+	f_arg(Atom,N),
+	make_func(Atom,N,H),
+	fail.
+test(H):- writeln(H,'finished symbol table test').
+
+make_func(_,0,_) :- !.
+make_func(A,N,Handle):-
+        concat_atom([A,N],F),
+	functor(_T,F,1),
+	N1 is N - 1,
+	make_func(A,N1,Handle).
+
+	

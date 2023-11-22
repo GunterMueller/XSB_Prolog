@@ -1,0 +1,530 @@
+/* TLS: initial dummy test -- will elaborate and scriptify */
+
+:- import xsb_thread_create/3, xsb_thread_join/2, 
+	  xsb_thread_self/1 from thread.
+
+thr_writeln(X):- 
+	xsb_thread_self(Tid),
+	write(Tid),write(':'),writeln(X).
+
+% a1 - b1 deadlock and fail.
+
+:- table a1/0, b1/0.
+:- thread_shared a1/0, b1/0.
+
+scc_test1:- 
+	xsb_thread_create(a1,One,[]),
+	xsb_thread_create(b1,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a1:- 
+	thr_writeln('created a1'),
+	sleep(1),
+	thr_writeln('a11 calling b1'),
+	b1.
+
+b1:-    thr_writeln('created b1'),
+	sleep(1),
+	thr_writeln('b1 calling a1'),
+	a1.
+
+%------------------------
+
+%a2,b2 complete, and shared reuse.
+
+:- table a2/0, b2/0.
+:- thread_shared a2/0, b2/0.
+
+scc_test2:- 
+	(a2 ; true),
+	xsb_thread_create(a2,One,[]),
+	xsb_thread_create(b2,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a2:- 
+	thr_writeln('created a2'),
+	sleep(1),
+	thr_writeln('a2 calling b2'),
+	b2.
+
+b2:-    thr_writeln('created b2'),
+	sleep(1),
+	thr_writeln('b2 calling a2'),
+	a2.
+
+%------------------------
+
+% a3 - b3 deadlock; succed.
+:- table a3/0, b3/0.
+:- thread_shared a3/0, b3/0.
+
+scc_test3:- 
+	xsb_thread_create(a3,One,[]),
+	xsb_thread_create(b3,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a3:- 
+	thr_writeln('created a3'),
+	sleep(1),
+	thr_writeln('a3 calling b3'),
+	b3.
+a3.
+
+b3:-    thr_writeln('created b3'),
+	sleep(1),
+	thr_writeln('b3 calling a3'),
+	a3.
+b3.
+
+%------------------------
+
+:- table a4/1, b4/1.
+:- thread_shared a4/1, b4/1.
+
+% a4/b4 complete and reuse.
+scc_test4:- 
+	a4(_),
+	xsb_thread_create(a4_write(_),One,[]),
+	xsb_thread_create(b4_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a4_write(X):- 
+	a4(X),thr_writeln(found(a4(X))),fail ; true.
+
+b4_write(X):- 
+	b4(X),thr_writeln(found(b4(X))),fail ; true.
+	
+
+a4(X):- 
+	thr_writeln('created a4'),
+	sleep(1),
+	thr_writeln('a4 calling b4'),
+	b4(X).
+a4(a).
+
+b4(X):-    thr_writeln('created b4'),
+	sleep(1),
+	thr_writeln('b4 calling a4'),
+	a4(X).
+b4(b).
+
+
+%------------------------------------------
+%SCC is a5/b5/c5  in different threads
+
+:- table a5/1, b5/1, c5/1.
+:- thread_shared a5/1, b5/1, c5/1.
+
+scc_test5:- 
+	xsb_thread_create(a5_write(_),One,[]),
+	xsb_thread_create(b5_write(_),Two,[]),
+	xsb_thread_create(c5_write(_),Three,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_),
+	xsb_thread_join(Three,_).
+
+a5_write(X):- 
+	a5(X),thr_writeln(found(a5(X))),fail ; true.
+
+b5_write(X):- 
+	b5(X),thr_writeln(found(b5(X))),fail ; true.
+
+c5_write(X):- 
+	c5(X),thr_writeln(found(c5(X))),fail ; true.
+	
+
+a5(X):- 
+	thr_writeln('created a5'),
+	sleep(1),
+	thr_writeln('a5 calling b5'),
+	b5(X).
+a5(a).
+
+b5(X):- thr_writeln('created b5'),
+	sleep(1),
+	thr_writeln('b5 calling c5'),
+	c5(X).
+b5(b).
+
+c5(X):- thr_writeln('created c5'),
+	sleep(1),
+	thr_writeln('c5 calling a5'),
+	a5(X).
+c5(c).
+
+%------------------------------------------
+%SCC is a6   c6
+%       b6 - d6
+
+:- table a6/1, b6/1, c6/1, d6/1.
+:- thread_shared a6/1, b6/1, c6/1, d6/1.
+
+scc_test6:- 
+	xsb_thread_create(a6_write(_),One,[]),
+	xsb_thread_create(c6_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a6_write(X):- 
+	a6(X),thr_writeln(found(a6(X))),fail ; true.
+
+c6_write(X):- 
+	c6(X),thr_writeln(found(c6(X))),fail ; true.
+
+a6(X):- thr_writeln('created a6'),b6(X).
+a6(a).
+
+b6(X):- thr_writeln('created b6'),a6(X).
+b6(X):- thr_writeln('second clause b6'),
+	sleep(1),
+	thr_writeln('b6 calling d6'),
+	d6(X).
+
+c6(X):- thr_writeln('created c6'),d6(X).
+c6(c).
+
+d6(X):- thr_writeln('created d6'),c6(X).
+d6(X):- thr_writeln('second clause d6'),
+	sleep(1),
+	thr_writeln('d6 calling b6'),
+	b6(X).
+
+
+%------------------------------------------
+%SCC is a7    c7
+%       b7 -\ d7
+
+:- table a7/1, b7/1, c7/1, d7/1.
+:- thread_shared a7/1, b7/1, c7/1, d7/1.
+
+scc_test7:- 
+	xsb_thread_create(a7_write(_),One,[]),
+	xsb_thread_create(c7_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a7_write(X):- 
+	a7(X),thr_writeln(found(a7(X))),fail ; true.
+
+c7_write(X):- 
+	c7(X),thr_writeln(found(c7(X))),fail ; true.
+
+a7(X):- thr_writeln('created a7'),b7(X).
+a7(a).
+
+b7(X):- thr_writeln('created b7'),a7(X).
+b7(X):- thr_writeln('second clause b7'),
+	sleep(1),
+	thr_writeln('b7 calling d7'),
+	d7(X).
+
+c7(X):- thr_writeln('created c7'),d7(X).
+c7(c).
+
+d7(X):- thr_writeln('created d7'),c7(X).
+d7(X):- thr_writeln('second clause d7'),
+	sleep(1),
+	thr_writeln('d7 calling a7'),
+	a7(X).
+
+%------------------------------------------
+%SCC is a8   c8
+%       b8 X d8
+
+:- table a8/1, b8/1, c8/1, d8/1.
+:- thread_shared a8/1, b8/1, c8/1, d8/1.
+
+scc_test8:- 
+	xsb_thread_create(a8_write(_),One,[]),
+	xsb_thread_create(c8_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a8_write(X):- 
+	a8(X),thr_writeln(found(a8(X))),fail ; true.
+
+c8_write(X):- 
+	c8(X),thr_writeln(found(c8(X))),fail ; true.
+
+a8(X):- thr_writeln('created a8'),b8(X).
+a8(a).
+
+b8(X):- thr_writeln('created b8'),a8(X).
+b8(X):- thr_writeln('second clause b8'),
+	sleep(1),
+	thr_writeln('b8 calling c8'),
+	c8(X).
+
+c8(X):- thr_writeln('created c8'),d8(X).
+c8(c).
+
+d8(X):- thr_writeln('created d8'),c8(X).
+d8(X):- thr_writeln('second clause d8'),
+	sleep(1),
+	thr_writeln('d8 calling a8'),
+	a8(X).
+
+%------------------------------------------
+%SCC is a9 - c9
+%       b9   d9
+
+:- table a9/1, b9/1, c9/1, d9/1.
+:- thread_shared a9/1, b9/1, c9/1, d9/1.
+
+scc_test9:- 
+	xsb_thread_create(a9_write(_),One,[]),
+	xsb_thread_create(c9_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a9_write(X):- 
+	a9(X),thr_writeln(found(a9(X))),fail ; true.
+
+c9_write(X):- 
+	c9(X),thr_writeln(found(c9(X))),fail ; true.
+
+a9(X):- thr_writeln('created a9'),b9(X).
+a9(X):- thr_writeln('second clause a9'),
+	sleep(1),
+	thr_writeln('a9 calling c9'),
+	c9(X).
+a9(a).
+
+b9(X):- thr_writeln('created b9'),a9(X).
+
+c9(X):- thr_writeln('created c9'),d9(X).
+c9(X):- thr_writeln('second clause c9'),
+	sleep(1),
+	thr_writeln('c9 calling a9'),
+	a9(X).
+c9(c).
+
+d9(X):- thr_writeln('created d9'),c9(X).
+
+%------------------------------------------
+% Can be grabbed by either first or second process.
+%SCC is x10 - a10 - c10
+%           - b10   d10
+
+:- table a10/1, b10/1, c10/1, d10/1, x10/1.
+:- thread_shared a10/1, b10/1, c10/1, d10/1, x10/1.
+
+scc_test10:- 
+	xsb_thread_create(x10_write(_),One,[]),
+	xsb_thread_create(c10_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+x10_write(X):- 
+	x10(X),thr_writeln(found(x10(X))),fail ; true.
+
+a10_write(X):- 
+	a10(X),thr_writeln(found(a10(X))),fail ; true.
+
+c10_write(X):- 
+	c10(X),thr_writeln(found(c10(X))),fail ; true.
+
+x10(X):- thr_writeln('created x10'),a10(X).
+x10(X):- thr_writeln('second clause x10'),
+	sleep(1),
+	thr_writeln('x10 calling c10'),
+	c10(X).
+x10(x).
+
+a10(X):- thr_writeln('created a10'),b10(X).
+a10(X):- thr_writeln('second clause a10'),
+	sleep(1),
+	thr_writeln('a10 calling c10'),
+	c10(X) ;x10(Y),Y=X.
+a10(a).
+
+b10(X):- thr_writeln('created b10'),a10(X).
+
+c10(X):- thr_writeln('created c10'),d10(X).
+c10(X):- thr_writeln('second clause c10'),
+	sleep(1),
+	thr_writeln('c10 calling a10'),
+	a10(X).
+c10(c).
+
+d10(X):- thr_writeln('created d10'),c10(X).
+
+%------------------------------------------
+%SCC is x11 - a11 - c11 - y11
+%           - b11   d11
+
+:- table a11/1, b11/1, c11/1, d11/1, x11/1, y11/1.
+:- thread_shared a11/1, b11/1, c11/1, d11/1, x11/1, y11/1.
+
+scc_test11:- 
+	xsb_thread_create(x11_write(_),One,[]),
+	xsb_thread_create(y11_write(_),Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+x11_write(X):- 
+	x11(X),thr_writeln(found(x11(X))),fail ; true.
+
+y11_write(X):- 
+	y11(X),thr_writeln(found(y11(X))),fail ; true.
+
+a11_write(X):- 
+	a11(X),thr_writeln(found(a11(X))),fail ; true.
+
+c11_write(X):- 
+	c11(X),thr_writeln(found(c11(X))),fail ; true.
+
+y11(X):- thr_writeln('created y11'),a11(X).
+y11(X):- thr_writeln('second clause x11'),
+	sleep(1),
+	thr_writeln('y11 calling x11'),
+	x11(X).
+y11(y).
+
+x11(X):- thr_writeln('created x11'),c11(X).
+x11(X):- thr_writeln('second clause x11'),
+	sleep(1),
+	thr_writeln('x11 calling y11'),
+	y11(X).
+x11(x).
+
+a11(X):- thr_writeln('created a11'),b11(X).
+a11(X):- thr_writeln('second clause a11'),
+	sleep(1),
+	thr_writeln('a11 calling c11'),
+	c11(X) ;x11(Y),Y=X.
+a11(a).
+
+b11(X):- thr_writeln('created b11'),a11(X).
+
+c11(X):- thr_writeln('created c11'),d11(X).
+c11(X):- thr_writeln('second clause c11'),
+	sleep(1),
+	thr_writeln('c11 calling a11'),
+	a11(X).
+c11(c).
+
+d11(X):- thr_writeln('created d11'),c11(X).
+
+%------------------------------------------
+%SCC is x11n - a11n - c11n - y11n
+%           - b11n   d11n
+% y11n is tnot x11n
+
+:- table a11n/0, b11n/0, c11n/0, d11n/0, x11n/0, y11n/0.
+:- thread_shared a11n/0, b11n/0, c11n/0, d11n/0, x11n/0, y11n/0.
+
+scc_test11n:- 
+	xsb_thread_create(x11n_write,One,[]),
+	xsb_thread_create(y11n_write,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+x11n_write:- 
+	x11n,thr_writeln(found(x11n)),fail ; true.
+
+y11n_write:- 
+	y11n,thr_writeln(found(y11n)),fail ; true.
+
+a11n_write:- 
+	a11n,thr_writeln(found(a11n)),fail ; true.
+
+c11n_write:- 
+	c11n,thr_writeln(found(c11n)),fail ; true.
+
+y11n:- thr_writeln('created y11n'),a11n.
+y11n:- thr_writeln('second clause x11n'),
+	sleep(1),
+	thr_writeln('y11n calling x11n'),
+	tnot(x11n).
+
+x11n:- thr_writeln('created x11n'),c11n.
+x11n:- thr_writeln('second clause x11n'),
+	sleep(1),
+	thr_writeln('x11n calling y11n'),
+	y11n.
+
+a11n:- thr_writeln('created a11n'),b11n.
+a11n:- thr_writeln('second clause a11n'),
+	sleep(1),
+	thr_writeln('a11n calling c11n'),
+	c11n.
+
+b11n:- thr_writeln('created b11n'),a11n.
+
+c11n:- thr_writeln('created c11n'),d11n.
+c11n:- thr_writeln('second clause c11n'),
+	sleep(1),
+	thr_writeln('c11n calling a11n'),
+	a11n.
+
+d11n:- thr_writeln('created d11n'),c11n.
+
+%--------------------------------------------------
+
+:- table a1n/0, b1n/0.
+:- thread_shared a1n/0, b1n/0.
+
+scc_test1n:- 
+	xsb_thread_create(a1n,One,[]),
+	xsb_thread_create(b1n,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a1n:- 
+	thr_writeln('created a1n'),
+	sleep(1),
+	thr_writeln('a1n1n calling b1n'),
+	tnot(b1n).
+
+b1n:-    thr_writeln('created b1n'),
+	sleep(1),
+	thr_writeln('b1n calling a1n'),
+	a1n.
+
+%--------------------------------------------------
+% a1n1 calls b1n1, SLG-suspends, and fails
+:- table a1n1/0, b1n1/0.
+:- thread_shared a1n1/0, b1n1/0.
+
+scc_test1n1:- 
+	xsb_thread_create(a1n1,One,[]),
+	xsb_thread_create(b1n1,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a1n1:- 
+	thr_writeln('created a1n1'),
+	sleep(1),
+	thr_writeln('a1n11n1 calling b1n1'),
+	tnot(b1n1).
+
+b1n1:-    thr_writeln('created b1n1'),
+	sleep(1).
+
+%--------------------------------------------------
+% a1n2 calls b1n2, SLG-suspends, and succeeds
+
+:- table a1n2/0, b1n2/0.
+:- thread_shared a1n2/0, b1n2/0.
+
+scc_test1n2:- 
+	xsb_thread_create(a1n2,One,[]),
+	xsb_thread_create(b1n2,Two,[]),
+	xsb_thread_join(One,_),
+	xsb_thread_join(Two,_).
+
+a1n2:- 
+	thr_writeln('created a1n2'),
+	sleep(1),
+	thr_writeln('a1n21n2 calling b1n2'),
+	tnot(b1n2).
+
+b1n2:-    thr_writeln('created b1n2'),
+	sleep(1),fail.
+
+end_of_file.

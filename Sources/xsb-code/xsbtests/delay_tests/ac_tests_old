@@ -1,0 +1,173 @@
+(d(r1) :- [])
+(d(r1) :- [])
+(d(r1) :- [])
+(d(r1) :- [])
+(d(r2) :- [])
+(d(r2) :- [])
+(d(r2) :- [])
+(d(r2) :- [])
+(d(s1) :- [])
+(d(s1) :- [])
+(d(s1) :- [])
+(d(s1) :- [])
+(d(s2) :- [])
+(d(s2) :- [])
+(d(s2) :- [])
+(d(s2) :- [])
+(e(r1) :- [])
+(e(r1) :- [])
+(e(r2) :- [])
+(e(r2) :- [])
+(e(r3) :- [])
+(e(r3) :- [])
+(e(r4) :- [])
+(e(r4) :- [])
+(e(r5) :- [])
+(e(r5) :- [])
+(e(r6) :- [])
+(e(r6) :- [])
+(e(s1) :- [])
+(e(s1) :- [])
+(e(s2) :- [])
+(e(s2) :- [])
+(e(s3) :- [])
+(e(s3) :- [])
+(e(s4) :- [])
+(e(s4) :- [])
+(e(s5) :- [])
+(e(s5) :- [])
+(e(s6) :- [])
+(e(s6) :- [])
+(f(r1) :- [])
+(f(r1) :- [])
+(f(r2) :- [])
+(f(r2) :- [])
+(f(r3) :- [])
+(f(r3) :- [])
+(f(r4) :- [])
+(f(r4) :- [])
+(f(r5) :- [])
+(f(r5) :- [])
+(f(r6) :- [])
+(f(r6) :- [])
+(f(s1) :- [])
+(f(s1) :- [])
+(f(s2) :- [])
+(f(s2) :- [])
+(f(s3) :- [])
+(f(s3) :- [])
+(f(s4) :- [])
+(f(s4) :- [])
+(f(s5) :- [])
+(f(s5) :- [])
+(f(s6) :- [])
+(f(s6) :- [])
+(g(p6) :- [[g(t6)],[tnot g(p7)]])
+(g(p6) :- [[tnot g(p7)],[g(t6)]])
+(g(p7) :- [[tnot g(p8)]])
+(g(p7) :- [[tnot g(p8)]])
+(g(p8) :- [[undefined]])
+(g(p8) :- [[undefined]])
+(g(r6) :- [])
+(g(r6) :- [])
+(g(s6) :- [[tnot g(p6)]])
+(g(s6) :- [[tnot g(p6)]])
+(g(t6) :- [[g(p6)]])
+(g(t6) :- [[g(p6)]])
+(p1(b,A) :- [[p13a(f(B),b,f(B))],[p13a(f(b),b,f(c))],[p13a(a,b,c)]])
+(p13a(a,b,c) :- [[undefined]])
+(p13a(f(A),b,f(A)) :- [[undefined]])
+(p13a(f(b),b,f(c)) :- [[undefined]])
+(p2 :- [[p23a(a,f(A),b),p23a(a,f(A),b)],[p23a(f(B),f(B),C),p23a(f(B),f(B),C)],[p23a(f(D),f(E),F),p23a(f(D),f(E),F)],[p23a(f(G),f(H),I),p23a(f(G),f(H),I)]])
+(p23a(a,f(A),b) :- [[undefined]])
+(p23a(f(A),f(A),B) :- [[undefined]])
+(p23a(f(A),f(B),C) :- [[undefined]])
+(p3 :- [[p31b(f(A)),p31a(f(A))],[p31a(f(B)),p31b(f(B))],[p31b(f(a)),p31a(f(a))],[p31a(f(a)),p31b(f(a))],[p31b(f(C)),p31a(f(C))],[p31a(f(D)),p31b(f(D))],[p31b(f(a)),p31a(f(a))],[p31a(f(a)),p31b(f(a))],[p31b(f(E)),p31a(f(E))],[p31a(f(F)),p31b(f(F))],[p31b(f(a)),p31a(f(a))],[p31a(f(a)),p31b(f(a))],[p31b(f(G)),p31a(f(G))],[p31a(f(H)),p31b(f(H))],[p31b(f(a)),p31a(f(a))],[p31a(f(a)),p31b(f(a))],[p31b(f(I)),p31a(f(I))],[p31a(f(J)),p31b(f(J))]])
+(p31a(f(A)) :- [[undefined]])
+(p31a(f(a)) :- [[undefined]])
+(p31b(f(A)) :- [[undefined]])
+(p31b(f(a)) :- [[undefined]])
+(p4 :- [[p41b(f(a)),p41a(f(a))],[p41a(f(a)),p41b(f(a))],[p41b(f(A)),p41a(f(A))],[p41a(f(B)),p41b(f(B))],[p41b(f(a)),p41a(f(a))],[p41a(f(a)),p41b(f(a))],[p41b(f(C)),p41a(f(C))],[p41a(f(D)),p41b(f(D))],[p41b(f(a)),p41a(f(a))],[p41a(f(a)),p41b(f(a))],[p41b(f(E)),p41a(f(E))],[p41a(f(F)),p41b(f(F))],[p41b(f(a)),p41a(f(a))],[p41a(f(a)),p41b(f(a))],[p41b(f(G)),p41a(f(G))],[p41a(f(H)),p41b(f(H))]])
+(p41a(f(A)) :- [[undefined]])
+(p41a(f(a)) :- [[undefined]])
+(p41b(f(A)) :- [[undefined]])
+(p41b(f(a)) :- [[undefined]])
+(p5(A) :- [[p51a(f(A,B)),p51b(f(A))],[p51a(f(C,A)),p51b(f(A))]])
+(p51a(f(A,B)) :- [[undefined]])
+(p51b(f(A)) :- [[undefined]])
+(p6(A) :- [[p6a(f(B)),p6b(f(A,B))]])
+(p6a(f(A)) :- [[undefined]])
+(p6b(f(A,B)) :- [[undefined]])
+(p7(A) :- [[p7a(f(B)),p7b(g(B,A))],[p7a(f(C)),p7b(g(A,C))]])
+(p7a(f(A)) :- [[undefined]])
+(p7b(g(A,B)) :- [[undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+(undefined :- [[tnot undefined]])
+d(Var)
+d(Var)
+d(r1) - true
+d(r1) - true
+d(r2) - true
+d(r2) - true
+d(s1) - true
+d(s1) - true
+d(s2) - true
+d(s2) - true
+e(Var)
+e(r1) - true
+e(r2) - true
+e(r3) - true
+e(r4) - true
+e(r5) - true
+e(r6) - true
+e(s1) - true
+e(s2) - true
+e(s3) - true
+e(s4) - true
+e(s5) - true
+e(s6) - true
+f(Var)
+f(r1) - true
+f(r2) - true
+f(r3) - true
+f(r4) - true
+f(r5) - true
+f(r6) - true
+f(s1) - true
+f(s2) - true
+f(s3) - true
+f(s4) - true
+f(s5) - true
+f(s6) - true
+g(Var)
+g(p6) - undefined
+g(p7) - undefined
+g(p8) - undefined
+g(r6) - true
+g(s6) - undefined
+g(t6) - undefined
+p1(Var0,Var1)
+p1(b,A) - undefined
+p2
+p3
+p4
+p5(A) - undefined
+p5(Var)
+p6(A) - undefined
+p6(Var)
+p7(A) - undefined
+p7(Var)
+test_d1
+test_d2
+tnot e(p1)
+tnot e(p1) - true
+tnot e(s1)
+tnot e(s1) - failed
+top
+top - true

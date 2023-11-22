@@ -1,0 +1,86 @@
+%:- import start_forest_view/1 from tables.
+%?- start_forest_view(userout).
+:- import prepare/1 from gensym.
+:- import print_idg_info/0 from tables.
+:- import incr_is_invalid/3 from increval.
+
+?- prepare(100).
+
+test:- add,show(1),
+        add,show(2),
+        refresh(1),
+	show(3),
+        refresh(2),
+        show(4).
+%	show_inval,
+%        print_idg_info.
+
+show_inval:- subgoal_property(r(X,Y),[incremental,I]),writeln(state(r(X,Y),I)),fail.
+show_inval:- incr_is_invalid(r(X,Y),False,_H),writeln(fc(r(X,Y),False)),fail.
+show_inval:- subgoal_property(s(1,Y),[incremental,I]),writeln(state(s(1,Y),I)),fail.
+show_inval:- incr_is_invalid(s(1,Y),False,_H),writeln(fc(s(1,Y),False)),fail.
+show_inval:- subgoal_property(q(X),[incremental,I]),writeln(state(q(X),I)),fail.
+show_inval:- incr_is_invalid(q(X),False,_H),writeln(fc(q(X),False)),fail.
+show_inval.
+
+:- table p/2, r/2, s/2, q/1 as incremental.
+:- dynamic qqq/1.
+
+:- import incr_invalidate_call/1 from increval.
+
+refresh(N) :- incr_invalidate_call(q(_)),writeln(refreshed(N)).
+%refresh :- incr_invalidate_call(s(1,_)).
+
+r(X,Z) :- p(X,Y), s(Y,Z).
+s(1,Z) :- q(_), qqq(Z).
+
+q(_).
+p(2,1).
+
+add :- gensym:gensym(abc,X), assert(qqq(X)).
+
+show(N) :- r(X,Z), writeln(showing(N,r(X,Z))), fail.
+show(_).
+
+end_of_file.
+
+This bug is very bad, and I don't have a workaround.
+If you can't fix it quickly, at least please  suggest a workaround.
+
+Please  see the attached file.
+
+Load the attached inval.P and execute:
+
+| ?- add.  %% assert into qqq/1.
+
+yes
+| ?- show.    %% shows what's derived in incr tabled r/2
+r(2,abc56)  
+
+yes
+| ?- add.     %% add more to qqq/1
+
+yes
+| ?- show.       %% r/2 didn't change - this is ok because qqq/2 is not incremental
+r(2,abc56)
+
+yes
+| ?- refresh.    %%  invalidate q(_) - tabled incr. Since r/2 depends on q/1, this should invalidate the table for r/2
+
+   yes
+   | ?- show.        %% but it didn't!
+r(2,abc56)
+
+yes
+| ?- refresh.     %% do another invalidate on q(_)
+
+yes
+| ?- show.        %% Now it did invalidate the table.
+r(2,abc57)
+r(2,abc56)
+
+
+Why doesn't  it invalidate the table the first time??
+
+   Also, it is not enough to invalidate q(_) twice in a row -- you
+   have to query r/2 in-between, which is obviously another problem.

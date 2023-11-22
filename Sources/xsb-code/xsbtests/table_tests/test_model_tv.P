@@ -1,0 +1,20 @@
+:- import truth_value/2 from tables.
+:- import xsb_error_get_tag/2 from error_handler.
+:- import numbervars/1 from num_vars.
+
+:- table p/2.
+p(a,b).
+p(a,c):- undefined.
+
+nt(a,b).
+
+:- table p/1.
+p(F):- truth_value(p(_),F).
+
+test:- truth_value(p(X,Y),F),numbervars(p(X,Y)),writeln(found(p(X,Y),F)),fail.
+test:- truth_value(p(c,Y),F),numbervars(p(c,Y)),writeln(found(p(c,Y),F)),fail.
+test:- truth_value(nt(a,b),F),writeln(found(nt(a,b),F)),fail.
+test:- truth_value(nt(b,a),F),writeln(found(nt(b,a),F)),fail.
+test:- catch(truth_value(undef(a,b),_),E,(xsb_error_get_tag(E,T),writeln(T))),fail.
+test:- catch(truth_value(p(_X),_),E,(xsb_error_get_tag(E,T),numbervars(T),writeln(T))),fail.
+test.

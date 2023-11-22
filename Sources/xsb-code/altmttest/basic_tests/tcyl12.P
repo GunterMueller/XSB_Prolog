@@ -1,0 +1,13 @@
+
+:- ['tcyl-24-24-2'].
+
+:- table a/2.
+
+test(Str) :- a(1,Y), writeln(Str,a(1,Y)), fail.
+test(_).	
+
+ts(X) :- statistics, a(X,Y), fail.
+ts(_) :- statistics.
+
+a(X,Y) :- cyl(X,Y).
+a(X,Y) :- a(X,Z), cyl(Z,Y).

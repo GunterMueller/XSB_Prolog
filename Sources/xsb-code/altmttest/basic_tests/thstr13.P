@@ -1,0 +1,31 @@
+:- table a/2, b/2, c/2.
+
+test(Str) :- tw1(Str); tw2(Str); tw3(Str); true.
+
+tw1(Str) :- a(1,Y),write(Str,a(Y)),nl(Str),fail.
+
+tw2(Str) :- b(1,Y),write(Str,b(Y)),nl(Str),fail.
+
+tw3(Str) :- c(1,Y),write(Str,c(Y)),nl(Str),fail.
+
+a(X,Y) :- p(X,Y).
+a(X,Y) :- a(X,Z),a(Z,Y).
+
+c(X,Y) :- p(X,Y).
+c(X,Y) :- c(X,Z),p(Z,Y).
+
+b(X,Y) :- p(X,Y).
+b(X,Y) :- b(X,Z),p(Z,Y).
+
+p(1,2).
+p(1,7).
+p(7,8).
+p(8,7).
+p(8,9).
+p(8,10).
+p(2,3).
+p(3,4).
+p(4,5).
+p(4,1).
+p(5,1).
+p(1,1).

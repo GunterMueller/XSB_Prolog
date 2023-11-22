@@ -1,0 +1,19 @@
+: Answer: 300, aaa(aaa), bbb(bbb)
+: Answer: 300, aaa, bbb
+: Answer: 300, atom1(atom1), atom2(atom2)
+: Answer: 300, atom1, atom2
+: Answer: 300, ccc(ccc), ddd(ddd)
+: Answer: 300, ccc, ddd
+: Answer: 300, first, second
+: cmain exit
+Answer: 300, first(first), second(second)
+Answer: 300, third(third), fourth(fourth)
+Answer: 300, third, fourth
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)
+Enter a term of the form p(300,atm1,atm2). (or end_of_file.)

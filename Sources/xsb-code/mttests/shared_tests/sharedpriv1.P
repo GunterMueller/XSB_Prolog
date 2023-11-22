@@ -1,0 +1,22 @@
+:- table p/1, q/1.
+
+:- thread_shared p/1.
+
+:- thread_private q/1.
+
+:- thread_shared max/1.
+
+max(2000).
+
+p(X) :- X > 0, X1 is X - 1, q(X1).
+
+q(X) :- X > 0, X1 is X - 1, p(X1).
+
+r(X) :- p(X).
+
+spfail(F) :- max(X), r(X), writeln(F,failure).
+spfail(F) :- writeln(F,success).
+
+
+
+

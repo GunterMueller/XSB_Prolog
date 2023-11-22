@@ -1,0 +1,64 @@
+
+:-import concat_atom/2 from string.
+
+f_arg(a, 200).  f_arg(b, 200).  f_arg(c, 200).  f_arg(d, 200).
+f_arg(a, 200).  f_arg(b, 200).  f_arg(c, 200).  f_arg(d, 200).
+%f_arg(a, 200).  f_arg(b, 200).  f_arg(c, 200).  f_arg(d, 200).
+
+
+f_fun(f, 255).  f_fun(g, 255).  f_fun(h, 255). f_fun(i, 255). f_fun(j, 255).
+f_fun(a, 255).  f_fun(b, 255).  f_fun(c, 255). f_fun(d, 255). f_fun(e, 255).
+%f_fun(m, 255).  f_fun(n, 255).  f_fun(o, 255). f_fun(p, 255). f_fun(q, 255).
+%f_fun(w, 255).  f_fun(x, 255).  f_fun(y, 255). f_fun(z, 255). f_fun(u, 255).
+
+for(N1,N) :- N1 > N, !.
+for(I,N) :- I1 is I + 1, for( I1, N ).
+for(_,_).
+
+
+write_f(H) :-
+	f_arg(X,N),
+	write_func(N,H,X),
+	fail.
+write_f(_).
+
+do_f(_) :-
+	for(1,1000),
+	f_fun(F,N),
+	do_func(N,X),
+	fail.
+do_f(H) :-
+	writeln( H, done ).
+
+do_func(0,_) :- !.
+do_func(N,F) :- !,
+	functor(Fun,F,N),
+	fill_functor( F, 1, N, F ),
+	N1 is N - 1,
+	do_func( N1, F, A ).
+
+
+write_func(0,_,_) :- !.
+write_func(N,Handle,A):-
+	functor(F,f,N),
+	fill_functor( F, 1, N, A ),
+	F =.. L,
+	write_list(Handle,L),
+	N1 is N -1,
+	write_func(N1,Handle,A).
+
+fill_functor( _, I, N, _ ) :- I > N, !.
+fill_functor( F, I, N, A ) :-
+	Z is I * N,
+        number_chars(Z,L),
+        atom_chars(Num,L),
+        concat_atom([A,Num],Arg),
+	arg( I, F, Arg ),
+	I1 is I + 1,
+	fill_functor( F, I1, N, A ).
+	
+write_list(H,[]) :- !.
+write_list(H,[X|L]) :-
+	writeln(H,X),
+	write_list(H,L).
+	

@@ -1,0 +1,5 @@
+test_answers( Tripwire max_answers_for_subgoal hit. The user-set limit on the number of 10 answers for a single subgoaol has been exceeded for test_max_answers(20,_v0))
+test_dense( Tripwire max_scc_subgoals hit.  The user-set limit of 10 incomplete subgoals within a single SCC has been exceeded)
+test_inc( Tripwire max_incomplete_subgoals hit.  The user-set limit of 15 incomplete subgoals within a derivation has been exceeded)
+test_loop( Tripwire max_incomplete_subgoals hit.  The user-set limit of 15 incomplete subgoals within a derivation has been exceeded)
+test_sparse( Tripwire max_incomplete_subgoals hit.  The user-set limit of 15 incomplete subgoals within a derivation has been exceeded)

@@ -1,0 +1,12 @@
+
+
+:- thread_shared p/1.
+
+test :- thread_create( assert(p(1)), Id ),
+	thread_join( Id ),
+	thread_create( (p(X),writeln(goal(X))), Id2 ),
+	thread_join( Id2 ),
+	thread_create( z, Id3 ),
+	thread_join( Id3 ).
+
+z :- p(X), writeln(z(X)).

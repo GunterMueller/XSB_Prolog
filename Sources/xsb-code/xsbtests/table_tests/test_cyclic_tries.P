@@ -1,0 +1,48 @@
+:- import new_trie/1 , trie_intern/2, trie_interned/4, trie_interned/2,  trie_unintern_nr/2,
+	  trie_unintern/2, delete_trie/1, bulk_trie_intern/2,trie_retractall/2  from intern.
+:- import xsb_error_get_message/2 from error_handler.
+
+%:- set_prolog_flag(max_table_answer_list_size,10).
+
+write_cycle_error(E):- 
+       xsb_error_get_message(E,M),
+       make_mt_consistent(M,M1),
+       writeln(M1).
+
+make_mt_consistent(M,M1):- 
+	atom_codes(M,Mlist),
+	(Mlist = [91,116,104,32,48,93,32,32|Rest] ->  atom_codes(M1,Rest) ; M = M1).
+
+test:- create_trie,fail.
+test:- test_term_error,fail.
+test:- test_list_error,fail.
+test:- set_prolog_flag(unify_with_occurs_check,off),fail.
+test:- set_prolog_flag(max_table_answer_size,10),fail.
+test:- test_term_error,fail.
+test:- test_list_error,fail.
+%test:- set_prolog_flag(max_table_answer_size_action,failure),
+%       set_prolog_flag(max_table_answer_list_action,failure),fail.
+%test:- test_term_failure,writeln(test_term_failure_success),fail.
+%test:- test_list_error,writeln(test_list_failure_success),fail.
+test.
+
+create_trie:- new_trie(Trie),assert(cycle_trie(Trie)).
+
+test_term_error:- cycle_trie(Trie),
+       X = f(X),
+%       catch(trie_intern(X,Trie),E,(xsb_error_get_message(E,M),writeln(M))).
+       catch(trie_intern(X,Trie),E,write_cycle_error(E)).
+test_list_error:- 
+       cycle_trie(Trie),
+       X = [X],
+%       catch(trie_intern(X,Trie),E,(xsb_error_get_message(E,M),writeln(M))).
+       catch(trie_intern(X,Trie),E,write_cycle_error(E)).
+
+test_term_failure:- cycle_trie(Trie),
+       X = f(X),
+       trie_intern(X,Trie).
+test_list_failure:- 
+       cycle_trie(Trie),
+       X = [X],
+       trie_intern(X,Trie).
+

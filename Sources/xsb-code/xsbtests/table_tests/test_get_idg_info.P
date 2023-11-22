@@ -1,0 +1,99 @@
+
+
+
+% get_call_from_sf(SF,Call):- 
+% Lost pos/neg depends; need to get terminal preds,scc levels
+
+:- import get_idg_info/2,print_idg_info/2 from tables.
+
+test:-
+     init,
+     get_idg_info(G1,G2),
+%     writeln(G),
+     print_idg_info(G1,G2).
+
+/*
+get_rdg_info(Subgoal,Graph):- 
+    get_residual_sccs(Call,Answer,Scc),
+    rdg_scclist_to_adj_grapth(SccList,Graph).
+
+rdg_scclist_to_adj_grapth([ret(Subgoal,Ans,SCC)|R],[Term|Graph]):-
+    Term = subgoal(Subgoal/Ans,SCC,SF/AnsLeaf,CallsTo,Answers,PosSFList,NegSFList),
+    get_call(CallTerm, SF, _ReturnTemplate),
+    get_callsto_number(SF,CallsTo),
+    get_answer_number(SF,Answers),
+    rdg_get_depends_list(SF,PosSFList),
+    scclist_to_adj_grapth(R,Graph).
+
+Needs to create a list containing SF/Leaf with positive and negative deps.
+rdg_get_depends_list(SF,PosSFList):-
+    Need to redo ans_num.
+
+*/
+
+init:- t8(_F),fail.
+init:- s_1(_F),fail.
+init:- ni_1(_F),fail.
+init:- d8_2(_F),fail.
+init:- t8_0,fail.
+init.
+   
+:- table t8_1/1, t8_11/1,t8_0/0 as incremental.
+t8(_):- t8_1(_),t8_11(_).
+t8_1(_):- d8_2(_).
+t8_1(_):- d8_3(_).
+t8_11(_):- d8_12(_).
+t8_11(_):- d8_13(_).
+t8_0:- t8(_).
+
+:- dynamic d8_2/1, d8_3/1, d8_12/1, d8_13/1 as incremental.
+d8_2(_).
+d8_3(_).
+d8_12(_).
+d8_13(_).
+
+:- table ni_1/1,ni_2/1.
+ni_1(X):- ni_2(X).
+ni_2(_X).
+
+:- table s_1(_),s_2(_) as incremental.
+s_1(_):- s_2(_).
+s_2(_).
+
+end_of_file.
+    
+--------------------
+
+get_idg_info(List):- 
+    idg_get_incr_preds(PredList),
+    get_idg_info_1(PredList,[],List2).
+
+get_idg_info_1([Pred|Rest],In,Out):-
+    idg_get_incr_subgoals_for_pred(PredSkel,CallsForPred),
+    get_idg_info_2(CallsForPred,In,Mid),
+    get_idg_info_1([Pred|Rest],Mid,Out).
+    
+get_idg_info_2([s(Subgoal,SF)|R],[Term|Mid],Out):- 
+    Term = subgoal(Subgoal,_Level,SF,CallsTo,Answers,PosSFList,NegSFList),
+    get_callsto_number(SF,CallsTo),
+    get_answer_number(SF,Answers),
+    get_depends_list(SF,PosSFList).
+
+get_depends_list(SF,SFList):-
+    incr_eval_builtin(IMMED_DEPENDS_SF_LIST, SF, SFList).
+
+
+
+
+
+
+idg_get_incr_subgoals_for_pred(PredSkel,CallsForPred):-
+    setof(s(PredSkel,SF),Template^get_calls(Predskel, SF, Template),CallsForPred).
+
+idg_get_incr_preds(List):-
+    setof(PredSpec,get_incr_preds_1(PredSpec),List),
+    
+idg_get_incr_subgoals_1(Term):-
+    predicate_property(Term,incremental),
+    predicate_property(Term,tabled).
+

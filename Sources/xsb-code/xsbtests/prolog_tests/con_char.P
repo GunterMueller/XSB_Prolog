@@ -1,0 +1,12 @@
+
+test:- 
+	writeln(0'\\ ),
+	writeln(0' ),
+	writeln(0',),
+	writeln(0'n),
+	writeln(0'1),
+	writeln(0'"),
+	writeln(0'`),
+	writeln(0'\n),
+	writeln(0'\t).
+

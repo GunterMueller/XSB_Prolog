@@ -1,0 +1,3 @@
+[Query exhausted user-set memory limit, (currently expanding assert space)]
+[Query exhausted user-set memory limit, (currently expanding global/local stack space)]
+[Query exhausted user-set memory limit, (currently expanding trail/choice point stack space)]

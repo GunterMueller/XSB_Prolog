@@ -1,0 +1,3 @@
+
+In Info.plist.template, XSB-post-makeself-config.sh replaces
+XSB_VERSION with the actual version and Info.plist is created.

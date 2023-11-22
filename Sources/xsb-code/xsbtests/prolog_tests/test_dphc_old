@@ -1,0 +1,6 @@
+d_1(0)
+d_2(1)
+d_3(0)
+d_4(1)
+permission_error(access,non_dynamic,p(A))
+type_error(callable,2)

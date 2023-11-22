@@ -1,0 +1,20 @@
+ignore_1('http://www.wikidata.org/prop/P10').    %   video
+ignore_1('http://www.wikidata.org/prop/P18').    %   image
+ignore_1('http://www.wikidata.org/prop/P345').   %   IMDB id
+ignore_1('http://www.wikidata.org/prop/P1014').  % Getty art and architecture thesaurus id
+ignore_1('http://www.wikidata.org/prop/P1036').  % dewey decimal classification
+ignore_1('http://www.wikidata.org/prop/P1051').  % PSH id ('Czeck library id)
+%P1081 -- Human development index
+ignore_1('http://www.wikidata.org/prop/P1190').  % Universal decimal system
+ignore_1('http://www.wikidata.org/prop/P1245').  % Omega wiki meaning
+ignore_1('http://www.wikidata.org/prop/P1256').  % Iconclass notification
+ignore_1('http://www.wikidata.org/prop/P1282').  % Open streetmap tag
+ignore_1('http://www.wikidata.org/prop/P1292').  % DNP classification ('German library)p12
+ignore_1('http://www.wikidata.org/prop/P1296').  % Wikimedia category
+ignore_1('http://www.wikidata.org/prop/P1343').  % described by source (e.g., Encyclopedia Brittaniignore_1('http://www.wikidata.org/prop/direct/P1343').  % described by source (e.g., Encyclopedia Brittanica, Great Soviet encyclopedia)
+ignore_1 ('http://www.wikidata.org/prop/P1843').  % taxon name
+% 5869 -- model idem.
+
+%This type has properties: the meta proprty is P1963
+%http://www.wikidata.org/prop/direct/P1963,P451
+

@@ -1,0 +1,5 @@
+paddfloats(3.5000,4.5000,8.0000)
+paddints(3,4,7)
+plcsort([113,119,101,114,116,121],[101,113,114,116,119,121])
+psort(qwerty,eqrtwy)
+pswapints(3,4,4,3)

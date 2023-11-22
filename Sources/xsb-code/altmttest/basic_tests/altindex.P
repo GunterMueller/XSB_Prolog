@@ -1,0 +1,6 @@
+
+test(Str) :- 
+      compile(index_t2,[]), consult(index_t2),
+       writeln(Str,'Compiling finished'), fail.
+test(Str) :- writeln(Str,'Test results').
+
